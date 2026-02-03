@@ -77,3 +77,20 @@ canvas {
   .left {
     grid-column: 6 / 12;
   }
+
+  /* Video Section Styles */
+.video-section {
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+  height: 100vh; /* Full viewport height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.background-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Fills section while maintaining aspect ratio */
+}

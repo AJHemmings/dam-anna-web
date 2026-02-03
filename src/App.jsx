@@ -1,5 +1,6 @@
 import { useScrollPosition } from './hooks/useScrollPosition';
 import ThreeBackground from './components/ThreeBackground';
+import VideoSection from './components/sections/VideoSection';
 
 export default function App() {
   const scrollTop = useScrollPosition();
@@ -12,6 +13,8 @@ export default function App() {
         <header>
           <img src="/logo2.png" alt="Dam Anna Logo" />
         </header>
+
+        {/* <VideoSection /> */}
 
         <blockquote>
           <p>We make music</p>
