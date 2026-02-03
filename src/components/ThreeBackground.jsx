@@ -38,20 +38,23 @@ export default function ThreeBackground({ scrollTop }) {
 
     // Load guitar model
     const loader = new GLTFLoader();
-    loader.load(
-      '/models/guitar.glb',
-      function (gltf) {
-        const guitarModel = gltf.scene;
-        guitarModel.scale.set(50, 50, 50);
-        guitarModel.position.set(30, 0, 0);
-        scene.add(guitarModel);
-        guitarRef.current = guitarModel;
-        console.log('Guitar loaded!');
-      },
-      undefined,
-      function (error) {
-        console.error('Error loading guitar:', error);
-      }
+loader.load(
+  '/models/guitar.glb',
+  function (gltf) {
+    const guitarModel = gltf.scene;
+    guitarModel.scale.set(50, 50, 50);
+    guitarModel.position.set(30, 0, 0);
+    scene.add(guitarModel);
+    guitarRef.current = guitarModel;
+    
+    // Apply initial scroll position immediately after loading
+    const t = document.body.getBoundingClientRect().top;
+    guitarModel.position.x = 30 + t * 0.03;
+    guitarModel.position.y = t * 0.01 - 15;
+    guitarModel.rotation.y = t * 0.002;
+    
+    console.log('Guitar loaded!');
+  },
     );
 
     // Lighting
