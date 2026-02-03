@@ -41,7 +41,7 @@ const controls = new OrbitControls(camera, renderer.domElement);
 
 function addStar() {
   const geometry = new THREE.SphereGeometry(0.25, 24, 24);
-  const material = new THREE.MeshStandardMaterial({ color: 0xffffff });
+  const material = new THREE.MeshStandardMaterial({ color: 0x404040   });
   const star = new THREE.Mesh(geometry, material);
 
   const [x, y, z] = Array(3).fill().map(() => THREE.MathUtils.randFloatSpread(100));
@@ -63,7 +63,7 @@ function moveCamera() {
     // Calculate position based on scroll - starts off-screen right, moves to center-left
     // t starts at 0 and becomes more negative as you scroll down
     guitarModel.position.x = 30 + t * 0.03; // Moves from right (30) to left as you scroll
-    guitarModel.position.y = t * 0.01; // Slight vertical movement
+    guitarModel.position.y = (t * 0.01) -15; // Slight vertical movement
     
     // Only horizontal spin (y-axis rotation)
     guitarModel.rotation.y = t * 0.002;
