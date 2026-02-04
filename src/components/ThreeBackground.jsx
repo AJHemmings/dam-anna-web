@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-export default function ThreeBackground({ scrollTop }) {
+export default function ThreeBackground({ scrollTop, onGuitarLoaded }) {
   const canvasRef = useRef(null);
   const sceneRef = useRef(null);
   const guitarRef = useRef(null);
@@ -54,6 +54,11 @@ loader.load(
     guitarModel.rotation.y = t * 0.002;
     
     console.log('Guitar loaded!');
+
+    // Notify that guitar has loaded 
+    if (onGuitarLoaded) {
+      onGuitarLoaded();
+    }
   },
     );
 
