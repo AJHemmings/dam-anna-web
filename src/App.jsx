@@ -11,7 +11,7 @@ export default function App() {
       
       <main>
         <header>
-          <img src="/logo2.png" alt="Dam Anna Logo" />
+          <img src="/logo3-resize.png" alt="Dam Anna Logo" />
         </header>
 
         {/* <VideoSection /> */}
