@@ -11,6 +11,7 @@ This is the official website for Dam Anna. The site features a 3D guitar model r
 - Three.js
 - Vite
 - JavaScript
+- React
 - HTML/CSS
 
 ## Future Plans
