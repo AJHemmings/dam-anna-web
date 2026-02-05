@@ -42,7 +42,7 @@ export default function App() {
         }}
       >
         <HeroSection />
-        <BlockQuote>We make music</BlockQuote>
+        <BlockQuote>We make music.</BlockQuote>
         <GigsSection />
         <PreviousGigsSection />
         {/* <VideoSection /> */}
