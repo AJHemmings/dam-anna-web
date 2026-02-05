@@ -39,6 +39,8 @@ export default function SplashScreen({ isLoaded, onComplete }) {
     
     hasCompletedRef.current = true;
     setIsFadingOut(true);
+
+    onComplete(); // Notify parent immediately when fade-out starts
     
     setTimeout(() => {
       setIsVisible(false);

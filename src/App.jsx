@@ -34,22 +34,13 @@ export default function App() {
         onGuitarLoaded={handleGuitarLoaded}
       />
       
-      <main className={`
-        w-screen 
-        text-white 
-        z-[99] 
-        absolute 
-        w-full 
-        mx-auto 
-        py-[120px] 
-        grid 
-        grid-cols-12
-        transition-opacity 
-        duration-800 
-        ease-in
-        select-none
-        ${splashComplete ? 'opacity-100' : 'opacity-0'}
-      `}>
+      <main 
+        className="text-white z-99 absolute w-full mx-auto py-30 grid grid-cols-12 select-none"
+        style={{
+          opacity: splashComplete ? 1 : 0,
+          transition: 'opacity 0.8s ease-in'
+        }}
+      >
         <HeroSection />
         <BlockQuote>We make music</BlockQuote>
         <GigsSection />
