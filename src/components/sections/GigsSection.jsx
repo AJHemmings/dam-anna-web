@@ -1,7 +1,7 @@
 export default function GigsSection() {
   return (
-    <section>
-      <h2>Gigs!</h2>
+    <section className="col-start-2 col-span-6 p-4 bg-[rgba(15,15,15,0.95)] text-[1.25rem] leading-relaxed mb-[350px]">
+      <h2 className="font-bold text-2xl mb-4">Gigs!</h2>
       <p>
         12st - The Roxy, Los Angeles, CA<br />
         15th - The Viper Room, Los Angeles, CA<br />
