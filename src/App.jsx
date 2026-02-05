@@ -24,19 +24,32 @@ export default function App() {
 
   return (
     <>
-      {!splashComplete && (
-        <SplashScreen 
-          isLoaded={isGuitarLoaded} 
-          onComplete={handleSplashComplete}
-        />
-      )}
+      <SplashScreen 
+        isLoaded={isGuitarLoaded} 
+        onComplete={handleSplashComplete}
+      />
 
       <ThreeBackground 
         scrollTop={scrollTop} 
         onGuitarLoaded={handleGuitarLoaded}
       />
       
-      <main className={splashComplete ? 'visible' : 'hidden'}>
+      <main className={`
+        w-screen 
+        text-white 
+        z-[99] 
+        absolute 
+        w-full 
+        mx-auto 
+        py-[120px] 
+        grid 
+        grid-cols-12
+        transition-opacity 
+        duration-800 
+        ease-in
+        select-none
+        ${splashComplete ? 'opacity-100' : 'opacity-0'}
+      `}>
         <HeroSection />
         <BlockQuote>We make music</BlockQuote>
         <GigsSection />
