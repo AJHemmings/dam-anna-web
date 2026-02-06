@@ -49,6 +49,7 @@ export default function App() {
         <BlockQuote>Let it cook! <br />-Dam Anna</BlockQuote>
         <AboutSection />
         <BlockQuote>Thanks for checking us out!</BlockQuote>
+
       </main>
     </>
   );
