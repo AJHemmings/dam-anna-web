@@ -26,13 +26,13 @@ export default function GigsSection() {
   ];
 
   return (
-    <FramedSection className="col-start-2 col-span-6 mb-87.5">
+    <FramedSection className="mb-0 w-[600px]">
       <h2 className="font-hero text-6xl mb-4">Upcoming Gigs!</h2>
       
       <div className="space-y-3">
         {gigs.map((gig, index) => (
           <div key={index} className="flex justify-between items-center">
-            <div className='font-hero text-3xl'>
+            <div className="font-hero text-2xl">
               <span>{gig.date}</span> - {gig.venue}, {gig.location}
             </div>
             

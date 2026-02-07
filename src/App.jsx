@@ -8,6 +8,8 @@ import PreviousGigsSection from './components/sections/PreviousGigsSection';
 import AboutSection from './components/sections/AboutSection';
 import BlockQuote from './components/sections/BlockQuote';
 import Container from './components/Container';
+import GigPhotosSection from './components/sections/GigPhotoSection';
+import GallerySection from './components/sections/GallerySection';
 // import VideoSection from './components/sections/VideoSection';
 
 export default function App() {
@@ -44,8 +46,14 @@ export default function App() {
       >
         <HeroSection />
         <BlockQuote>We make music.</BlockQuote>
+        <div className="col-start-2 col-span-10 mb-87.5 flex gap-4 items-start">
         <GigsSection />
+        <GigPhotosSection />
+        </div>
+        <div className="col-start-2 col-span-10 mb-87.5 flex gap-4 items-start">
         <PreviousGigsSection />
+        <GallerySection />
+        </div>
         {/* <VideoSection /> */}
         <BlockQuote>Let it cook! <br />-Dam Anna</BlockQuote>
         <AboutSection />

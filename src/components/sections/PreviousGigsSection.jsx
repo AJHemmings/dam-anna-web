@@ -2,14 +2,12 @@ import FramedSection from '../FramedSection';
 
 export default function PreviousGigsSection() {
   return (
-    <FramedSection className="col-start-2 col-span-6 mb-87.5">
+<FramedSection className="mb-0 w-[600px] flex-shrink-0">
       <h2 className="font-hero text-6xl mb-4">Previous Gigs</h2>
       <p className="font-hero text-4xl mb-4">
-        London, UK - The O2 Academy<br />
-        New York, NY - Bowery Ballroom<br />
-        Chicago, IL - Metro Chicago<br />
-        Austin, TX - Stubb's BBQ<br />
-        Seattle, WA - The Crocodile<br />
+        The Newton Pippin - Bracknell<br />
+        The Plough and Harrow - Bracknell<br />
+        The Acoustic Couch - Bracknell<br />
       </p>
 
       {/* <h2 className="font-bold text-2xl mb-4">🏆 Accomplishments</h2>
