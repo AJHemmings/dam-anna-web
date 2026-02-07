@@ -7,6 +7,7 @@ import GigsSection from './components/sections/GigsSection';
 import PreviousGigsSection from './components/sections/PreviousGigsSection';
 import AboutSection from './components/sections/AboutSection';
 import BlockQuote from './components/sections/BlockQuote';
+import Container from './components/Container';
 // import VideoSection from './components/sections/VideoSection';
 
 export default function App() {
@@ -33,7 +34,7 @@ export default function App() {
         scrollTop={scrollTop} 
         onGuitarLoaded={handleGuitarLoaded}
       />
-      
+      <Container>
       <main 
         className="text-white z-99 absolute w-full mx-auto py-30 grid grid-cols-12 select-none"
         style={{
@@ -51,6 +52,7 @@ export default function App() {
         <BlockQuote>Thanks for checking us out!</BlockQuote>
 
       </main>
+      </Container>
     </>
   );
 }
