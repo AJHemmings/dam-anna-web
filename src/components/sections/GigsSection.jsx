@@ -32,8 +32,8 @@ export default function GigsSection() {
       <div className="space-y-3">
         {gigs.map((gig, index) => (
           <div key={index} className="flex justify-between items-center">
-            <div>
-              <span className="font-mrtiger">{gig.date}</span> - {gig.venue}, {gig.location}
+            <div className='font-hero text-3xl'>
+              <span>{gig.date}</span> - {gig.venue}, {gig.location}
             </div>
             
             <a 

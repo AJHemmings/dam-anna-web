@@ -1,7 +1,7 @@
 export default function FramedSection({ children, className = "" }) {
   return (
     <div 
-      className={`p-4 text-[1.25rem] leading-relaxed bg-cover bg-center relative ${className}`}
+      className={`p-4 text-[1.25rem] leading-relaxed bg-cover bg-center relative w-[800px] ${className}`}
       style={{ 
         borderImage: 'url(/boarder1.png) 60 stretch',
         borderWidth: '30px',

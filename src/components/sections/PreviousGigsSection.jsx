@@ -4,7 +4,7 @@ export default function PreviousGigsSection() {
   return (
     <FramedSection className="col-start-2 col-span-6 mb-87.5">
       <h2 className="font-hero text-6xl mb-4">Previous Gigs</h2>
-      <p className="mb-4">
+      <p className="font-hero text-4xl mb-4">
         London, UK - The O2 Academy<br />
         New York, NY - Bowery Ballroom<br />
         Chicago, IL - Metro Chicago<br />
