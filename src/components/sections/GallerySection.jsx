@@ -1,13 +1,10 @@
 import { useState } from 'react';
 import FramedSection from '../FramedSection';
 import GallerySlideshow from '../GallerySlideshow';
-// import GalleryModal from '../GalleryModal'; // TODO: Create in Phase 3
+import GalleryModal from '../GalleryModal'; 
 
 /**
  * GallerySection - Main photo gallery slideshow
- * Size: Square, matches PreviousGigsSection height
- * Position: To the right of PreviousGigsSection
- * Click: Opens gallery modal (Phase 3)
  */
 
 export default function GallerySection() {
@@ -15,8 +12,6 @@ export default function GallerySection() {
 
   function handleImageClick() {
     setIsModalOpen(true);
-    // TODO: Open modal in Phase 3
-    console.log('Gallery clicked - modal will open here in Phase 3');
   }
 
   return (
@@ -25,8 +20,8 @@ export default function GallerySection() {
         <GallerySlideshow onImageClick={handleImageClick} />
       </FramedSection>
 
-      {/* TODO: Add GalleryModal here in Phase 3 */}
-      {/* {isModalOpen && <GalleryModal onClose={() => setIsModalOpen(false)} />} */}
+      {/* GalleryModal */}
+      {isModalOpen && <GalleryModal onClose={() => setIsModalOpen(false)} />}
     </>
   );
 }

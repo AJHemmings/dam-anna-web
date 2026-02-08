@@ -1,13 +1,3 @@
-/**
- * FramedSection - Reusable framed container with decorative border
- * 
- * Customization:
- * - borderImage: Change /boarder1.png to use different frame
- * - borderWidth: Adjust frame thickness (currently 30px)
- * - boxShadow: Modify edge blur effect
- * - bg-black/70: Change overlay darkness (70% = darker, 50% = lighter)
- * - Width: Pass via className prop (e.g., className="w-[600px]")
- */
 export default function FramedSection({ children, className = "" }) {
   return (
     <div 
