@@ -2,9 +2,7 @@ import FramedSection from '../FramedSection';
 import GigPhotosSlideshow from '../GigPhotosSlideshow';
 
 /**
- * GigPhotosSection - Square photo slideshow positioned to the right
- * Size: Configurable square (default 350x350px)
- * Position: Right side of the page
+ * Gig Venue Photos Section
  */
 
 export default function GigPhotosSection() {
