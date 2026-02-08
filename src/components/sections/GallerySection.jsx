@@ -21,7 +21,7 @@ export default function GallerySection() {
 
   return (
     <>
-      <FramedSection className="w-[400px] h-[400px] p-0 flex-shrink-0 ml-50 overflow-visible">
+      <FramedSection className="w-[400px] h-[400px] p-0 flex-shrink-0 ml-50 overflow-visible mt-[-50px]">
         <GallerySlideshow onImageClick={handleImageClick} />
       </FramedSection>
 

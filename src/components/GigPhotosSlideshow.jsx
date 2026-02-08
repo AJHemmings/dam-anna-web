@@ -40,25 +40,31 @@ export default function GigPhotosSlideshow() {
   }, []);
 
   return (
-    <div className="relative w-full h-full overflow-hidden bg-black/50">
-      {GIG_PHOTOS.map((photo, index) => (
-        <div
-          key={index}
-          className={`absolute inset-0 transition-transform duration-1000 ease-in-out ${
-            index === currentIndex
-              ? 'translate-x-0'
-              : index === (currentIndex + 1) % GIG_PHOTOS.length
-              ? 'translate-x-full'
-              : '-translate-x-full'
-          }`}
-        >
-          <img
-            src={photo.url}
-            alt={photo.alt}
-            className="w-full h-full object-cover"
-          />
-        </div>
-      ))}
-    </div>
+<div className="relative w-full h-full overflow-hidden bg-black/50">
+  {GIG_PHOTOS.map((photo, index) => {
+    const position = index === currentIndex ? 'current' 
+      : index === (currentIndex + 1) % GIG_PHOTOS.length ? 'next' 
+      : 'previous';
+    
+    return (
+      <div
+        key={index}
+        className={`absolute inset-0 transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+          position === 'current'
+            ? 'translate-x-0 opacity-100'
+            : position === 'next'
+            ? 'translate-x-full opacity-0'
+            : '-translate-x-full opacity-0'
+        }`}
+      >
+        <img
+          src={photo.url}
+          alt={photo.alt}
+          className="w-full h-full object-cover"
+        />
+      </div>
+    );
+  })}
+</div>
   );
 }
