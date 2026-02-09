@@ -68,9 +68,14 @@ loader.load(
     const ambientLight = new THREE.AmbientLight(0xffffff);
     scene.add(pointLight, ambientLight);
 
-    // Controls
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controlsRef.current = controls;
+// Controls - DISABLED for scroll-driven experience
+// Uncomment to resume manual camera control (will conflict with scroll animation) also uncomment controls.update() in the animation loop and controls.dispose() in the cleanup function
+
+// const controls = new OrbitControls(camera, renderer.domElement);
+// controls.enableZoom = false; // Disable zoom
+// controls.enableRotate = false; // Disable rotation
+// controls.enablePan = false; // Disable panning
+// controlsRef.current = controls;
 
     // Stars
     function addStar() {
@@ -104,7 +109,7 @@ loader.load(
     // Animation loop
     function animate() {
       animationFrameRef.current = requestAnimationFrame(animate);
-      controls.update();
+      // controls.update(); // Uncomment if using OrbitControls
       renderer.render(scene, camera);
     }
     animate();
@@ -116,7 +121,7 @@ loader.load(
         cancelAnimationFrame(animationFrameRef.current);
       }
       renderer.dispose();
-      controls.dispose();
+      // controls.dispose(); // Uncomment if using OrbitControls
     };
   }, []);
 
