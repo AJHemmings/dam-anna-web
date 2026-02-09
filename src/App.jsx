@@ -10,12 +10,18 @@ import BlockQuote from './components/sections/BlockQuote';
 import Container from './components/Container';
 import GigPhotosSection from './components/sections/GigPhotoSection';
 import GallerySection from './components/sections/GallerySection';
+import Navigation from './components/Navigation';
 // import VideoSection from './components/sections/VideoSection';
 
 export default function App() {
   const scrollTop = useScrollPosition();
   const [isGuitarLoaded, setIsGuitarLoaded] = useState(false);
   const [splashComplete, setSplashComplete] = useState(false);
+
+  function handleNavClick(itemId) {
+    console.log(`Navigation item clicked: itemId`);
+    // TODO: Will handle modal and scrolling in future phase after we add more content and sections
+  }
 
   function handleGuitarLoaded() {
     setIsGuitarLoaded(true);
@@ -27,6 +33,7 @@ export default function App() {
 
   return (
     <>
+      <Navigation onNavClick={handleNavClick} />
       <SplashScreen 
         isLoaded={isGuitarLoaded} 
         onComplete={handleSplashComplete}
@@ -38,7 +45,8 @@ export default function App() {
       />
       <Container>
       <main 
-        className="text-white z-99 absolute w-full mx-auto py-30 grid grid-cols-12 select-none"
+      className="text-white z-[99] relative w-full pt-[180px] pb-[120px] grid grid-cols-12 select-none"
+
         style={{
           opacity: splashComplete ? 1 : 0,
           transition: 'opacity 0.8s ease-in'
@@ -56,7 +64,9 @@ export default function App() {
         </div>
         {/* <VideoSection /> */}
         <BlockQuote>Let it cook! <br />-Dam Anna</BlockQuote>
+        <div className="col-start-2 col-span-10 mb-87.5 flex gap-4 items-start">
         <AboutSection />
+        </div>
         <BlockQuote>Thanks for checking us out!</BlockQuote>
 
       </main>
