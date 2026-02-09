@@ -46,7 +46,6 @@ export default function App() {
       <Container>
       <main 
       className="text-white z-[99] relative w-full pt-[180px] pb-[120px] grid grid-cols-12 select-none"
-
         style={{
           opacity: splashComplete ? 1 : 0,
           transition: 'opacity 0.8s ease-in'
