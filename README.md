@@ -18,7 +18,6 @@ This is the official website for Dam Anna. The site features a 3D guitar model r
 
 - Add band member profiles
 - Integrate music player
-- Add tour dates section
 - Connect social media feeds
 - Optimize mobile experience
 
