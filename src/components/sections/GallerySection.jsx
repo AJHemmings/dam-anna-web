@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import FramedSection from '../FramedSection';
 import GallerySlideshow from '../GallerySlideshow';
-import GalleryModal from '../GalleryModal'; 
+import GalleryModal from '../modals/GalleryModal'; 
 
 /**
  * GallerySection - Main photo gallery slideshow
