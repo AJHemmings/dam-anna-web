@@ -27,20 +27,41 @@ export default function AboutUsModal({ onClose }) {
     return () => clearTimeout(timer);
   }, []);
 
-  // Lock body scroll when modal opens
+  // Lock body scroll when modal opens (prevent jolt by reserving scrollbar space)
   useEffect(() => {
     const scrollY = window.scrollY;
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
     
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.width = '100%';
-    document.body.style.paddingRight = '${scrollbarWidth}px';
+    // Get elements that need padding compensation
+    const body = document.body;
+    const nav = document.getElementById('main-nav');
+    const container = document.querySelector('.container'); // Container class
+    const main = document.querySelector('main');
+    
+    // Lock scroll and add padding to compensate for hidden scrollbar
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.width = '100%';
+    body.style.overflow = 'hidden';
+    body.style.paddingRight = `${scrollbarWidth}px`;
+    
+    // Add padding to nav, container, and main content
+    if (nav) nav.style.paddingRight = `${scrollbarWidth}px`;
+    if (container) container.style.paddingRight = `${scrollbarWidth}px`;
+    if (main) main.style.paddingRight = `${scrollbarWidth}px`;
 
     return () => {
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      document.body.style.paddingRight = '';
+      // Restore everything
+      body.style.position = '';
+      body.style.top = '';
+      body.style.width = '';
+      body.style.overflow = '';
+      body.style.paddingRight = '';
+      
+      if (nav) nav.style.paddingRight = '';
+      if (container) container.style.paddingRight = '';
+      if (main) main.style.paddingRight = '';
+      
       window.scrollTo(0, scrollY);
     };
   }, []);
