@@ -29,7 +29,7 @@ const BG_OPACITY = 'bg-black/30'; // Options: bg-black/10, bg-black/20, bg-black
 
 export default function Navigation({ onNavClick }) {
   return (
-    <nav 
+    <nav id="main-nav"
       className={`fixed top-0 left-0 right-0 z-[9998] ${BLUR_AMOUNT} ${BG_OPACITY} shadow-lg border-b border-white/10`}
       style={{
         // Fallback for browsers that don't support backdrop-blur
