@@ -12,12 +12,14 @@ import GallerySection from './components/sections/GallerySection';
 import Navigation from './components/Navigation';
 import { scrollToSection, scrollToTop } from './utils/ScrollToSection';
 import AboutUsModal from './components/modals/AboutUsModal';
+import SocialsModal from './components/modals/SocialsModal';
 
 export default function App() {
   const scrollTop = useScrollPosition();
   const [isGuitarLoaded, setIsGuitarLoaded] = useState(false);
   const [splashComplete, setSplashComplete] = useState(false);
   const [isAboutUsModalOpen, setIsAboutUsModalOpen] = useState(false);
+  const [IsSocialsModalOpen, setIsSocialsModalOpen] = useState(false);
 
   function handleNavClick(itemId) {
     console.log(`Navigation item clicked: ${itemId}`);
@@ -31,6 +33,9 @@ export default function App() {
         break;
       case 'about':
         setIsAboutUsModalOpen(true);
+        break;
+      case 'socials':
+        setIsSocialsModalOpen(true);
         break;
       default:
         console.log(`Handler for ${itemId} not implemented yet`);
@@ -87,8 +92,11 @@ export default function App() {
         </main>
       </Container>
 
-      {/* About Us Modal - OUTSIDE Container, OUTSIDE main */}
+      {/* About Us Modal */}
       {isAboutUsModalOpen && <AboutUsModal onClose={() => setIsAboutUsModalOpen(false)} />}
+
+      {/* Socials Modal */}
+      {IsSocialsModalOpen && <SocialsModal onClose={() => setIsSocialsModalOpen(false)} />}
     </>
   );
 }
