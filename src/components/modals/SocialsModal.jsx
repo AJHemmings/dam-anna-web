@@ -19,7 +19,7 @@ const SOCIAL_LINKS = [
     id: 'instagram',
     name: 'Instagram',
     url: 'https://www.instagram.com/damannaofficial', // TODO: Replace with actual URL
-    icon: '/public/icons/instagram.svg', 
+    icon: '/icons/instagram.svg', 
     color: ''
   },
   {
