@@ -104,7 +104,7 @@ export default function AboutUsModal({ onClose }) {
 
       {/* Framed content container with fade + scale animation */}
       <div 
-        className={`relative w-[700px] max-w-full p-8 bg-black/70 text-white text-[1.25rem] leading-relaxed transition-all duration-500 ${
+        className={`relative w-[700px] max-w-full p-8 text-white text-[1.25rem] leading-relaxed transition-all duration-500 ${
           isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
         }`}
         style={{ 
