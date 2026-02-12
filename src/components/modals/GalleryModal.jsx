@@ -16,78 +16,60 @@ import { useState, useEffect } from 'react';
 const BLUR_AMOUNT = 'backdrop-blur-md';  // Options: backdrop-blur-sm, backdrop-blur, backdrop-blur-md, backdrop-blur-lg, backdrop-blur-xl, backdrop-blur-2xl
 const DARKNESS_OVERLAY = 'bg-black/10';  // Options: bg-black/0 (no tint), bg-black/10, bg-black/20, bg-black/30, etc. up to bg-black/100
 
-const GALLERY_IMAGES = [
+export const GALLERY_IMAGES = [
+  { 
+    url: 'https://imagizer.imageshack.com/img924/5730/NKzt2p.jpg', 
+    alt: '3times7 and Dam Anna at The Oval',
+    date: '27-02-26',
+    location: 'London, UK'
+  },
  { 
-    url: 'https://c.ststat.net/content/entimg/news/gigs-and-tours-appoints-resale-specialist-twickets-as-official-partner-1483720627-940x600.jpeg', 
-    alt: 'Gallery photo 1',
-    date: '2024-01-15',
-    location: 'London, UK'
+    url: 'https://imagizer.imageshack.com/img924/3282/80YQww.jpg', 
+    alt: 'Login Lounge Lobby',
+    date: '11-02-26',
+    location: 'Camberley, Surrey'
   },
   { 
-    url: 'https://cdn.prod.website-files.com/655e0fa544c67c1ee5ce01c7/655e0fa544c67c1ee5ce0f58_band-checklist-what-to-bring-to-a-gig.webp', 
-    alt: 'Gallery photo 2',
-    date: '2024-01-20',
-    location: 'Manchester, UK'
+    url: 'https://imagizer.imageshack.com/img921/3122/JkEN3y.jpg', 
+    alt: 'Login Lounge Crowd',
+    date: '11-02-26',
+    location: 'Camberley, Surrey'
   },
   { 
-    url: 'https://gigswithivan.uk/wp-content/uploads/2025/12/1070848.jpg?w=1568', 
-    alt: 'Gallery photo 3',
-    date: '2024-01-25',
-    location: 'Brighton, UK'
+    url: 'https://imagizer.imageshack.com/img924/8242/nxk5QU.jpg', 
+    alt: 'Login Lounge Stage',
+    date: '11-02-26',
+    location: 'Camberley, Surrey'
   },
   { 
-    url: 'https://cdn.thedailymash.co.uk/wp-content/uploads/20211005125443/live-gig-667x375-1.jpg', 
-    alt: 'Gallery photo 4',
-    date: '2024-02-01',
-    location: 'Birmingham, UK'
+    url: 'https://imagizer.imageshack.com/img922/4269/swbJAF.jpg', 
+    alt: 'Login Lounge Showcase',
+    date: '06-02-26',
+    location: 'Bracknell, Berkshire'
   },
   { 
-    url: 'https://assets.londonist.com/uploads/2026/01/i875/sebright-arms-live-room-stage-1-1.jpeg', 
-    alt: 'Gallery photo 5',
-    date: '2024-02-05',
-    location: 'Edinburgh, UK'
+    url: 'https://imagizer.imageshack.com/img921/1148/7KuT6U.jpg', 
+    alt: 'Newton Pippin',
+    date: '04-02-26',
+    location: 'Bracknell, Berkshire'
   },
   { 
-    url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVmkKdQ9GKMzOcPt3lN0sejAejL2lTBPqcPg&s', 
-    alt: 'Gallery photo 6',
-    date: '2024-02-10',
-    location: 'Liverpool, UK'
-  },
-    { 
-    url: 'https://c.ststat.net/content/entimg/news/gigs-and-tours-appoints-resale-specialist-twickets-as-official-partner-1483720627-940x600.jpeg', 
-    alt: 'Gallery photo 1',
-    date: '2024-01-15',
-    location: 'London, UK'
+    url: 'https://imagizer.imageshack.com/img923/8763/TbBxxa.jpg', 
+    alt: 'Feb Gigs!',
+    date: '01-02-26',
+    location: 'Bracknell, Berkshire'
   },
   { 
-    url: 'https://cdn.prod.website-files.com/655e0fa544c67c1ee5ce01c7/655e0fa544c67c1ee5ce0f58_band-checklist-what-to-bring-to-a-gig.webp', 
-    alt: 'Gallery photo 2',
-    date: '2024-01-20',
-    location: 'Manchester, UK'
+    url: 'https://imagizer.imageshack.com/img922/8733/nikTUE.jpg', 
+    alt: 'Acoustic Couch',
+    date: '16-07-25',
+    location: 'Bracknell, Berkshire'
   },
   { 
-    url: 'https://gigswithivan.uk/wp-content/uploads/2025/12/1070848.jpg?w=1568', 
-    alt: 'Gallery photo 3',
-    date: '2024-01-25',
-    location: 'Brighton, UK'
-  },
-  { 
-    url: 'https://cdn.thedailymash.co.uk/wp-content/uploads/20211005125443/live-gig-667x375-1.jpg', 
-    alt: 'Gallery photo 4',
-    date: '2024-02-01',
-    location: 'Birmingham, UK'
-  },
-  { 
-    url: 'https://assets.londonist.com/uploads/2026/01/i875/sebright-arms-live-room-stage-1-1.jpeg', 
-    alt: 'Gallery photo 5',
-    date: '2024-02-05',
-    location: 'Edinburgh, UK'
-  },
-  { 
-    url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVmkKdQ9GKMzOcPt3lN0sejAejL2lTBPqcPg&s', 
-    alt: 'Gallery photo 6',
-    date: '2024-02-10',
-    location: 'Liverpool, UK'
+    url: 'https://imagizer.imageshack.com/img922/6326/U8yGg6.jpg', 
+    alt: 'South Hill Park Summer Jam',
+    date: '12-07-25',
+    location: 'Bracknell, Berkshire'
   },
 ];
 

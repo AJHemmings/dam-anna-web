@@ -6,22 +6,22 @@ export default function GigsSection() {
       date: "11th Feb",
       venue: "The Login Lounge",
       location: "Camberley, Surrey",
-      ticketText: "Free Entry",
-      ticketUrl: "https://example.com/gig1"
+      ticketText: "£6 Tickets",
+      ticketUrl: "hhttps://www.loginlounge.co.uk/"
     },
     {
       date: "19th Feb",
       venue: "Other Space Arts",
       location: "Windsor, Berkshire",
-      ticketText: "£10 Tickets",
-      ticketUrl: "https://example.com/gig2"
+      ticketText: "£6 Tickets",
+      ticketUrl: "https://www.otherspacearts.com/event-details-registration/gsmc-presents-third-thursday-music-2026-02-19-19-30"
     },
     {
       date: "27th Feb",
       venue: "The Oval",
       location: "Croydon, London",
-      ticketText: "£15 Tickets",
-      ticketUrl: "https://example.com/gig3"
+      ticketText: "Free Entry",
+      ticketUrl: "https://theovaltavern.co.uk/"
     }
   ];
 
