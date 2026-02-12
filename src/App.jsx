@@ -15,6 +15,7 @@ import AboutUsModal from './components/modals/AboutUsModal';
 import SocialsModal from './components/modals/SocialsModal';
 import ContactModal from './components/modals/ContactModal';
 import YouModal from './components/modals/YouModal';
+import GalleryModal from './components/modals/GalleryModal';
 
 export default function App() {
   const scrollTop = useScrollPosition();
@@ -24,6 +25,7 @@ export default function App() {
   const [IsSocialsModalOpen, setIsSocialsModalOpen] = useState(false);
   const [IsContactModalOpen, setIsContactModalOpen] =useState(false);
   const [isYouModalOpen, setIsYouModalOpen] = useState(false);
+  const [isGalleryModalOpen, setIsGalleryModalOpen] = useState(false);
 
   function handleNavClick(itemId) {
     console.log(`Navigation item clicked: ${itemId}`);
@@ -43,6 +45,9 @@ export default function App() {
         break;
       case 'contact':
         setIsContactModalOpen(true);
+        break;
+      case 'gallery':
+        setIsGalleryModalOpen(true);
         break;
       case 'you':
         setIsYouModalOpen(true);
@@ -110,6 +115,9 @@ export default function App() {
 
       {/* Contact Modal */}
       {IsContactModalOpen && <ContactModal onClose={() => setIsContactModalOpen(false)} />}
+
+      {/* Gallery Modal */}
+      {isGalleryModalOpen && <GalleryModal onClose={() => setIsGalleryModalOpen(false)} />}
 
       {/* You Modal */}
       {isYouModalOpen && <YouModal onClose={() => setIsYouModalOpen(false)} />}
