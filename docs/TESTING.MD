@@ -10,7 +10,7 @@ This document tracks manual testing for each development phase. Automated testin
 
 **Date:** 2026-02-12  
 **Branch:** `feature/navigation-system`  
-**Tester:** Mak  
+**Tester:** Adam Hemmings 
 **Status:** In Progress
 
 ### Testing Environment
