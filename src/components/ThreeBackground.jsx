@@ -19,7 +19,8 @@ export default function ThreeBackground({ scrollTop, onGuitarLoaded }) {
     // Scene setup
     const scene = new THREE.Scene();
     sceneRef.current = scene;
-
+    
+    // Camera setup
     const camera = new THREE.PerspectiveCamera(
       75,
       window.innerWidth / window.innerHeight,
@@ -29,6 +30,7 @@ export default function ThreeBackground({ scrollTop, onGuitarLoaded }) {
     camera.position.setZ(50);
     cameraRef.current = camera;
 
+    // Renderer setup
     const renderer = new THREE.WebGLRenderer({
       canvas: canvasRef.current,
     });
@@ -47,20 +49,36 @@ loader.load(
     scene.add(guitarModel);
     guitarRef.current = guitarModel;
     
+    
     // Apply initial scroll position immediately after loading
     const t = document.body.getBoundingClientRect().top;
     guitarModel.position.x = 30 + t * 0.03;
     guitarModel.position.y = t * 0.01 - 15;
     guitarModel.rotation.y = t * 0.002;
-    
-    console.log('Guitar loaded!');
 
     // Notify that guitar has loaded 
     if (onGuitarLoaded) {
       onGuitarLoaded();
     }
+
+    if (!animationFrameRef.current) {
+      console.log('Starting animation loop from model load');
+      animate();
+    }
+
+    // return () => {
+    //   console.log('Starting cleanup ThreeBackground');
+    //   if (animationFrameRef.current) {
+    //     cancelAnimationFrame(animationFrameRef.current);
+    //     animationFrameRef.current = null;
+    //   }
+    //   renderer.dispose();
+    // };
   },
-    );
+  undefined,
+function (error) {
+  console.error('Error loading guitar model:', error);
+});
 
     // Lighting
     const pointLight = new THREE.PointLight(0xffffff);
@@ -85,7 +103,7 @@ loader.load(
 
       const [x, y, z] = Array(3)
         .fill()
-        .map(() => THREE.MathUtils.randFloatSpread(100));
+        .map(() => THREE.MathUtils.randFloatSpread(150));
 
       star.position.set(x, y, z);
       scene.add(star);
@@ -112,6 +130,7 @@ loader.load(
       // controls.update(); // Uncomment if using OrbitControls
       renderer.render(scene, camera);
     }
+    console.log('Starting animation loop');
     animate();
 
     // Cleanup
