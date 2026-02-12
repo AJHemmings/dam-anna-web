@@ -14,6 +14,7 @@ import { scrollToSection, scrollToTop } from './utils/ScrollToSection';
 import AboutUsModal from './components/modals/AboutUsModal';
 import SocialsModal from './components/modals/SocialsModal';
 import ContactModal from './components/modals/ContactModal';
+import YouModal from './components/modals/YouModal';
 
 export default function App() {
   const scrollTop = useScrollPosition();
@@ -22,6 +23,7 @@ export default function App() {
   const [isAboutUsModalOpen, setIsAboutUsModalOpen] = useState(false);
   const [IsSocialsModalOpen, setIsSocialsModalOpen] = useState(false);
   const [IsContactModalOpen, setIsContactModalOpen] =useState(false);
+  const [isYouModalOpen, setIsYouModalOpen] = useState(false);
 
   function handleNavClick(itemId) {
     console.log(`Navigation item clicked: ${itemId}`);
@@ -41,6 +43,9 @@ export default function App() {
         break;
       case 'contact':
         setIsContactModalOpen(true);
+        break;
+      case 'you':
+        setIsYouModalOpen(true);
         break;
       default:
         console.log(`Handler for ${itemId} not implemented yet`);
@@ -105,6 +110,9 @@ export default function App() {
 
       {/* Contact Modal */}
       {IsContactModalOpen && <ContactModal onClose={() => setIsContactModalOpen(false)} />}
+
+      {/* You Modal */}
+      {isYouModalOpen && <YouModal onClose={() => setIsYouModalOpen(false)} />}
     </>
   );
 }

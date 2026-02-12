@@ -20,7 +20,7 @@ const NAV_ITEMS = [
   { id: 'gallery', label: 'Gallery', disabled: false },
   { id: 'socials', label: 'Socials', disabled: false },
   { id: 'contact', label: 'Contact', disabled: false },
-  { id: 'you', label: 'You', disabled: true }, // Disabled - coming soon
+  { id: 'you', label: 'You', disabled: false }, 
 ];
 
 // CUSTOMIZATION: Appearance settings
