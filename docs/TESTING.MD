@@ -147,7 +147,8 @@ This document tracks manual testing for each development phase. Automated testin
 
 1. **Modal Body Jolt** - Minor layout shift when scrollbar disappears/reappears. Status: Documented, acceptable UX trade-off.
 2. **Layout Centering** - Large margins on ultra-wide screens. Status: Pinned for fine-tuning phase.
-3. **Mobile Compatability Missing**
+3. **ThreeJS 3D model space** - Ocassionally on refresh the 3D model space get's frozen and user scroll only moves the space rather than animating the 3D object.
+4. **Mobile Compatability Missing**
 
 ### Bugs Found (Blocking)
 
