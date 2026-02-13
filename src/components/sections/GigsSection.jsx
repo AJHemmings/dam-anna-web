@@ -28,7 +28,7 @@ export default function GigsSection() {
       venue: "The Login Lounge",
       location: "Camberley, Surrey",
       ticketText: "£6 Tickets",
-      ticketUrl: "hhttps://www.loginlounge.co.uk/"
+      ticketUrl: "https://www.loginlounge.co.uk/"
     },
     {
       date: "19th Feb",
