@@ -81,7 +81,7 @@ export default function App() {
       
       <Container>
         <main 
-          className="text-white z-[99] relative w-full pt-[180px] pb-[120px] grid grid-cols-12 select-none"
+          className="text-white z-[99] relative w-full pt-[100px] lg:pt-[180px] pb-[60px] lg:pb-[120px] grid grid-cols-1 lg:grid-cols-12 select-none px-4 lg:px-0"
           style={{
             opacity: splashComplete ? 1 : 0,
             transition: 'opacity 0.8s ease-in'
@@ -91,14 +91,17 @@ export default function App() {
           
           <BlockQuote>We make music.</BlockQuote>
           
-          <div id="gigs-section" className="col-start-2 col-span-10 mb-87.5 flex gap-4 items-start">
+          {/* Gigs + Gig Photos: side by side on desktop, stacked on mobile */}
+          <div id="gigs-section" className="lg:col-start-2 lg:col-span-10 mb-20 lg:mb-87.5 flex flex-col lg:flex-row gap-4 items-center lg:items-start">
             <GigsSection />
             <GigPhotosSection />
           </div>
           
-          <div className="col-start-2 col-span-10 mb-87.5 flex gap-4 items-start">
+          {/* Previous Gigs + Gallery: side by side on desktop, stacked on mobile */}
+          <div className="lg:col-start-2 lg:col-span-10 mb-20 lg:mb-87.5 flex flex-col lg:flex-row gap-4 items-center lg:items-start">
             <PreviousGigsSection />
-            <GallerySection />
+            {/* GallerySection triggers the same modal as the nav bar */}
+            <GallerySection onOpenGallery={() => setIsGalleryModalOpen(true)} />
           </div>
           
           <BlockQuote>Let it cook! <br />-Dam Anna</BlockQuote>
@@ -107,19 +110,11 @@ export default function App() {
         </main>
       </Container>
 
-      {/* About Us Modal */}
+      {/* All modals render at top level for correct z-index */}
       {isAboutUsModalOpen && <AboutUsModal onClose={() => setIsAboutUsModalOpen(false)} />}
-
-      {/* Socials Modal */}
       {IsSocialsModalOpen && <SocialsModal onClose={() => setIsSocialsModalOpen(false)} />}
-
-      {/* Contact Modal */}
       {IsContactModalOpen && <ContactModal onClose={() => setIsContactModalOpen(false)} />}
-
-      {/* Gallery Modal */}
       {isGalleryModalOpen && <GalleryModal onClose={() => setIsGalleryModalOpen(false)} />}
-
-      {/* You Modal */}
       {isYouModalOpen && <YouModal onClose={() => setIsYouModalOpen(false)} />}
     </>
   );
