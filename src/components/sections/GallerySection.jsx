@@ -1,27 +1,31 @@
-import { useState } from 'react';
 import FramedSection from '../FramedSection';
 import GallerySlideshow from '../GallerySlideshow';
-import GalleryModal from '../modals/GalleryModal'; 
 
 /**
  * GallerySection - Main photo gallery slideshow
+ * 
+ * NOTE: The GalleryModal is now rendered in App.jsx (single source of truth).
+ * Clicking the slideshow triggers onOpenGallery which App handles.
+ * This ensures the modal always renders at the top level with correct z-index.
+ * 
+ * RESPONSIVE CUSTOMIZATION:
+ * Mobile: Full width up to max, square aspect ratio
+ * Desktop: Fixed dimensions with offset positioning
  */
 
-export default function GallerySection() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+// CUSTOMIZATION: Mobile/tablet max size
+const MOBILE_MAX_WIDTH = 'max-w-[400px]';
 
-  function handleImageClick() {
-    setIsModalOpen(true);
-  }
+// CUSTOMIZATION: Desktop fixed dimensions
+const DESKTOP_SIZE = 'lg:w-[400px] lg:h-[400px]';
 
+// CUSTOMIZATION: Desktop offset positioning
+const DESKTOP_OFFSET = 'lg:ml-50 lg:mt-[-50px]';
+
+export default function GallerySection({ onOpenGallery }) {
   return (
-    <>
-      <FramedSection className="w-[400px] h-[400px] p-0 flex-shrink-0 ml-50 overflow-visible mt-[-50px]">
-        <GallerySlideshow onImageClick={handleImageClick} />
-      </FramedSection>
-
-      {/* GalleryModal */}
-      {isModalOpen && <GalleryModal onClose={() => setIsModalOpen(false)} />}
-    </>
+    <FramedSection className={`w-full ${MOBILE_MAX_WIDTH} aspect-square ${DESKTOP_SIZE} p-0 flex-shrink-0 ${DESKTOP_OFFSET} overflow-visible`}>
+      <GallerySlideshow onImageClick={onOpenGallery} />
+    </FramedSection>
   );
 }

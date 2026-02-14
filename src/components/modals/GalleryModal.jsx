@@ -1,20 +1,49 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 /**
  * GalleryModal - Full-screen gallery view with thumbnail grid
  * 
  * Features:
  * - Dark grey scrollable background
- * - Grid of thumbnails (configurable columns)
- * - Hover: thumbnail scales up, shows metadata
- * - Click thumbnail: shows enlarged view
+ * - Grid of thumbnails (responsive: 2 cols mobile, 3 cols desktop)
+ * - DESKTOP ONLY: Hover thumbnail scales up and shows metadata overlay
+ * - MOBILE/TABLET: No hover metadata on thumbnails (prevents sticky overlay bug)
+ * - Click thumbnail: shows enlarged view with metadata BELOW the image
+ * - SWIPE: Swipe left/right on enlarged image to navigate between photos
+ * - ARROWS: Previous/next arrows on enlarged view (desktop + mobile)
  * - Click outside or close button: exits modal
  * - Locks body scroll when open
+ * 
+ * RESPONSIVE CUSTOMIZATION:
+ * Adjust the constants below to control sizes at each breakpoint.
  */
 
-// CUSTOMIZATION: Adjust these values
-const BLUR_AMOUNT = 'backdrop-blur-md';  // Options: backdrop-blur-sm, backdrop-blur, backdrop-blur-md, backdrop-blur-lg, backdrop-blur-xl, backdrop-blur-2xl
-const DARKNESS_OVERLAY = 'bg-black/10';  // Options: bg-black/0 (no tint), bg-black/10, bg-black/20, bg-black/30, etc. up to bg-black/100
+// CUSTOMIZATION: Backdrop appearance
+const BLUR_AMOUNT = 'backdrop-blur-md';
+const DARKNESS_OVERLAY = 'bg-black/10';
+
+// CUSTOMIZATION: Gallery title size per breakpoint
+const TITLE_SIZE = 'text-3xl md:text-5xl lg:text-8xl';
+
+// CUSTOMIZATION: Grid columns per breakpoint
+const GRID_COLS = 'grid-cols-2 md:grid-cols-2 lg:grid-cols-3';
+
+// CUSTOMIZATION: Grid gap per breakpoint
+const GRID_GAP = 'gap-3 md:gap-4 lg:gap-6';
+
+// CUSTOMIZATION: Grid padding per breakpoint
+const GRID_PADDING = 'px-4 md:px-6 lg:px-8';
+
+// CUSTOMIZATION: Close button position (top value clears the nav bar)
+const CLOSE_BTN_TOP = 'top-20 md:top-20 lg:top-8';
+const CLOSE_BTN_SIZE = 'text-3xl md:text-3xl lg:text-4xl';
+
+// CUSTOMIZATION: Enlarged image metadata text size
+const META_TITLE_SIZE = 'text-xs md:text-sm lg:text-base';
+const META_SUBTITLE_SIZE = 'text-xs md:text-xs lg:text-sm';
+
+// CUSTOMIZATION: Swipe sensitivity (minimum px distance to trigger swipe)
+const SWIPE_THRESHOLD = 50;
 
 export const GALLERY_IMAGES = [
   { 
@@ -73,21 +102,120 @@ export const GALLERY_IMAGES = [
   },
 ];
 
+/**
+ * Detect if the device uses a coarse pointer (touch-primary).
+ * Used to disable hover metadata on thumbnails for mobile/tablet.
+ */
+function useIsTouchDevice() {
+  const [isTouch, setIsTouch] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(pointer: coarse)').matches;
+  });
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(pointer: coarse)');
+    function handleChange(e) {
+      setIsTouch(e.matches);
+    }
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
+  return isTouch;
+}
+
+/**
+ * Custom hook for swipe detection on touch devices.
+ * Returns a ref to attach to the swipeable element.
+ * Calls onSwipeLeft/onSwipeRight when a horizontal swipe is detected.
+ */
+function useSwipe({ onSwipeLeft, onSwipeRight }) {
+  const touchStartX = useRef(null);
+  const touchStartY = useRef(null);
+  const elementRef = useRef(null);
+
+  useEffect(() => {
+    const el = elementRef.current;
+    if (!el) return;
+
+    function handleTouchStart(e) {
+      touchStartX.current = e.touches[0].clientX;
+      touchStartY.current = e.touches[0].clientY;
+    }
+
+    function handleTouchEnd(e) {
+      if (touchStartX.current === null) return;
+
+      const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+      const deltaY = e.changedTouches[0].clientY - touchStartY.current;
+
+      // Only trigger if horizontal movement is dominant (prevents conflict with vertical scroll)
+      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > SWIPE_THRESHOLD) {
+        if (deltaX < 0) {
+          onSwipeLeft();
+        } else {
+          onSwipeRight();
+        }
+      }
+
+      touchStartX.current = null;
+      touchStartY.current = null;
+    }
+
+    el.addEventListener('touchstart', handleTouchStart, { passive: true });
+    el.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    return () => {
+      el.removeEventListener('touchstart', handleTouchStart);
+      el.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [onSwipeLeft, onSwipeRight]);
+
+  return elementRef;
+}
+
 export default function GalleryModal({ onClose }) {
   const [selectedImage, setSelectedImage] = useState(null);
   const [hoveredIndex, setHoveredIndex] = useState(null);
+  const isTouchDevice = useIsTouchDevice();
+
+  // Navigation functions for enlarged view
+  function goToNext() {
+    setSelectedImage((prev) => (prev + 1) % GALLERY_IMAGES.length);
+  }
+
+  function goToPrev() {
+    setSelectedImage((prev) => (prev - 1 + GALLERY_IMAGES.length) % GALLERY_IMAGES.length);
+  }
+
+  // Swipe support for enlarged image view
+  const swipeRef = useSwipe({
+    onSwipeLeft: goToNext,   // Swipe left = next image
+    onSwipeRight: goToPrev,  // Swipe right = previous image
+  });
+
+  // Keyboard navigation for enlarged view
+  useEffect(() => {
+    if (selectedImage === null) return;
+
+    function handleKeyDown(e) {
+      if (e.key === 'ArrowRight') goToNext();
+      else if (e.key === 'ArrowLeft') goToPrev();
+      else if (e.key === 'Escape') setSelectedImage(null);
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedImage]);
 
   // Lock body scroll when modal opens
   useEffect(() => {
-    // Save current scroll position
     const scrollY = window.scrollY;
     
-    // Lock body scroll
     document.body.style.position = 'fixed';
     document.body.style.top = `-${scrollY}px`;
     document.body.style.width = '100%';
 
-    // Cleanup: restore scroll when modal closes
     return () => {
       document.body.style.position = '';
       document.body.style.top = '';
@@ -96,13 +224,20 @@ export default function GalleryModal({ onClose }) {
     };
   }, []);
 
+  // Clear hover state when going back to grid from enlarged view
+  useEffect(() => {
+    if (selectedImage === null) {
+      setHoveredIndex(null);
+    }
+  }, [selectedImage]);
+
   // Close modal when clicking backdrop
   function handleBackdropClick(e) {
     if (e.target === e.currentTarget) {
       if (selectedImage !== null) {
-        setSelectedImage(null); // Go back to grid if viewing enlarged image
+        setSelectedImage(null);
       } else {
-        onClose(); // Close modal entirely
+        onClose();
       }
     }
   }
@@ -111,15 +246,14 @@ export default function GalleryModal({ onClose }) {
     <div 
       className={`fixed inset-0 z-[9999] overflow-y-auto ${BLUR_AMOUNT} ${DARKNESS_OVERLAY} supports-[backdrop-filter]:bg-transparent`}
       style={{
-        // Fallback for browsers that don't support backdrop-blur
         backgroundColor: !CSS.supports('backdrop-filter', 'blur(1px)') ? 'rgb(55, 65, 81)' : undefined
       }}
       onClick={handleBackdropClick}
     >
-      {/* Close button - top right */}
+      {/* Close button - positioned below nav bar on mobile/tablet */}
       <button
         onClick={onClose}
-        className="fixed top-8 right-8 text-white text-4xl hover:text-gray-300 transition-colors z-[10000]"
+        className={`fixed ${CLOSE_BTN_TOP} right-4 md:right-6 lg:right-8 ${CLOSE_BTN_SIZE} text-white hover:text-gray-300 active:text-gray-400 transition-colors z-[10000] w-11 h-11 flex items-center justify-center`}
         aria-label="Close gallery"
       >
         ×
@@ -128,36 +262,73 @@ export default function GalleryModal({ onClose }) {
       {/* Enlarged Image View */}
       {selectedImage !== null && (
         <div 
-          className="fixed inset-0 flex items-center justify-center p-8 bg-black/80 z-[9999]"
+          className="fixed inset-0 flex items-center justify-center p-4 lg:p-8 bg-black/80 z-[9999]"
           onClick={() => setSelectedImage(null)}
         >
-          <div className="relative max-w-4xl max-h-full">
+          {/* Swipeable image container */}
+          <div 
+            ref={swipeRef}
+            className="relative max-w-4xl max-h-full flex flex-col items-center"
+            onClick={(e) => e.stopPropagation()}
+          >
             <img
               src={GALLERY_IMAGES[selectedImage].url}
               alt={GALLERY_IMAGES[selectedImage].alt}
-              className="max-w-full max-h-[80vh] object-contain"
+              className="max-w-full max-h-[70vh] lg:max-h-[80vh] object-contain select-none"
+              draggable={false}
             />
-            <div className="absolute bottom-0 left-0 right-0 bg-black/80 text-white p-4 text-center">
-              <p className="font-semibold">{GALLERY_IMAGES[selectedImage].date}</p>
-              <p className="text-sm text-gray-300">{GALLERY_IMAGES[selectedImage].location}</p>
+
+            {/* Metadata BELOW the image */}
+            <div className="w-full bg-black/80 text-white p-3 lg:p-4 text-center mt-0">
+              <p className={`font-semibold ${META_TITLE_SIZE}`}>
+                {GALLERY_IMAGES[selectedImage].alt}
+              </p>
+              <p className={`${META_SUBTITLE_SIZE} text-gray-300`}>
+                {GALLERY_IMAGES[selectedImage].date} · {GALLERY_IMAGES[selectedImage].location}
+              </p>
+              {/* Image counter */}
+              <p className={`${META_SUBTITLE_SIZE} text-gray-500 mt-1`}>
+                {selectedImage + 1} / {GALLERY_IMAGES.length}
+              </p>
             </div>
+
+            {/* Previous arrow */}
+            <button
+              onClick={goToPrev}
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 lg:-translate-x-14 w-11 h-11 flex items-center justify-center text-white/70 hover:text-white active:text-gray-300 transition-colors"
+              aria-label="Previous image"
+            >
+              <svg className="w-8 h-8 lg:w-10 lg:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+
+            {/* Next arrow */}
+            <button
+              onClick={goToNext}
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 lg:translate-x-14 w-11 h-11 flex items-center justify-center text-white/70 hover:text-white active:text-gray-300 transition-colors"
+              aria-label="Next image"
+            >
+              <svg className="w-8 h-8 lg:w-10 lg:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
           </div>
         </div>
       )}
 
       {/* Thumbnail Grid */}
       {selectedImage === null && (
-        <div className="container mx-auto px-8 py-16">
-          <h2 className="font-hero text-white text-8xl mb-8 text-center">G a l l e r y</h2>
+        <div className={`container mx-auto ${GRID_PADDING} pt-24 lg:pt-16 pb-8`}>
+          <h2 className={`font-hero text-white ${TITLE_SIZE} mb-6 lg:mb-8 text-center`}>G a l l e r y</h2>
           
-          {/* Grid - change grid-cols-3 to grid-cols-4 for 4 columns */}
-          <div className="grid grid-cols-3 gap-6">
+          <div className={`grid ${GRID_COLS} ${GRID_GAP}`}>
             {GALLERY_IMAGES.map((image, index) => (
               <div
                 key={index}
                 className="relative cursor-pointer group"
-                onMouseEnter={() => setHoveredIndex(index)}
-                onMouseLeave={() => setHoveredIndex(null)}
+                onMouseEnter={() => !isTouchDevice && setHoveredIndex(index)}
+                onMouseLeave={() => !isTouchDevice && setHoveredIndex(null)}
                 onClick={() => setSelectedImage(index)}
               >
                 {/* Thumbnail image */}
@@ -171,15 +342,17 @@ export default function GalleryModal({ onClose }) {
                   />
                 </div>
 
-                {/* Metadata - shows on hover */}
-                <div 
-                  className={`absolute bottom-0 left-0 right-0 bg-black/80 text-white p-3 rounded-b-lg transition-all duration-300 ${
-                    hoveredIndex === index ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
-                  }`}
-                >
-                  <p className="text-sm font-semibold">{image.date}</p>
-                  <p className="text-xs text-gray-300">{image.location}</p>
-                </div>
+                {/* Metadata overlay - DESKTOP ONLY (hover) */}
+                {!isTouchDevice && (
+                  <div 
+                    className={`absolute bottom-0 left-0 right-0 bg-black/80 text-white p-3 rounded-b-lg transition-all duration-300 ${
+                      hoveredIndex === index ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
+                    }`}
+                  >
+                    <p className="text-sm font-semibold">{image.date}</p>
+                    <p className="text-xs text-gray-300">{image.location}</p>
+                  </div>
+                )}
               </div>
             ))}
           </div>
