@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 /**
  * GalleryModal - Full-screen gallery view with thumbnail grid
@@ -9,6 +9,8 @@ import { useState, useEffect } from 'react';
  * - DESKTOP ONLY: Hover thumbnail scales up and shows metadata overlay
  * - MOBILE/TABLET: No hover metadata on thumbnails (prevents sticky overlay bug)
  * - Click thumbnail: shows enlarged view with metadata BELOW the image
+ * - SWIPE: Swipe left/right on enlarged image to navigate between photos
+ * - ARROWS: Previous/next arrows on enlarged view (desktop + mobile)
  * - Click outside or close button: exits modal
  * - Locks body scroll when open
  * 
@@ -39,6 +41,9 @@ const CLOSE_BTN_SIZE = 'text-3xl md:text-3xl lg:text-4xl';
 // CUSTOMIZATION: Enlarged image metadata text size
 const META_TITLE_SIZE = 'text-xs md:text-sm lg:text-base';
 const META_SUBTITLE_SIZE = 'text-xs md:text-xs lg:text-sm';
+
+// CUSTOMIZATION: Swipe sensitivity (minimum px distance to trigger swipe)
+const SWIPE_THRESHOLD = 50;
 
 export const GALLERY_IMAGES = [
   { 
@@ -119,10 +124,89 @@ function useIsTouchDevice() {
   return isTouch;
 }
 
+/**
+ * Custom hook for swipe detection on touch devices.
+ * Returns a ref to attach to the swipeable element.
+ * Calls onSwipeLeft/onSwipeRight when a horizontal swipe is detected.
+ */
+function useSwipe({ onSwipeLeft, onSwipeRight }) {
+  const touchStartX = useRef(null);
+  const touchStartY = useRef(null);
+  const elementRef = useRef(null);
+
+  useEffect(() => {
+    const el = elementRef.current;
+    if (!el) return;
+
+    function handleTouchStart(e) {
+      touchStartX.current = e.touches[0].clientX;
+      touchStartY.current = e.touches[0].clientY;
+    }
+
+    function handleTouchEnd(e) {
+      if (touchStartX.current === null) return;
+
+      const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+      const deltaY = e.changedTouches[0].clientY - touchStartY.current;
+
+      // Only trigger if horizontal movement is dominant (prevents conflict with vertical scroll)
+      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > SWIPE_THRESHOLD) {
+        if (deltaX < 0) {
+          onSwipeLeft();
+        } else {
+          onSwipeRight();
+        }
+      }
+
+      touchStartX.current = null;
+      touchStartY.current = null;
+    }
+
+    el.addEventListener('touchstart', handleTouchStart, { passive: true });
+    el.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    return () => {
+      el.removeEventListener('touchstart', handleTouchStart);
+      el.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [onSwipeLeft, onSwipeRight]);
+
+  return elementRef;
+}
+
 export default function GalleryModal({ onClose }) {
   const [selectedImage, setSelectedImage] = useState(null);
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const isTouchDevice = useIsTouchDevice();
+
+  // Navigation functions for enlarged view
+  function goToNext() {
+    setSelectedImage((prev) => (prev + 1) % GALLERY_IMAGES.length);
+  }
+
+  function goToPrev() {
+    setSelectedImage((prev) => (prev - 1 + GALLERY_IMAGES.length) % GALLERY_IMAGES.length);
+  }
+
+  // Swipe support for enlarged image view
+  const swipeRef = useSwipe({
+    onSwipeLeft: goToNext,   // Swipe left = next image
+    onSwipeRight: goToPrev,  // Swipe right = previous image
+  });
+
+  // Keyboard navigation for enlarged view
+  useEffect(() => {
+    if (selectedImage === null) return;
+
+    function handleKeyDown(e) {
+      if (e.key === 'ArrowRight') goToNext();
+      else if (e.key === 'ArrowLeft') goToPrev();
+      else if (e.key === 'Escape') setSelectedImage(null);
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedImage]);
 
   // Lock body scroll when modal opens
   useEffect(() => {
@@ -181,14 +265,20 @@ export default function GalleryModal({ onClose }) {
           className="fixed inset-0 flex items-center justify-center p-4 lg:p-8 bg-black/80 z-[9999]"
           onClick={() => setSelectedImage(null)}
         >
-          {/* Image + metadata stacked vertically */}
-          <div className="relative max-w-4xl max-h-full flex flex-col items-center">
+          {/* Swipeable image container */}
+          <div 
+            ref={swipeRef}
+            className="relative max-w-4xl max-h-full flex flex-col items-center"
+            onClick={(e) => e.stopPropagation()}
+          >
             <img
               src={GALLERY_IMAGES[selectedImage].url}
               alt={GALLERY_IMAGES[selectedImage].alt}
-              className="max-w-full max-h-[70vh] lg:max-h-[80vh] object-contain"
+              className="max-w-full max-h-[70vh] lg:max-h-[80vh] object-contain select-none"
+              draggable={false}
             />
-            {/* Metadata BELOW the image, not overlaying it */}
+
+            {/* Metadata BELOW the image */}
             <div className="w-full bg-black/80 text-white p-3 lg:p-4 text-center mt-0">
               <p className={`font-semibold ${META_TITLE_SIZE}`}>
                 {GALLERY_IMAGES[selectedImage].alt}
@@ -196,7 +286,33 @@ export default function GalleryModal({ onClose }) {
               <p className={`${META_SUBTITLE_SIZE} text-gray-300`}>
                 {GALLERY_IMAGES[selectedImage].date} · {GALLERY_IMAGES[selectedImage].location}
               </p>
+              {/* Image counter */}
+              <p className={`${META_SUBTITLE_SIZE} text-gray-500 mt-1`}>
+                {selectedImage + 1} / {GALLERY_IMAGES.length}
+              </p>
             </div>
+
+            {/* Previous arrow */}
+            <button
+              onClick={goToPrev}
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 lg:-translate-x-14 w-11 h-11 flex items-center justify-center text-white/70 hover:text-white active:text-gray-300 transition-colors"
+              aria-label="Previous image"
+            >
+              <svg className="w-8 h-8 lg:w-10 lg:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+
+            {/* Next arrow */}
+            <button
+              onClick={goToNext}
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 lg:translate-x-14 w-11 h-11 flex items-center justify-center text-white/70 hover:text-white active:text-gray-300 transition-colors"
+              aria-label="Next image"
+            >
+              <svg className="w-8 h-8 lg:w-10 lg:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
           </div>
         </div>
       )}
