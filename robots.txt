@@ -1,0 +1,8 @@
+# Dam Anna Band Website
+# Allow all search engines to crawl and index all pages
+
+User-agent: *
+Allow: /
+
+# Sitemap (add this once the site is deployed to a live domain)
+# Sitemap: https://www.damanna.com/sitemap.xml
