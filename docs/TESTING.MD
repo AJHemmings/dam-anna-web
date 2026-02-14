@@ -321,7 +321,7 @@ This document tracks manual testing for each development phase. Automated testin
 #### 3.7 Gallery - Opened from Slideshow
 
 - [✅] Gallery modal renders above nav bar (z-index correct)
-- [✅] Same behaviour as opening from nav bar
+- [✅] Same behavior as opening from nav bar
 - [✅] Close button visible and functional
 
 #### 3.8 You Modal (Mobile)
@@ -409,24 +409,16 @@ This document tracks manual testing for each development phase. Automated testin
 
 ---
 
-### Known Issues (Non-Blocking)
+### Known Issues (Non-Blocking - Mobile devices)
 
 1. **Modal Body Jolt** - Minor layout shift when scrollbar disappears/reappears. Status: Documented, acceptable UX trade-off.
 2. **Layout Centering** - Large margins on ultra-wide screens. Status: Pinned for fine-tuning phase.
 3. **GLB Model Size** - guitar.glb is 15MB, causing slow LCP on throttled connections. Status: Pinned for gltf-transform compression.
-4. **Gallery Images** - Hosted on ImageShack, not optimised for responsive delivery. Status: Will be resolved during Supabase database phase.
-
-### Bugs Found
-
-*List any bugs discovered during testing:*
-
-| # | Description | Severity | Status |
-|---|-------------|----------|--------|
-| - | - | - | - |
+4. **Gallery Images** - Hosted on ImageShack, not optimized for responsive delivery. Status: Will be resolved during Supabase database phase.
 
 ---
 
-### Sign-off
+### Sign-off - Mobile Devices
 
 **All Critical Tests Pass:** [✅] Yes / [ ] No  
 **Blocking Bugs:** [✅] None / [ ] Listed above  
