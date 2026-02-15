@@ -9,7 +9,7 @@ export default function SplashScreen({ isLoaded, onComplete }) {
     if (hasCompletedRef.current) return; // Already completed, do nothing
 
     const minDisplayTime = 2800;
-    const maxDisplayTime = 6000;
+    const maxDisplayTime = 4000;
     const startTime = Date.now();
 
     const interval = setInterval(() => {
