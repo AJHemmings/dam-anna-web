@@ -10,6 +10,11 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
  * Detects mobile/tablet devices via pointer: coarse (touch-primary)
  * and reduces rendering load accordingly.
  * 
+ * MOBILE FIX:
+ * Uses window.innerWidth and a fixed initial height for the canvas
+ * to prevent the mobile browser address bar show/hide from causing
+ * the canvas to resize and jump. Only width changes trigger a resize.
+ * 
  * CUSTOMIZATION: Adjust the constants below per device type.
  */
 
@@ -22,16 +27,14 @@ const STAR_SEGMENTS_DESKTOP = 24;
 const STAR_SEGMENTS_MOBILE = 8;
 
 // CUSTOMIZATION: Max pixel ratio per device type
-// Lower = better performance, higher = sharper rendering
 const MAX_PIXEL_RATIO_DESKTOP = window.devicePixelRatio;
 const MAX_PIXEL_RATIO_MOBILE = 1.5;
 
-// CUSTOMIZATION: Guitar model scale (same for both, adjust if needed)
+// CUSTOMIZATION: Guitar model scale
 const GUITAR_SCALE = 50;
 
 /**
  * Detect if device is touch-primary (mobile/tablet).
- * Uses pointer: coarse to match Navigation.jsx detection logic.
  */
 function getIsMobileDevice() {
   if (typeof window === 'undefined') return false;
@@ -59,6 +62,13 @@ export default function ThreeBackground({ scrollTop, onGuitarLoaded }) {
 
     console.log(`ThreeBackground: ${isMobile ? 'Mobile/Tablet' : 'Desktop'} mode — ${starCount} stars, ${starSegments} segments, pixelRatio capped at ${maxPixelRatio}`);
 
+    // Capture initial viewport height to prevent mobile address bar resize issues.
+    // On mobile, window.innerHeight changes when the address bar shows/hides,
+    // which causes the canvas to resize and visually jump. By locking the height
+    // at init and only updating on width changes, we avoid this.
+    let currentWidth = window.innerWidth;
+    let currentHeight = window.innerHeight;
+
     // Scene setup
     const scene = new THREE.Scene();
     sceneRef.current = scene;
@@ -66,7 +76,7 @@ export default function ThreeBackground({ scrollTop, onGuitarLoaded }) {
     // Camera setup
     const camera = new THREE.PerspectiveCamera(
       75,
-      window.innerWidth / window.innerHeight,
+      currentWidth / currentHeight,
       0.1,
       1000
     );
@@ -78,7 +88,7 @@ export default function ThreeBackground({ scrollTop, onGuitarLoaded }) {
       canvas: canvasRef.current,
     });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, maxPixelRatio));
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(currentWidth, currentHeight);
     rendererRef.current = renderer;
 
     // Load guitar model
@@ -121,9 +131,6 @@ export default function ThreeBackground({ scrollTop, onGuitarLoaded }) {
     scene.add(pointLight, ambientLight);
 
     // Controls - DISABLED for scroll-driven experience
-    // Uncomment to resume manual camera control (will conflict with scroll animation)
-    // also uncomment controls.update() in the animation loop and controls.dispose() in the cleanup function
-
     // const controls = new OrbitControls(camera, renderer.domElement);
     // controls.enableZoom = false;
     // controls.enableRotate = false;
@@ -131,7 +138,6 @@ export default function ThreeBackground({ scrollTop, onGuitarLoaded }) {
     // controlsRef.current = controls;
 
     // Stars - count and detail based on device type
-    // Reuse a single geometry and material for all stars (instancing-lite)
     const starGeometry = new THREE.SphereGeometry(0.25, starSegments, starSegments);
     const starMaterial = new THREE.MeshStandardMaterial({ color: 0x404040 });
 
@@ -152,18 +158,31 @@ export default function ThreeBackground({ scrollTop, onGuitarLoaded }) {
     );
     scene.background = grungeTexture;
 
-    // Handle window resize
+    // Handle window resize — only update when width actually changes.
+    // This prevents the mobile address bar show/hide from resizing the canvas.
     function handleResize() {
-      camera.aspect = window.innerWidth / window.innerHeight;
+      const newWidth = window.innerWidth;
+      const newHeight = window.innerHeight;
+
+      // On mobile, only resize if width changes (orientation change).
+      // On desktop, resize on any change.
+      if (isMobile) {
+        if (newWidth === currentWidth) return; // Height-only change (address bar) — ignore
+      }
+
+      currentWidth = newWidth;
+      currentHeight = newHeight;
+
+      camera.aspect = currentWidth / currentHeight;
       camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setSize(currentWidth, currentHeight);
     }
     window.addEventListener('resize', handleResize);
 
     // Animation loop
     function animate() {
       animationFrameRef.current = requestAnimationFrame(animate);
-      // controls.update(); // Uncomment if using OrbitControls
+      // controls.update();
       renderer.render(scene, camera);
     }
     console.log('Starting animation loop');
@@ -178,22 +197,20 @@ export default function ThreeBackground({ scrollTop, onGuitarLoaded }) {
       starGeometry.dispose();
       starMaterial.dispose();
       renderer.dispose();
-      // controls.dispose(); // Uncomment if using OrbitControls
+      // controls.dispose();
     };
   }, []);
 
-  // Update animation based on scroll - EXACT same logic as original
+  // Update animation based on scroll
   useEffect(() => {
     const t = scrollTop;
 
-    // Animate guitar if it's loaded
     if (guitarRef.current) {
       guitarRef.current.position.x = 30 + t * 0.03;
       guitarRef.current.position.y = t * 0.01 - 15;
       guitarRef.current.rotation.y = t * 0.002;
     }
 
-    // Camera animation
     if (cameraRef.current) {
       cameraRef.current.position.z = 50 + t * -0.01;
       cameraRef.current.position.x = t * -0.0002;

@@ -5,33 +5,29 @@ import { useState, useEffect } from 'react';
  * 
  * RESPONSIVE CUSTOMIZATION:
  * Adjust the constants below to control sizes at each breakpoint.
- * Mobile = default, Tablet = md (768px+), Desktop = lg (1024px+)
+ * 
+ * SCROLL LOCK FIX:
+ * Uses overflow: hidden approach instead of position: fixed to
+ * prevent the layout jolt caused by removing the body from flow.
  * 
  * Future: Content may be pulled from database for admin editing
  */
 
-// CUSTOMIZATION: Appearance settings
 const BLUR_AMOUNT = 'backdrop-blur-md';
 const DARKNESS_OVERLAY = 'bg-black/10';
 const ANIMATION_DURATION = 500;
 
-// CUSTOMIZATION: Close button position (top value clears nav bar on mobile/tablet)
+// CUSTOMIZATION: Close button position
 const CLOSE_BTN_TOP = 'top-20 md:top-20 lg:top-8';
 const CLOSE_BTN_SIZE = 'text-3xl lg:text-4xl';
 
-// CUSTOMIZATION: Modal width per breakpoint
+// CUSTOMIZATION: Modal sizing
 const MODAL_WIDTH = 'w-full max-w-[700px]';
-
-// CUSTOMIZATION: Modal padding per breakpoint
 const MODAL_PADDING = 'p-5 md:p-6 lg:p-8';
-
-// CUSTOMIZATION: Outer padding (space between modal and screen edge)
 const OUTER_PADDING = 'p-4 md:p-6 lg:p-8';
 
-// CUSTOMIZATION: Heading size per breakpoint
+// CUSTOMIZATION: Text sizes
 const HEADING_SIZE = 'text-2xl md:text-3xl lg:text-4xl';
-
-// CUSTOMIZATION: Body text size per breakpoint
 const BODY_TEXT_SIZE = 'text-sm md:text-base lg:text-[1.25rem]';
 
 export default function AboutUsModal({ onClose }) {
@@ -43,38 +39,23 @@ export default function AboutUsModal({ onClose }) {
     return () => clearTimeout(timer);
   }, []);
 
-  // Lock body scroll when modal opens
+  // Lock body scroll — simplified approach to minimise jolt.
+  // Instead of position:fixed (which removes body from flow and causes jolt),
+  // we use overflow:hidden with scrollbar width compensation.
   useEffect(() => {
-    const scrollY = window.scrollY;
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
     
-    const body = document.body;
+    document.body.style.overflow = 'hidden';
+    document.body.style.paddingRight = `${scrollbarWidth}px`;
+
+    // Compensate nav bar for scrollbar disappearance
     const nav = document.getElementById('main-nav');
-    const container = document.querySelector('.container');
-    const main = document.querySelector('main');
-    
-    body.style.position = 'fixed';
-    body.style.top = `-${scrollY}px`;
-    body.style.width = '100%';
-    body.style.overflow = 'hidden';
-    body.style.paddingRight = `${scrollbarWidth}px`;
-    
     if (nav) nav.style.paddingRight = `${scrollbarWidth}px`;
-    if (container) container.style.paddingRight = `${scrollbarWidth}px`;
-    if (main) main.style.paddingRight = `${scrollbarWidth}px`;
 
     return () => {
-      body.style.position = '';
-      body.style.top = '';
-      body.style.width = '';
-      body.style.overflow = '';
-      body.style.paddingRight = '';
-      
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
       if (nav) nav.style.paddingRight = '';
-      if (container) container.style.paddingRight = '';
-      if (main) main.style.paddingRight = '';
-      
-      window.scrollTo(0, scrollY);
     };
   }, []);
 
@@ -99,7 +80,7 @@ export default function AboutUsModal({ onClose }) {
       }}
       onClick={handleBackdropClick}
     >
-      {/* Close button - below nav bar on mobile/tablet */}
+      {/* Close button */}
       <button
         onClick={handleClose}
         className={`fixed ${CLOSE_BTN_TOP} right-4 md:right-6 lg:right-8 ${CLOSE_BTN_SIZE} text-white hover:text-gray-300 active:text-gray-400 transition-colors z-[10000] w-11 h-11 flex items-center justify-center`}
@@ -121,10 +102,8 @@ export default function AboutUsModal({ onClose }) {
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Dark overlay for readability */}
         <div className="absolute inset-0 bg-black/70 -z-10 blur-sm"></div>
 
-        {/* Content */}
         <div className="relative z-10">
           <h2 className={`font-hero ${HEADING_SIZE} mb-4 md:mb-6 text-center`}>About Us</h2>
           
