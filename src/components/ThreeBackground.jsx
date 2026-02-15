@@ -62,12 +62,13 @@ export default function ThreeBackground({ scrollTop, onGuitarLoaded }) {
 
     console.log(`ThreeBackground: ${isMobile ? 'Mobile/Tablet' : 'Desktop'} mode — ${starCount} stars, ${starSegments} segments, pixelRatio capped at ${maxPixelRatio}`);
 
-    // Capture initial viewport height to prevent mobile address bar resize issues.
-    // On mobile, window.innerHeight changes when the address bar shows/hides,
-    // which causes the canvas to resize and visually jump. By locking the height
-    // at init and only updating on width changes, we avoid this.
+    // Capture viewport dimensions.
+    // On mobile, use screen.height as the renderer height — this is the full
+    // screen size including the space behind the address bar. This means:
+    // - Address bar visible: canvas extends slightly behind it (hidden, no issue)
+    // - Address bar hidden: canvas already covers the full area, no gap
     let currentWidth = window.innerWidth;
-    let currentHeight = window.innerHeight;
+    let currentHeight = isMobile ? screen.height : window.innerHeight;
 
     // Scene setup
     const scene = new THREE.Scene();

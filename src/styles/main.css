@@ -65,12 +65,9 @@ html, body {
   }
 }
 
-/* Canvas positioning - fixed with full viewport coverage.
-   Uses inset:0 to stretch to fill the viewport in all directions.
-   This avoids vh/lvh/dvh issues with mobile address bar changes. */
+/* Canvas positioning */
 canvas {
   position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  top: 0;
+  left: 0;
 }
