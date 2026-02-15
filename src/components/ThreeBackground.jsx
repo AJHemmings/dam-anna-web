@@ -158,16 +158,20 @@ export default function ThreeBackground({ scrollTop, onGuitarLoaded }) {
     );
     scene.background = grungeTexture;
 
-    // Handle window resize — only update when width actually changes.
-    // This prevents the mobile address bar show/hide from resizing the canvas.
+    // Handle window resize.
+    // CSS (inset:0 on canvas) handles visual coverage seamlessly.
+    // The renderer needs to update its internal resolution to match.
+    // On mobile, we ignore height-only changes (address bar show/hide)
+    // to prevent the Three.js scene from re-rendering at a new size
+    // which causes a visible jump. The CSS stretches the canvas to cover.
     function handleResize() {
       const newWidth = window.innerWidth;
       const newHeight = window.innerHeight;
 
-      // On mobile, only resize if width changes (orientation change).
-      // On desktop, resize on any change.
-      if (isMobile) {
-        if (newWidth === currentWidth) return; // Height-only change (address bar) — ignore
+      if (isMobile && newWidth === currentWidth) {
+        // Height-only change on mobile (address bar) — skip renderer resize.
+        // CSS inset:0 stretches the canvas visually, no gap or jump.
+        return;
       }
 
       currentWidth = newWidth;

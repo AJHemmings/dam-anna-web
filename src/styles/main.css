@@ -66,14 +66,11 @@ html, body {
 }
 
 /* Canvas positioning - fixed with full viewport coverage.
-   Using 100lvh (large viewport height) prevents the canvas from
-   resizing when the mobile address bar shows/hides. Falls back
-   to 100vh for browsers that don't support lvh. */
+   Uses inset:0 to stretch to fill the viewport in all directions.
+   This avoids vh/lvh/dvh issues with mobile address bar changes. */
 canvas {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  height: 100lvh;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
