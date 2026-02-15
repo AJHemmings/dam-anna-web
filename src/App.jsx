@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useScrollPosition } from './hooks/useScrollPosition';
+import { Analytics } from '@vercel/analytics/react';
 import ThreeBackground from './components/ThreeBackground';
 import SplashScreen from './components/SplashScreen';
 import HeroSection from './components/sections/HeroSection';
@@ -170,6 +171,7 @@ export default function App() {
         {isGalleryModalOpen && <GalleryModal onClose={() => setIsGalleryModalOpen(false)} />}
         {isYouModalOpen && <YouModal onClose={() => setIsYouModalOpen(false)} />}
       </Portal>
+      <Analytics />
     </>
   );
 }
