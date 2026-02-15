@@ -4,27 +4,23 @@ import GallerySlideshow from '../GallerySlideshow';
 /**
  * GallerySection - Main photo gallery slideshow
  * 
- * NOTE: The GalleryModal is now rendered in App.jsx (single source of truth).
- * Clicking the slideshow triggers onOpenGallery which App handles.
- * This ensures the modal always renders at the top level with correct z-index.
- * 
  * RESPONSIVE CUSTOMIZATION:
+ * Uses isMobile prop from App.jsx for JS-driven responsive layout.
  * Mobile: Full width up to max, square aspect ratio
  * Desktop: Fixed dimensions with offset positioning
+ * 
+ * NOTE: GalleryModal is rendered in App.jsx (single source of truth).
  */
 
-// CUSTOMIZATION: Mobile/tablet max size
+// CUSTOMIZATION: Mobile max size
 const MOBILE_MAX_WIDTH = 'max-w-[400px]';
 
-// CUSTOMIZATION: Desktop fixed dimensions
-const DESKTOP_SIZE = 'lg:w-[400px] lg:h-[400px]';
+// CUSTOMIZATION: Desktop fixed dimensions and offset
+const DESKTOP_CLASSES = 'w-[400px] h-[400px] ml-50 mt-[-50px]';
 
-// CUSTOMIZATION: Desktop offset positioning
-const DESKTOP_OFFSET = 'lg:ml-50 lg:mt-[-50px]';
-
-export default function GallerySection({ onOpenGallery }) {
+export default function GallerySection({ onOpenGallery, isMobile = false }) {
   return (
-    <FramedSection className={`w-full ${MOBILE_MAX_WIDTH} aspect-square ${DESKTOP_SIZE} p-0 flex-shrink-0 ${DESKTOP_OFFSET} overflow-visible`}>
+    <FramedSection className={`${isMobile ? `w-full ${MOBILE_MAX_WIDTH} aspect-square` : DESKTOP_CLASSES} p-0 flex-shrink-0 overflow-visible`}>
       <GallerySlideshow onImageClick={onOpenGallery} />
     </FramedSection>
   );

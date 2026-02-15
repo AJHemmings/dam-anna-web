@@ -3,25 +3,29 @@
  * 
  * RESPONSIVE CUSTOMIZATION:
  * Adjust the constants below to control sizes at each breakpoint.
- * Mobile = default, Tablet = md (768px+), Desktop = lg (1024px+)
+ * Uses isMobile prop from App.jsx (JS-driven, matches nav detection)
+ * instead of CSS breakpoints to stay in sync on touch devices.
  */
 
-// CUSTOMIZATION: Quote text size per breakpoint
-const QUOTE_TEXT_SIZE = 'text-2xl sm:text-4xl md:text-5xl lg:text-[7rem]';
+// CUSTOMIZATION: Quote text size — mobile vs desktop
+const QUOTE_TEXT_MOBILE = 'text-2xl sm:text-4xl';
+const QUOTE_TEXT_DESKTOP = 'text-[7rem]';
 
-// CUSTOMIZATION: Padding per breakpoint
-const QUOTE_PADDING = 'p-3 sm:p-4 md:p-6 lg:p-8';
+// CUSTOMIZATION: Padding — mobile vs desktop
+const QUOTE_PADDING_MOBILE = 'p-3 sm:p-4';
+const QUOTE_PADDING_DESKTOP = 'p-8';
 
-// CUSTOMIZATION: Bottom margin per breakpoint
-const QUOTE_MARGIN = 'mb-16 md:mb-20 lg:mb-87.5';
+// CUSTOMIZATION: Bottom margin — mobile vs desktop
+const QUOTE_MARGIN_MOBILE = 'mb-16';
+const QUOTE_MARGIN_DESKTOP = 'mb-87.5';
 
-export default function BlockQuote({ children }) {
+export default function BlockQuote({ children, isMobile = false }) {
   return (
     <div 
-      className={`lg:col-start-2 lg:col-span-9 ${QUOTE_MARGIN} flex justify-start`}
+      className={`${isMobile ? '' : 'col-start-2 col-span-9'} ${isMobile ? QUOTE_MARGIN_MOBILE : QUOTE_MARGIN_DESKTOP} flex justify-start`}
     >
       <div
-        className={`${QUOTE_PADDING} relative inline-block`}
+        className={`${isMobile ? QUOTE_PADDING_MOBILE : QUOTE_PADDING_DESKTOP} relative inline-block`}
         style={{ 
           borderImage: 'url(/boarder1.png) 60 stretch',
           borderWidth: '30px',
@@ -32,8 +36,8 @@ export default function BlockQuote({ children }) {
         {/* White background fill */}
         <div className="absolute inset-0 bg-white/70 -z-10 blur-lg"></div>
         
-        {/* Black text on white - scales per breakpoint */}
-        <p className={`text-black ${QUOTE_TEXT_SIZE} leading-tight font-hero relative z-10`}>
+        {/* Black text on white */}
+        <p className={`text-black ${isMobile ? QUOTE_TEXT_MOBILE : QUOTE_TEXT_DESKTOP} leading-tight font-hero relative z-10`}>
           {children}
         </p>
       </div>

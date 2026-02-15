@@ -5,22 +5,20 @@ import GigPhotosSlideshow from '../GigPhotosSlideshow';
  * Gig Venue Photos Section
  * 
  * RESPONSIVE CUSTOMIZATION:
+ * Uses isMobile prop from App.jsx for JS-driven responsive layout.
  * Mobile: Full width up to max, square aspect ratio
  * Desktop: Fixed dimensions with offset positioning
  */
 
-// CUSTOMIZATION: Mobile/tablet max size (width constrained, height via aspect-square)
+// CUSTOMIZATION: Mobile max size
 const MOBILE_MAX_WIDTH = 'max-w-[350px]';
 
-// CUSTOMIZATION: Desktop fixed dimensions
-const DESKTOP_SIZE = 'lg:w-[350px] lg:h-[350px]';
+// CUSTOMIZATION: Desktop fixed dimensions and offset
+const DESKTOP_CLASSES = 'w-[350px] h-[350px] ml-50 mt-[-30px]';
 
-// CUSTOMIZATION: Desktop offset positioning
-const DESKTOP_OFFSET = 'lg:ml-50 lg:mt-[-30px]';
-
-export default function GigPhotosSection() {
+export default function GigPhotosSection({ isMobile = false }) {
   return (
-    <FramedSection className={`w-full ${MOBILE_MAX_WIDTH} aspect-square ${DESKTOP_SIZE} p-0 flex-shrink-0 ${DESKTOP_OFFSET}`}>
+    <FramedSection className={`${isMobile ? `w-full ${MOBILE_MAX_WIDTH} aspect-square` : DESKTOP_CLASSES} p-0 flex-shrink-0`}>
       <GigPhotosSlideshow />
     </FramedSection>
   );

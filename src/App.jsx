@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useScrollPosition } from './hooks/useScrollPosition';
 import ThreeBackground from './components/ThreeBackground';
 import SplashScreen from './components/SplashScreen';
@@ -17,8 +17,50 @@ import ContactModal from './components/modals/ContactModal';
 import YouModal from './components/modals/YouModal';
 import GalleryModal from './components/modals/GalleryModal';
 
+/**
+ * Detect if the layout should use mobile mode.
+ * Matches the same logic as Navigation.jsx useIsMobileNav():
+ * - Screen < 1280px OR touch-primary device
+ * 
+ * This ensures the layout and nav are always in sync —
+ * a tablet in landscape won't get desktop layout with a hamburger menu.
+ */
+function useIsMobileLayout() {
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return checkIsMobile();
+  });
+
+  useEffect(() => {
+    function handleChange() {
+      setIsMobile(checkIsMobile());
+    }
+
+    window.addEventListener('resize', handleChange);
+    window.addEventListener('orientationchange', handleChange);
+
+    const mediaQuery = window.matchMedia('(pointer: coarse)');
+    mediaQuery.addEventListener('change', handleChange);
+
+    return () => {
+      window.removeEventListener('resize', handleChange);
+      window.removeEventListener('orientationchange', handleChange);
+      mediaQuery.removeEventListener('change', handleChange);
+    };
+  }, []);
+
+  return isMobile;
+}
+
+function checkIsMobile() {
+  const isNarrow = window.innerWidth < 1280;
+  const isTouchPrimary = window.matchMedia('(pointer: coarse)').matches;
+  return isNarrow || isTouchPrimary;
+}
+
 export default function App() {
   const scrollTop = useScrollPosition();
+  const isMobileLayout = useIsMobileLayout();
   const [isGuitarLoaded, setIsGuitarLoaded] = useState(false);
   const [splashComplete, setSplashComplete] = useState(false);
   const [isAboutUsModalOpen, setIsAboutUsModalOpen] = useState(false);
@@ -81,32 +123,40 @@ export default function App() {
       
       <Container>
         <main 
-          className="text-white z-[99] relative w-full pt-[100px] lg:pt-[180px] pb-[60px] lg:pb-[120px] grid grid-cols-1 lg:grid-cols-12 select-none px-4 lg:px-0"
+          className={`text-white z-[99] relative w-full select-none ${
+            isMobileLayout
+              ? 'pt-[100px] pb-[60px] grid grid-cols-1 px-4'
+              : 'pt-[180px] pb-[120px] grid grid-cols-12'
+          }`}
           style={{
             opacity: splashComplete ? 1 : 0,
             transition: 'opacity 0.8s ease-in'
           }}
         >
-          <HeroSection />
+          <HeroSection isMobile={isMobileLayout} />
           
-          <BlockQuote>We make music.</BlockQuote>
+          <BlockQuote isMobile={isMobileLayout}>We make music.</BlockQuote>
           
           {/* Gigs + Gig Photos: side by side on desktop, stacked on mobile */}
-          <div id="gigs-section" className="lg:col-start-2 lg:col-span-10 mb-20 lg:mb-87.5 flex flex-col lg:flex-row gap-4 items-center lg:items-start">
+          <div 
+            id="gigs-section" 
+            className={`${isMobileLayout ? '' : 'col-start-2 col-span-10'} ${isMobileLayout ? 'mb-20' : 'mb-87.5'} flex ${isMobileLayout ? 'flex-col items-center' : 'flex-row items-start'} gap-4`}
+          >
             <GigsSection />
-            <GigPhotosSection />
+            <GigPhotosSection isMobile={isMobileLayout} />
           </div>
           
           {/* Previous Gigs + Gallery: side by side on desktop, stacked on mobile */}
-          <div className="lg:col-start-2 lg:col-span-10 mb-20 lg:mb-87.5 flex flex-col lg:flex-row gap-4 items-center lg:items-start">
+          <div 
+            className={`${isMobileLayout ? '' : 'col-start-2 col-span-10'} ${isMobileLayout ? 'mb-20' : 'mb-87.5'} flex ${isMobileLayout ? 'flex-col items-center' : 'flex-row items-start'} gap-4`}
+          >
             <PreviousGigsSection />
-            {/* GallerySection triggers the same modal as the nav bar */}
-            <GallerySection onOpenGallery={() => setIsGalleryModalOpen(true)} />
+            <GallerySection onOpenGallery={() => setIsGalleryModalOpen(true)} isMobile={isMobileLayout} />
           </div>
           
-          <BlockQuote>Let it cook! <br />-Dam Anna</BlockQuote>
+          <BlockQuote isMobile={isMobileLayout}>Let it cook! <br />-Dam Anna</BlockQuote>
           
-          <BlockQuote>Thanks for checking us out!</BlockQuote>
+          <BlockQuote isMobile={isMobileLayout}>Thanks for checking us out!</BlockQuote>
         </main>
       </Container>
 
