@@ -208,19 +208,13 @@ export default function GalleryModal({ onClose }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedImage]);
 
-  // Lock body scroll when modal opens
-  useEffect(() => {
-    const scrollY = window.scrollY;
-    
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.width = '100%';
 
+
+  // Lock background scroll — Gallery has scrollable content so this is needed
+  useEffect(() => {
+    document.documentElement.style.overflow = 'hidden';
     return () => {
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      window.scrollTo(0, scrollY);
+      document.documentElement.style.overflow = '';
     };
   }, []);
 

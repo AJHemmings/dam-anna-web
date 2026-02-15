@@ -11,6 +11,7 @@ import GigPhotosSection from './components/sections/GigPhotoSection';
 import GallerySection from './components/sections/GallerySection';
 import Navigation from './components/Navigation';
 import { scrollToSection, scrollToTop } from './utils/ScrollToSection';
+import Portal from './utils/Portal';
 import AboutUsModal from './components/modals/AboutUsModal';
 import SocialsModal from './components/modals/SocialsModal';
 import ContactModal from './components/modals/ContactModal';
@@ -160,12 +161,15 @@ export default function App() {
         </main>
       </Container>
 
-      {/* All modals render at top level for correct z-index */}
-      {isAboutUsModalOpen && <AboutUsModal onClose={() => setIsAboutUsModalOpen(false)} />}
-      {IsSocialsModalOpen && <SocialsModal onClose={() => setIsSocialsModalOpen(false)} />}
-      {IsContactModalOpen && <ContactModal onClose={() => setIsContactModalOpen(false)} />}
-      {isGalleryModalOpen && <GalleryModal onClose={() => setIsGalleryModalOpen(false)} />}
-      {isYouModalOpen && <YouModal onClose={() => setIsYouModalOpen(false)} />}
+      {/* All modals rendered via Portal — outside the main DOM tree
+          to prevent layout recalculation on sibling elements */}
+      <Portal>
+        {isAboutUsModalOpen && <AboutUsModal onClose={() => setIsAboutUsModalOpen(false)} />}
+        {IsSocialsModalOpen && <SocialsModal onClose={() => setIsSocialsModalOpen(false)} />}
+        {IsContactModalOpen && <ContactModal onClose={() => setIsContactModalOpen(false)} />}
+        {isGalleryModalOpen && <GalleryModal onClose={() => setIsGalleryModalOpen(false)} />}
+        {isYouModalOpen && <YouModal onClose={() => setIsYouModalOpen(false)} />}
+      </Portal>
     </>
   );
 }

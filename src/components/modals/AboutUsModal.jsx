@@ -39,23 +39,12 @@ export default function AboutUsModal({ onClose }) {
     return () => clearTimeout(timer);
   }, []);
 
-  // Lock body scroll — simplified approach to minimise jolt.
-  // Instead of position:fixed (which removes body from flow and causes jolt),
-  // we use overflow:hidden with scrollbar width compensation.
   useEffect(() => {
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
     
     document.body.style.overflow = 'hidden';
-    document.body.style.paddingRight = `${scrollbarWidth}px`;
-
-    // Compensate nav bar for scrollbar disappearance
-    const nav = document.getElementById('main-nav');
-    if (nav) nav.style.paddingRight = `${scrollbarWidth}px`;
 
     return () => {
       document.body.style.overflow = '';
-      document.body.style.paddingRight = '';
-      if (nav) nav.style.paddingRight = '';
     };
   }, []);
 

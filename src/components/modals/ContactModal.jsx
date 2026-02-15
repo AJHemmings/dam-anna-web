@@ -57,33 +57,7 @@ export default function ContactModal({ onClose }) {
     return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
-    const scrollY = window.scrollY;
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    const body = document.body;
-    const nav = document.getElementById('main-nav');
-    const container = document.querySelector('.container');
-    const main = document.querySelector('main');
-    body.style.position = 'fixed';
-    body.style.top = `-${scrollY}px`;
-    body.style.width = '100%';
-    body.style.overflow = 'hidden';
-    body.style.paddingRight = `${scrollbarWidth}px`;
-    if (nav) nav.style.paddingRight = `${scrollbarWidth}px`;
-    if (container) container.style.paddingRight = `${scrollbarWidth}px`;
-    if (main) main.style.paddingRight = `${scrollbarWidth}px`;
-    return () => {
-      body.style.position = '';
-      body.style.top = '';
-      body.style.width = '';
-      body.style.overflow = '';
-      body.style.paddingRight = '';
-      if (nav) nav.style.paddingRight = '';
-      if (container) container.style.paddingRight = '';
-      if (main) main.style.paddingRight = '';
-      window.scrollTo(0, scrollY);
-    };
-  }, []);
+
 
   function handleClose() {
     setIsVisible(false);
