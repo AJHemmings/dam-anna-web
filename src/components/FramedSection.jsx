@@ -6,7 +6,7 @@ export default function FramedSection({ children, className = "" }) {
         borderImage: 'url(/boarder1.png) 60 stretch',
         borderWidth: '30px',
         borderStyle: 'solid',
-        boxShadow: 'inset 0 0 40px 20px rgba(0, 0, 0, 0.8)'
+        boxShadow: 'inset 0 0 100px 20px rgba(0, 0, 0, 0.8)'
       }}
     >
       {/* Dark overlay for readability - adjust opacity via bg-black/XX */}

@@ -1,8 +1,9 @@
-import FramedSection from '../FramedSection';
 import GallerySlideshow from '../GallerySlideshow';
 
 /**
  * GallerySection - Main photo gallery slideshow
+ * 
+ * Borderless design with rounded corners to match video carousel style.
  * 
  * RESPONSIVE CUSTOMIZATION:
  * Uses isMobile prop from App.jsx for JS-driven responsive layout.
@@ -20,8 +21,8 @@ const DESKTOP_CLASSES = 'w-[400px] h-[400px] ml-50 mt-[-50px]';
 
 export default function GallerySection({ onOpenGallery, isMobile = false }) {
   return (
-    <FramedSection className={`${isMobile ? `w-full ${MOBILE_MAX_WIDTH} aspect-square` : DESKTOP_CLASSES} p-0 flex-shrink-0 overflow-visible`}>
+    <div className={`${isMobile ? `w-full ${MOBILE_MAX_WIDTH} aspect-square` : DESKTOP_CLASSES} shadow-2xl/190 rounded-lg overflow-hidden flex-shrink-0`}>
       <GallerySlideshow onImageClick={onOpenGallery} />
-    </FramedSection>
+    </div>
   );
 }

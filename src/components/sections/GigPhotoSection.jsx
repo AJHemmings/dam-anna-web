@@ -1,4 +1,3 @@
-import FramedSection from '../FramedSection';
 import GigPhotosSlideshow from '../GigPhotosSlideshow';
 import useGigVenueImages from '../../hooks/useGigVenueImages';
 
@@ -7,7 +6,7 @@ import useGigVenueImages from '../../hooks/useGigVenueImages';
  * 
  * Shows venue logo slideshow when upcoming gigs have images.
  * Falls back to a static "contact to book" image when no images are available.
- * Fallback image opens the Contact modal when clicked.
+ * Borderless design with rounded corners to match video carousel style.
  * 
  * RESPONSIVE CUSTOMIZATION:
  * Uses isMobile prop from App.jsx for JS-driven responsive layout.
@@ -26,7 +25,7 @@ export default function GigPhotosSection({ isMobile = false, onOpenContact }) {
   const showFallback = !loading && images.length === 0;
 
   return (
-    <FramedSection className={`${isMobile ? `w-full ${MOBILE_MAX_WIDTH} aspect-square` : DESKTOP_CLASSES} p-0 flex-shrink-0`}>
+    <div className={`${isMobile ? `w-full ${MOBILE_MAX_WIDTH} aspect-square` : DESKTOP_CLASSES} shadow-2xl/190 rounded-lg overflow-hidden flex-shrink-0`}>
       {showFallback ? (
         <button
           onClick={onOpenContact}
@@ -42,6 +41,6 @@ export default function GigPhotosSection({ isMobile = false, onOpenContact }) {
       ) : (
         <GigPhotosSlideshow />
       )}
-    </FramedSection>
+    </div>
   );
 }

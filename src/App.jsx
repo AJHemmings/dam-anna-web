@@ -18,6 +18,7 @@ import SocialsModal from './components/modals/SocialsModal';
 import ContactModal from './components/modals/ContactModal';
 import YouModal from './components/modals/YouModal';
 import GalleryModal from './components/modals/GalleryModal';
+import VideoSection from './components/sections/VideoSection';
 
 /**
  * Detect if the layout should use mobile mode.
@@ -96,6 +97,9 @@ export default function App() {
       case 'you':
         setIsYouModalOpen(true);
         break;
+      case 'video':
+        scrollToSection('video-section');
+        break;
       default:
         console.log(`Handler for ${itemId} not implemented yet`);
     }
@@ -155,7 +159,13 @@ export default function App() {
             <PreviousGigsSection />
             <GallerySection onOpenGallery={() => setIsGalleryModalOpen(true)} isMobile={isMobileLayout} />
           </div>
-          
+
+          <div id='video-section'
+            className={`${isMobileLayout ? '' : 'col-start-2 col-span-10'} ${isMobileLayout ? 'mb-20' : 'mb-87.5'} flex ${isMobileLayout ? 'flex-col items-center' : 'flex-row items-start'} gap-4`}
+          >
+            <VideoSection isMobile={isMobileLayout} />
+          </div>
+
           <BlockQuote isMobile={isMobileLayout}>Let it cook! <br />-Dam Anna</BlockQuote>
           
           <BlockQuote isMobile={isMobileLayout}>Thanks for checking us out!</BlockQuote>
