@@ -93,11 +93,14 @@ export default function VideoModal({ video, onClose }) {
     return () => clearTimeout(timer);
   }, []);
 
-  // Lock scroll
+  // Lock scroll — preserve scrollbar width to prevent body shake
   useEffect(() => {
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
     document.documentElement.style.overflow = 'hidden';
+    document.documentElement.style.paddingRight = `${scrollbarWidth}px`;
     return () => {
       document.documentElement.style.overflow = '';
+      document.documentElement.style.paddingRight = '';
     };
   }, []);
 
