@@ -1,17 +1,16 @@
 import { useState, useEffect } from 'react';
+import useSiteContent from '../../hooks/useSiteContent';
 
 /**
  * ContactModal - Contact information and mailing list form
  * 
+ * Email address loaded from Supabase site_content table.
+ * Falls back to direct text if database is unreachable.
+ * 
  * RESPONSIVE CUSTOMIZATION:
  * Adjust the constants below to control sizes at each breakpoint.
  * Mobile = default, Tablet = md (768px+), Desktop = lg (1024px+)
- * 
- * Future: Form will be connected to email service via dashboard
  */
-
-// CUSTOMIZATION: Contact information
-const BAND_EMAIL = 'damannaband@gmail.com';
 
 const BLUR_AMOUNT = 'backdrop-blur-md';
 const DARKNESS_OVERLAY = 'bg-black/10';
@@ -48,7 +47,11 @@ const EMAIL_SIZE = 'text-base md:text-lg lg:text-xl';
 // CUSTOMIZATION: Button text size per breakpoint
 const BUTTON_TEXT_SIZE = 'text-xl md:text-2xl lg:text-3xl';
 
+// CUSTOMIZATION: Loading/error state text size
+const STATUS_TEXT_SIZE = 'text-sm md:text-lg lg:text-xl';
+
 export default function ContactModal({ onClose }) {
+  const { content, loading } = useSiteContent();
   const [isVisible, setIsVisible] = useState(false);
   const [email, setEmail] = useState('');
 
@@ -56,8 +59,6 @@ export default function ContactModal({ onClose }) {
     const timer = setTimeout(() => setIsVisible(true), 10);
     return () => clearTimeout(timer);
   }, []);
-
-
 
   function handleClose() {
     setIsVisible(false);
@@ -75,13 +76,16 @@ export default function ContactModal({ onClose }) {
     alert('Mailing list feature coming soon!');
   }
 
+  const bandEmail = content.band_email || 'damannaband@gmail.com';
+  const heading = content.contact_heading || 'Get In Touch';
+  const mailingDescription = content.mailing_list_description || 'Stay updated with our latest news, gigs, and releases.';
+
   return (
     <div 
       className={`fixed inset-0 z-[9999] overflow-y-auto ${BLUR_AMOUNT} ${DARKNESS_OVERLAY} flex items-center justify-center ${OUTER_PADDING} transition-opacity duration-500 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
       style={{backgroundColor: !CSS.supports('backdrop-filter', 'blur(1px)') ? 'rgb(55, 65, 81)' : undefined}}
       onClick={handleBackdropClick}
     >
-      {/* Close button - below nav bar on mobile/tablet */}
       <button
         onClick={handleClose}
         className={`fixed ${CLOSE_BTN_TOP} right-4 md:right-6 lg:right-8 ${CLOSE_BTN_SIZE} text-white hover:text-gray-300 active:text-gray-400 transition-colors z-[10000] w-11 h-11 flex items-center justify-center`}
@@ -97,22 +101,26 @@ export default function ContactModal({ onClose }) {
       >
         <div className="absolute inset-0 bg-black/70 -z-10 blur-sm"></div>
         <div className="relative z-10">
-          <h2 className={`font-hero ${HEADING_SIZE} mb-4 md:mb-6 text-center`}>Get In Touch</h2>
+          <h2 className={`font-hero ${HEADING_SIZE} mb-4 md:mb-6 text-center`}>{heading}</h2>
           
           <div className="mb-6 md:mb-8">
             <h3 className={`font-hero ${SUBHEADING_SIZE} mb-2 md:mb-3`}>Email Us</h3>
-            <a 
-              href={`mailto:${BAND_EMAIL}`} 
-              className={`text-blue-400 hover:text-blue-300 active:text-blue-200 underline ${EMAIL_SIZE}`}
-            >
-              {BAND_EMAIL}
-            </a>
+            {loading ? (
+              <p className={`${STATUS_TEXT_SIZE} text-gray-400`}>Loading...</p>
+            ) : (
+              <a 
+                href={`mailto:${bandEmail}`} 
+                className={`text-blue-400 hover:text-blue-300 active:text-blue-200 underline ${EMAIL_SIZE}`}
+              >
+                {bandEmail}
+              </a>
+            )}
           </div>
           
           <div>
             <h3 className={`font-hero ${SUBHEADING_SIZE} mb-2 md:mb-3`}>Join Our Mailing List</h3>
             <p className={`font-hero ${DESCRIPTION_SIZE} text-gray-300 mb-3 md:mb-4`}>
-              Stay updated with our latest news, gigs, and releases.
+              {mailingDescription}
             </p>
             <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
               <div>

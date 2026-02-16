@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import { GALLERY_IMAGES } from './modals/GalleryModal';
+import useGalleryImages from '../hooks/useGalleryImages';
 
 /**
  * GallerySlideshow - Auto-sliding image carousel with hover effects
+ * 
+ * Pulls images from Supabase gallery_images table.
  * 
  * Configuration:
  * - SLIDE_DURATION: How long each image displays (3000ms = 3 seconds)
@@ -11,33 +13,30 @@ import { GALLERY_IMAGES } from './modals/GalleryModal';
  * Features:
  * - Hover to scale image and show metadata (date, location)
  * - Click to open gallery modal
- * 
- * Images array structure:
- * - url: Direct link to hosted image
- * - alt: Accessibility description
- * - date: Photo date (e.g., "2024-02-15")
- * - location: Photo location (e.g., "London, UK")
  */
 
-const SLIDE_DURATION = 3000; // 3 seconds per image
-const TRANSITION_SPEED = 1000; // 1 second transition
+// CUSTOMIZATION: Slideshow timing
+const SLIDE_DURATION = 3000;
+const TRANSITION_SPEED = 1000;
 
 export default function GallerySlideshow({ onImageClick }) {
+  const { images, loading } = useGalleryImages();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
-    // Only auto-advance if not hovered (pause on hover)
-    if (isHovered) return;
+    if (isHovered || images.length <= 1) return;
 
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % GALLERY_IMAGES.length);
+      setCurrentIndex((prev) => (prev + 1) % images.length);
     }, SLIDE_DURATION);
 
     return () => clearInterval(interval);
-  }, [isHovered]);
+  }, [isHovered, images]);
 
-  const currentPhoto = GALLERY_IMAGES[currentIndex];
+  if (loading || images.length === 0) return null;
+
+  const currentPhoto = images[currentIndex];
 
   return (
     <div 
@@ -46,14 +45,13 @@ export default function GallerySlideshow({ onImageClick }) {
       onMouseLeave={() => setIsHovered(false)}
       onClick={onImageClick}
     >
-      {/* Image with slide and scale animation */}
-      {GALLERY_IMAGES.map((photo, index) => (
+      {images.map((photo, index) => (
         <div
-          key={index}
+          key={photo.id}
           className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
             index === currentIndex
               ? 'translate-x-0 opacity-100'
-              : index === (currentIndex + 1) % GALLERY_IMAGES.length
+              : index === (currentIndex + 1) % images.length
               ? 'translate-x-full opacity-0'
               : '-translate-x-full opacity-0'
           }`}
@@ -68,7 +66,6 @@ export default function GallerySlideshow({ onImageClick }) {
         </div>
       ))}
 
-      {/* Metadata overlay - shows on hover */}
       <div 
         className={`absolute bottom-0 left-0 right-0 bg-black/80 text-white p-4 transition-all duration-300 ${
           isHovered ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
