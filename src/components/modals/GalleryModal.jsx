@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
+import useGalleryImages from '../../hooks/useGalleryImages';
 
 /**
  * GalleryModal - Full-screen gallery view with thumbnail grid
+ * 
+ * Pulls images from Supabase gallery_images table.
  * 
  * Features:
  * - Dark grey scrollable background
@@ -45,62 +48,8 @@ const META_SUBTITLE_SIZE = 'text-xs md:text-xs lg:text-sm';
 // CUSTOMIZATION: Swipe sensitivity (minimum px distance to trigger swipe)
 const SWIPE_THRESHOLD = 50;
 
-export const GALLERY_IMAGES = [
-  { 
-    url: 'https://imagizer.imageshack.com/img924/5730/NKzt2p.jpg', 
-    alt: '3times7 and Dam Anna at The Oval',
-    date: '27-02-26',
-    location: 'London, UK'
-  },
- { 
-    url: 'https://imagizer.imageshack.com/img924/3282/80YQww.jpg', 
-    alt: 'Login Lounge Lobby',
-    date: '11-02-26',
-    location: 'Camberley, Surrey'
-  },
-  { 
-    url: 'https://imagizer.imageshack.com/img921/3122/JkEN3y.jpg', 
-    alt: 'Login Lounge Crowd',
-    date: '11-02-26',
-    location: 'Camberley, Surrey'
-  },
-  { 
-    url: 'https://imagizer.imageshack.com/img924/8242/nxk5QU.jpg', 
-    alt: 'Login Lounge Stage',
-    date: '11-02-26',
-    location: 'Camberley, Surrey'
-  },
-  { 
-    url: 'https://imagizer.imageshack.com/img922/4269/swbJAF.jpg', 
-    alt: 'Login Lounge Showcase',
-    date: '06-02-26',
-    location: 'Bracknell, Berkshire'
-  },
-  { 
-    url: 'https://imagizer.imageshack.com/img921/1148/7KuT6U.jpg', 
-    alt: 'Newton Pippin',
-    date: '04-02-26',
-    location: 'Bracknell, Berkshire'
-  },
-  { 
-    url: 'https://imagizer.imageshack.com/img923/8763/TbBxxa.jpg', 
-    alt: 'Feb Gigs!',
-    date: '01-02-26',
-    location: 'Bracknell, Berkshire'
-  },
-  { 
-    url: 'https://imagizer.imageshack.com/img922/8733/nikTUE.jpg', 
-    alt: 'Acoustic Couch',
-    date: '16-07-25',
-    location: 'Bracknell, Berkshire'
-  },
-  { 
-    url: 'https://imagizer.imageshack.com/img922/6326/U8yGg6.jpg', 
-    alt: 'South Hill Park Summer Jam',
-    date: '12-07-25',
-    location: 'Bracknell, Berkshire'
-  },
-];
+// CUSTOMIZATION: Loading/error state text size
+const STATUS_TEXT_SIZE = 'text-sm md:text-lg lg:text-xl';
 
 /**
  * Detect if the device uses a coarse pointer (touch-primary).
@@ -149,7 +98,6 @@ function useSwipe({ onSwipeLeft, onSwipeRight }) {
       const deltaX = e.changedTouches[0].clientX - touchStartX.current;
       const deltaY = e.changedTouches[0].clientY - touchStartY.current;
 
-      // Only trigger if horizontal movement is dominant (prevents conflict with vertical scroll)
       if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > SWIPE_THRESHOLD) {
         if (deltaX < 0) {
           onSwipeLeft();
@@ -175,26 +123,24 @@ function useSwipe({ onSwipeLeft, onSwipeRight }) {
 }
 
 export default function GalleryModal({ onClose }) {
+  const { images, loading, error } = useGalleryImages();
   const [selectedImage, setSelectedImage] = useState(null);
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const isTouchDevice = useIsTouchDevice();
 
-  // Navigation functions for enlarged view
   function goToNext() {
-    setSelectedImage((prev) => (prev + 1) % GALLERY_IMAGES.length);
+    setSelectedImage((prev) => (prev + 1) % images.length);
   }
 
   function goToPrev() {
-    setSelectedImage((prev) => (prev - 1 + GALLERY_IMAGES.length) % GALLERY_IMAGES.length);
+    setSelectedImage((prev) => (prev - 1 + images.length) % images.length);
   }
 
-  // Swipe support for enlarged image view
   const swipeRef = useSwipe({
-    onSwipeLeft: goToNext,   // Swipe left = next image
-    onSwipeRight: goToPrev,  // Swipe right = previous image
+    onSwipeLeft: goToNext,
+    onSwipeRight: goToPrev,
   });
 
-  // Keyboard navigation for enlarged view
   useEffect(() => {
     if (selectedImage === null) return;
 
@@ -208,9 +154,6 @@ export default function GalleryModal({ onClose }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedImage]);
 
-
-
-  // Lock background scroll — Gallery has scrollable content so this is needed
   useEffect(() => {
     document.documentElement.style.overflow = 'hidden';
     return () => {
@@ -218,14 +161,12 @@ export default function GalleryModal({ onClose }) {
     };
   }, []);
 
-  // Clear hover state when going back to grid from enlarged view
   useEffect(() => {
     if (selectedImage === null) {
       setHoveredIndex(null);
     }
   }, [selectedImage]);
 
-  // Close modal when clicking backdrop
   function handleBackdropClick(e) {
     if (e.target === e.currentTarget) {
       if (selectedImage !== null) {
@@ -244,7 +185,6 @@ export default function GalleryModal({ onClose }) {
       }}
       onClick={handleBackdropClick}
     >
-      {/* Close button - positioned below nav bar on mobile/tablet */}
       <button
         onClick={onClose}
         className={`fixed ${CLOSE_BTN_TOP} right-4 md:right-6 lg:right-8 ${CLOSE_BTN_SIZE} text-white hover:text-gray-300 active:text-gray-400 transition-colors z-[10000] w-11 h-11 flex items-center justify-center`}
@@ -259,34 +199,30 @@ export default function GalleryModal({ onClose }) {
           className="fixed inset-0 flex items-center justify-center p-4 lg:p-8 bg-black/80 z-[9999]"
           onClick={() => setSelectedImage(null)}
         >
-          {/* Swipeable image container */}
           <div 
             ref={swipeRef}
             className="relative max-w-4xl max-h-full flex flex-col items-center"
             onClick={(e) => e.stopPropagation()}
           >
             <img
-              src={GALLERY_IMAGES[selectedImage].url}
-              alt={GALLERY_IMAGES[selectedImage].alt}
+              src={images[selectedImage].url}
+              alt={images[selectedImage].alt}
               className="max-w-full max-h-[70vh] lg:max-h-[80vh] object-contain select-none"
               draggable={false}
             />
 
-            {/* Metadata BELOW the image */}
             <div className="w-full bg-black/80 text-white p-3 lg:p-4 text-center mt-0">
               <p className={`font-semibold ${META_TITLE_SIZE}`}>
-                {GALLERY_IMAGES[selectedImage].alt}
+                {images[selectedImage].alt}
               </p>
               <p className={`${META_SUBTITLE_SIZE} text-gray-300`}>
-                {GALLERY_IMAGES[selectedImage].date} · {GALLERY_IMAGES[selectedImage].location}
+                {images[selectedImage].date} · {images[selectedImage].location}
               </p>
-              {/* Image counter */}
               <p className={`${META_SUBTITLE_SIZE} text-gray-500 mt-1`}>
-                {selectedImage + 1} / {GALLERY_IMAGES.length}
+                {selectedImage + 1} / {images.length}
               </p>
             </div>
 
-            {/* Previous arrow */}
             <button
               onClick={goToPrev}
               className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 lg:-translate-x-14 w-11 h-11 flex items-center justify-center text-white/70 hover:text-white active:text-gray-300 transition-colors"
@@ -297,7 +233,6 @@ export default function GalleryModal({ onClose }) {
               </svg>
             </button>
 
-            {/* Next arrow */}
             <button
               onClick={goToNext}
               className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 lg:translate-x-14 w-11 h-11 flex items-center justify-center text-white/70 hover:text-white active:text-gray-300 transition-colors"
@@ -316,40 +251,44 @@ export default function GalleryModal({ onClose }) {
         <div className={`container mx-auto ${GRID_PADDING} pt-24 lg:pt-16 pb-8`}>
           <h2 className={`font-hero text-white ${TITLE_SIZE} mb-6 lg:mb-8 text-center`}>G a l l e r y</h2>
           
-          <div className={`grid ${GRID_COLS} ${GRID_GAP}`}>
-            {GALLERY_IMAGES.map((image, index) => (
-              <div
-                key={index}
-                className="relative cursor-pointer group"
-                onMouseEnter={() => !isTouchDevice && setHoveredIndex(index)}
-                onMouseLeave={() => !isTouchDevice && setHoveredIndex(null)}
-                onClick={() => setSelectedImage(index)}
-              >
-                {/* Thumbnail image */}
-                <div className="overflow-hidden rounded-lg">
-                  <img
-                    src={image.url}
-                    alt={image.alt}
-                    className={`w-full aspect-square object-cover transition-transform duration-300 ${
-                      hoveredIndex === index ? 'scale-110' : 'scale-100'
-                    }`}
-                  />
-                </div>
-
-                {/* Metadata overlay - DESKTOP ONLY (hover) */}
-                {!isTouchDevice && (
-                  <div 
-                    className={`absolute bottom-0 left-0 right-0 bg-black/80 text-white p-3 rounded-b-lg transition-all duration-300 ${
-                      hoveredIndex === index ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
-                    }`}
-                  >
-                    <p className="text-sm font-semibold">{image.date}</p>
-                    <p className="text-xs text-gray-300">{image.location}</p>
+          {loading ? (
+            <p className={`font-hero ${STATUS_TEXT_SIZE} text-gray-400 text-center`}>Loading gallery...</p>
+          ) : error || images.length === 0 ? (
+            <p className={`font-hero ${STATUS_TEXT_SIZE} text-gray-400 text-center`}>Gallery coming soon!</p>
+          ) : (
+            <div className={`grid ${GRID_COLS} ${GRID_GAP}`}>
+              {images.map((image, index) => (
+                <div
+                  key={image.id}
+                  className="relative cursor-pointer group"
+                  onMouseEnter={() => !isTouchDevice && setHoveredIndex(index)}
+                  onMouseLeave={() => !isTouchDevice && setHoveredIndex(null)}
+                  onClick={() => setSelectedImage(index)}
+                >
+                  <div className="overflow-hidden rounded-lg">
+                    <img
+                      src={image.url}
+                      alt={image.alt}
+                      className={`w-full aspect-square object-cover transition-transform duration-300 ${
+                        hoveredIndex === index ? 'scale-110' : 'scale-100'
+                      }`}
+                    />
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
+
+                  {!isTouchDevice && (
+                    <div 
+                      className={`absolute bottom-0 left-0 right-0 bg-black/80 text-white p-3 rounded-b-lg transition-all duration-300 ${
+                        hoveredIndex === index ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
+                      }`}
+                    >
+                      <p className="text-sm font-semibold">{image.date}</p>
+                      <p className="text-xs text-gray-300">{image.location}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

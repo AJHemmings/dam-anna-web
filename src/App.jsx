@@ -144,8 +144,8 @@ export default function App() {
             id="gigs-section" 
             className={`${isMobileLayout ? '' : 'col-start-2 col-span-10'} ${isMobileLayout ? 'mb-20' : 'mb-87.5'} flex ${isMobileLayout ? 'flex-col items-center' : 'flex-row items-start'} gap-4`}
           >
-            <GigsSection />
-            <GigPhotosSection isMobile={isMobileLayout} />
+            <GigsSection onOpenContact={() => setIsContactModalOpen(true)} />
+            <GigPhotosSection isMobile={isMobileLayout} onOpenContact={() => setIsContactModalOpen(true)} />
           </div>
           
           {/* Previous Gigs + Gallery: side by side on desktop, stacked on mobile */}
