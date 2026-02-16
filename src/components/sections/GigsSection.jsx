@@ -1,7 +1,11 @@
 import FramedSection from '../FramedSection';
+import useUpcomingGigs from '../../hooks/useUpcomingGigs';
 
 /**
- * GigsSection - Upcoming gigs with ticket links
+ * GigsSection - Upcoming gigs loaded from Supabase
+ * 
+ * Displays gigs where date >= today.
+ * Falls back to a message if no upcoming gigs or if the database is unreachable.
  * 
  * RESPONSIVE CUSTOMIZATION:
  * Adjust the constants below to control sizes at each breakpoint.
@@ -9,7 +13,6 @@ import FramedSection from '../FramedSection';
  */
 
 // CUSTOMIZATION: Section width
-// Mobile: full width always. Tablet/Desktop: set max width.
 const SECTION_WIDTH = 'w-full lg:w-[600px]';
 
 // CUSTOMIZATION: Heading font size per breakpoint
@@ -21,55 +24,55 @@ const GIG_TEXT_SIZE = 'text-sm md:text-lg lg:text-2xl';
 // CUSTOMIZATION: Ticket link font size per breakpoint
 const TICKET_TEXT_SIZE = 'text-xs md:text-sm lg:text-base';
 
-export default function GigsSection() {
-  const gigs = [
-    {
-      date: "11th Feb",
-      venue: "The Login Lounge",
-      location: "Camberley, Surrey",
-      ticketText: "£6 Tickets",
-      ticketUrl: "https://www.loginlounge.co.uk/"
-    },
-    {
-      date: "19th Feb",
-      venue: "Other Space Arts",
-      location: "Windsor, Berkshire",
-      ticketText: "£6 Tickets",
-      ticketUrl: "https://www.otherspacearts.com/event-details-registration/gsmc-presents-third-thursday-music-2026-02-19-19-30"
-    },
-    {
-      date: "27th Feb",
-      venue: "The Oval",
-      location: "Croydon, London",
-      ticketText: "Free Entry",
-      ticketUrl: "https://theovaltavern.co.uk/"
-    }
-  ];
+// CUSTOMIZATION: Loading/empty state text size
+const STATUS_TEXT_SIZE = 'text-sm md:text-lg lg:text-xl';
+
+export default function GigsSection({ onOpenContact }) {
+  const { gigs, loading, error } = useUpcomingGigs();
 
   return (
     <FramedSection className={`mb-0 ${SECTION_WIDTH} flex-shrink-0`}>
       <h2 className={`font-hero ${HEADING_SIZE} mb-4`}>Upcoming Gigs!</h2>
       
-      <div className="space-y-3">
-        {gigs.map((gig, index) => (
-          <div key={index} className="flex justify-between items-center gap-2">
-            {/* Gig info - single line, truncates if needed */}
-            <div className={`font-hero ${GIG_TEXT_SIZE} min-w-0`}>
-              <span className="whitespace-nowrap">{gig.date}</span> - {gig.venue}, {gig.location}
+      {loading ? (
+        <p className={`font-hero ${STATUS_TEXT_SIZE} text-gray-400`}>Loading gigs...</p>
+      ) : error ? (
+        <p className={`font-hero ${STATUS_TEXT_SIZE} text-gray-400`}>Check back soon for upcoming gigs!</p>
+      ) : gigs.length === 0 ? (
+        <p className={`font-hero ${STATUS_TEXT_SIZE} text-gray-400`}>
+          No upcoming gigs right now — stay tuned or{' '}
+          <button
+            onClick={onOpenContact}
+            className="text-blue-400 hover:text-blue-300 active:text-blue-200 underline"
+          >
+            contact us
+          </button>
+          {' '}for available dates to play at your venue!
+        </p>
+      ) : (
+        <div className="space-y-3">
+          {gigs.map((gig) => (
+            <div key={gig.id} className="flex justify-between items-center gap-2">
+              <div className={`font-hero ${GIG_TEXT_SIZE} min-w-0`}>
+                <span className="whitespace-nowrap">
+                  {new Date(gig.date + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                </span> - {gig.venue}, {gig.location}
+              </div>
+              
+              {gig.ticket_url && (
+                <a 
+                  href={gig.ticket_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`text-blue-400 hover:text-blue-300 active:text-blue-200 underline whitespace-nowrap flex-shrink-0 ${TICKET_TEXT_SIZE}`}
+                >
+                  {gig.ticket_text || 'Tickets'}
+                </a>
+              )}
             </div>
-            
-            {/* Ticket link - stays on same line */}
-            <a 
-              href={gig.ticketUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`text-blue-400 hover:text-blue-300 active:text-blue-200 underline whitespace-nowrap flex-shrink-0 ${TICKET_TEXT_SIZE}`}
-            >
-              {gig.ticketText}
-            </a>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </FramedSection>
   );
 }
