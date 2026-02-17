@@ -434,19 +434,28 @@ This document tracks manual testing for each development phase. Automated testin
 
 ### Phase: Database Integration (Pending)
 
-- API calls and data loading
-- Image uploads
-- CRUD operations
-- Error handling
-- Supabase connection
-- Row Level Security
+- [✅] API calls and data loading
+- [✅] Image uploads
+- [✅] CRUD operations
+- [✅] Error handling
+- [✅] Supabase connection
+- [✅] Row Level Security
 
 ### Phase: Admin Dashboard (Pending)
 
-- Authentication
-- Protected routes
-- Content management
-- User submission moderation
+## Testing
+
+- [✅] Login with valid credentials
+- [✅] Login redirect when not authenticated
+- [✅] Logout clears session
+- [✅] Session cleared on browser close
+- [✅] Public site completely unaffected
+- [✅] Site Content: edit and save fields
+- [✅] Social Links: add, edit, delete, icon upload
+- [✅] Videos: add via YouTube URL, edit, delete, visibility toggle
+- [✅] Gigs: add, edit, delete, visibility toggle, date filtering
+- [✅] Gallery: upload with compression, edit metadata, bulk delete, bulk metadata
+- [✅] Dashboard: counts accurate, calendar shows gig dates, card navigation works
 
 ---
 
