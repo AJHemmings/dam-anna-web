@@ -8,6 +8,7 @@ import DashboardHome from './pages/DashboardHome';
 import SiteContentPage from './pages/SiteContentPage';
 import SocialLinksPage from './pages/SocialLinksPage';
 import VideosPage from './pages/VideosPage';
+import GigsPage from './pages/GigsPage';
 
 /**
  * AdminLayout -- Root layout for the admin dashboard.
@@ -82,7 +83,7 @@ function AdminShell() {
         <main className="flex-1 p-6 overflow-y-auto">
           <Routes>
             <Route index element={<DashboardHome />} />
-            <Route path="gigs" element={<PlaceholderPage title="Gigs" />} />
+            <Route path="gigs" element={<GigsPage />} />
             <Route path="gallery" element={<PlaceholderPage title="Gallery" />} />
             <Route path="videos" element={<VideosPage />} />
             <Route path="site-content" element={<SiteContentPage />} />
