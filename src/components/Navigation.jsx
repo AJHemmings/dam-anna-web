@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { label } from 'three/tsl';
 
 /**
  * Navigation - Fixed top navigation bar with blur backdrop
@@ -35,6 +36,7 @@ const NAV_ITEMS = [
   { id: 'about', label: 'About Us', disabled: false },
   { id: 'gigs', label: 'Gigs', disabled: false },
   { id: 'gallery', label: 'Gallery', disabled: false },
+  { id: 'videos', label: 'Videos', disabled: true }, // Hidden until video section is ready
   { id: 'socials', label: 'Socials', disabled: false },
   { id: 'contact', label: 'Contact', disabled: false },
   { id: 'you', label: 'You', disabled: false }, 
