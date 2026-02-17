@@ -6,6 +6,8 @@ import AdminSidebar from './components/AdminSidebar';
 import LoginPage from './pages/LoginPage';
 import DashboardHome from './pages/DashboardHome';
 import SiteContentPage from './pages/SiteContentPage';
+import SocialLinksPage from './pages/SocialLinksPage';
+import VideosPage from './pages/VideosPage';
 
 /**
  * AdminLayout -- Root layout for the admin dashboard.
@@ -82,9 +84,9 @@ function AdminShell() {
             <Route index element={<DashboardHome />} />
             <Route path="gigs" element={<PlaceholderPage title="Gigs" />} />
             <Route path="gallery" element={<PlaceholderPage title="Gallery" />} />
-            <Route path="videos" element={<PlaceholderPage title="Videos" />} />
+            <Route path="videos" element={<VideosPage />} />
             <Route path="site-content" element={<SiteContentPage />} />
-            <Route path="social-links" element={<PlaceholderPage title="Social Links" />} />
+            <Route path="social-links" element={<SocialLinksPage />} />
             <Route path="*" element={<Navigate to="/admin" replace />} />
           </Routes>
         </main>
