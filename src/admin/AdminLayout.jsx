@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthContext } from '../context/AuthContext';
 import AdminRoute from './AdminRoute';
@@ -10,15 +11,15 @@ import SocialLinksPage from './pages/SocialLinksPage';
 import VideosPage from './pages/VideosPage';
 import GigsPage from './pages/GigsPage';
 import GalleryPage from './pages/GalleryPage';
-import AnalyticsPage from './pages/AnalyticsPage';  
+import AnalyticsPage from './pages/AnalyticsPage';
 
 /**
  * AdminLayout -- Root layout for the admin dashboard.
- * 
+ *
  * Handles two concerns:
  * 1. The login page (public, no sidebar/header)
  * 2. The authenticated dashboard (header + sidebar + content area)
- * 
+ *
  * All dashboard pages are wrapped in <AdminRoute> which redirects
  * to /admin/login if the user is not authenticated.
  */
@@ -71,18 +72,31 @@ function LoginPageWrapper() {
 
 /**
  * AdminShell -- Authenticated layout with header, sidebar, and content area.
- * Content area renders nested routes for each admin page.
+ *
+ * Owns the mobile sidebar open/close state and passes it down to
+ * AdminHeader (hamburger button) and AdminSidebar (drawer visibility).
+ *
+ * Desktop/tablet (md+): sidebar is always visible, sidebarOpen is unused.
+ * Mobile (below md): sidebar is a slide-out drawer controlled by sidebarOpen.
  */
 function AdminShell() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-zinc-900 flex flex-col">
-      <AdminHeader />
+      <AdminHeader
+        onMenuClick={() => setSidebarOpen(true)}
+        sidebarOpen={sidebarOpen}
+      />
 
       <div className="flex flex-1 min-h-0">
-        <AdminSidebar />
+        <AdminSidebar
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+        />
 
-        {/* Content area */}
-        <main className="flex-1 p-6 overflow-y-auto">
+        {/* Content area -- reduced padding on mobile */}
+        <main className="flex-1 p-4 md:p-6 overflow-y-auto">
           <Routes>
             <Route index element={<DashboardHome />} />
             <Route path="analytics" element={<AnalyticsPage />} />
@@ -94,23 +108,6 @@ function AdminShell() {
             <Route path="*" element={<Navigate to="/admin" replace />} />
           </Routes>
         </main>
-      </div>
-    </div>
-  );
-}
-
-/**
- * PlaceholderPage -- Temporary page for routes that will get
- * full CRUD implementations in Session 5.
- */
-function PlaceholderPage({ title }) {
-  return (
-    <div>
-      <h1 className="text-2xl font-bold text-white mb-6">{title}</h1>
-      <div className="bg-zinc-800 border border-zinc-700 rounded-lg p-6">
-        <p className="text-zinc-400">
-          {title} management page coming in Session 5.
-        </p>
       </div>
     </div>
   );

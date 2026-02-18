@@ -401,7 +401,8 @@ export default function VideosPage() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            {/* Display Order and Visibility -- stack on mobile, 2 cols on md+ */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="display_order" className="block text-sm font-medium text-zinc-300 mb-1.5">
                   Display Order
@@ -417,7 +418,8 @@ export default function VideosPage() {
                 <p className="mt-1 text-xs text-zinc-500">Lower numbers appear first.</p>
               </div>
 
-              <div className="flex items-center pt-7">
+              {/* pt-7 only applies on md+ where label sits beside the input */}
+              <div className="flex items-center md:pt-7">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
                     type="checkbox"
@@ -479,49 +481,54 @@ export default function VideosPage() {
             return (
               <div
                 key={video.id}
-                className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-4 flex items-center gap-4`}
+                className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-4`}
               >
-                {/* Thumbnail */}
-                <div className={`${THUMBNAIL_WIDTH} ${THUMBNAIL_HEIGHT} flex-shrink-0 rounded overflow-hidden bg-zinc-700`}>
-                  {thumbnail ? (
-                    <img
-                      src={thumbnail}
-                      alt={`${video.title} thumbnail`}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-zinc-500 text-xs">
-                      No thumbnail
-                    </div>
-                  )}
-                </div>
-
-                {/* Video details */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-white font-medium truncate">{video.title}</h3>
-                    {!video.is_visible && (
-                      <span className="text-xs text-zinc-500 bg-zinc-700 px-2 py-0.5 rounded flex-shrink-0">
-                        Hidden
-                      </span>
+                {/* Top row: thumbnail + details */}
+                <div className="flex items-start gap-4">
+                  {/* Thumbnail -- smaller on mobile to give text room */}
+                  <div className="w-24 h-14 md:w-40 md:h-24 flex-shrink-0 rounded overflow-hidden bg-zinc-700">
+                    {thumbnail ? (
+                      <img
+                        src={thumbnail}
+                        alt={`${video.title} thumbnail`}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-zinc-500 text-xs">
+                        No thumbnail
+                      </div>
                     )}
                   </div>
-                  {video.description && (
-                    <p className="text-zinc-400 text-sm truncate mt-0.5">{video.description}</p>
-                  )}
-                  <p className="text-zinc-500 text-xs mt-1 truncate">{video.video_url}</p>
+
+                  {/* Video details */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="text-white font-medium truncate">{video.title}</h3>
+                      {!video.is_visible && (
+                        <span className="text-xs text-zinc-500 bg-zinc-700 px-2 py-0.5 rounded flex-shrink-0">
+                          Hidden
+                        </span>
+                      )}
+                    </div>
+                    {video.description && (
+                      <p className="text-zinc-400 text-sm truncate mt-0.5">{video.description}</p>
+                    )}
+                    <p className="text-zinc-500 text-xs mt-1 truncate">{video.video_url}</p>
+                    {/* Order badge inline on mobile */}
+                    <p className="md:hidden text-xs text-zinc-600 mt-1">Order: {video.display_order}</p>
+                  </div>
+
+                  {/* Order badge -- desktop only */}
+                  <span className="hidden md:block text-xs text-zinc-500 flex-shrink-0">
+                    Order: {video.display_order}
+                  </span>
                 </div>
 
-                {/* Order badge */}
-                <span className="text-xs text-zinc-500 flex-shrink-0">
-                  Order: {video.display_order}
-                </span>
-
-               {/* Actions */}
-                <div className="flex items-center gap-2 flex-shrink-0">
+                {/* Actions row */}
+                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-zinc-700">
                   <button
                     onClick={() => handleToggleVisibility(video)}
-                    className={`p-1.5 rounded transition-colors ${BTN_SECONDARY}`}
+                    className={`p-2 rounded transition-colors ${BTN_SECONDARY}`}
                     title={video.is_visible ? 'Hide from public site' : 'Show on public site'}
                     aria-label={video.is_visible ? 'Hide video' : 'Show video'}
                   >
@@ -540,13 +547,13 @@ export default function VideosPage() {
                   </button>
                   <button
                     onClick={() => handleEdit(video)}
-                    className={`px-3 py-1.5 text-sm rounded transition-colors ${BTN_SECONDARY}`}
+                    className={`px-3 py-2 text-sm rounded transition-colors ${BTN_SECONDARY}`}
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => setDeleteConfirm(video)}
-                    className={`px-3 py-1.5 text-sm rounded transition-colors ${BTN_DANGER}`}
+                    className={`px-3 py-2 text-sm rounded transition-colors ${BTN_DANGER}`}
                   >
                     Delete
                   </button>

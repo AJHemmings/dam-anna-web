@@ -27,6 +27,7 @@ const CARD_DISABLED_BORDER = 'border border-zinc-700/50';
 const CARD_DISABLED_TEXT = 'text-zinc-600';
 
 // CUSTOMIZATION: Grid layout
+// Mobile: single column. Tablet (md): 2 columns. Desktop (xl): 3 columns.
 const GRID_LAYOUT = 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4';
 
 // CUSTOMIZATION: Count text size
@@ -158,7 +159,8 @@ export default function DashboardHome() {
 
       <div className={GRID_LAYOUT}>
         {/* Upcoming Gigs card with calendar */}
-        <div className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} ${CARD_HOVER} p-5 row-span-2`}
+        {/* md:col-span-2 xl:col-span-1 -- takes full width on tablet so calendar has room */}
+        <div className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} ${CARD_HOVER} p-4 md:p-5 md:col-span-2 xl:col-span-1`}
           onClick={() => navigate('/admin/gigs')}
         >
           <div className="flex items-center justify-between mb-4">
@@ -176,7 +178,7 @@ export default function DashboardHome() {
 
         {/* Gallery Images card */}
         <div
-          className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} ${CARD_HOVER} p-5 flex items-center gap-4`}
+          className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} ${CARD_HOVER} p-4 md:p-5 flex items-center gap-4`}
           onClick={() => navigate('/admin/gallery')}
         >
           <div className={`${LABEL_COLOR}`}>{ICONS.gallery}</div>
@@ -188,7 +190,7 @@ export default function DashboardHome() {
 
         {/* Videos card */}
         <div
-          className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} ${CARD_HOVER} p-5 flex items-center gap-4`}
+          className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} ${CARD_HOVER} p-4 md:p-5 flex items-center gap-4`}
           onClick={() => navigate('/admin/videos')}
         >
           <div className={`${LABEL_COLOR}`}>{ICONS.videos}</div>
@@ -200,7 +202,7 @@ export default function DashboardHome() {
 
         {/* Vercel Analytics card */}
         <div
-          className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} ${CARD_HOVER} p-5`}
+          className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} ${CARD_HOVER} p-4 md:p-5`}
           onClick={() => navigate('/admin/analytics')}
         >
           <div className="flex items-center gap-4 mb-3">
@@ -216,7 +218,7 @@ export default function DashboardHome() {
         </div>
 
         {/* Social Media card -- disabled */}
-        <div className={`${CARD_DISABLED_BG} ${CARD_DISABLED_BORDER} ${CARD_RADIUS} p-5 cursor-not-allowed`}>
+        <div className={`${CARD_DISABLED_BG} ${CARD_DISABLED_BORDER} ${CARD_RADIUS} p-4 md:p-5 cursor-not-allowed`}>
           <div className="flex items-center gap-4 mb-3">
             <div className={CARD_DISABLED_TEXT}>{ICONS.social}</div>
             <div>
