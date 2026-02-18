@@ -1,4 +1,5 @@
-# Touch Target Audit 
+# Touch Target Audit
+
 ## Admin Dashboard Mobile Responsiveness
 
 **Standard:** Apple HIG and Google Material Design both recommend a minimum
@@ -10,48 +11,55 @@ added or modified in Session 5.
 ## ✅ Passing elements
 
 ### AdminHeader
+
 | Element | Size | Notes |
-|---|---|---|
+| --- | --- | --- |
 | Hamburger button | `p-2` + `w-5 h-5` icon = ~36px hit area, but `h-16` header centres it in a 64px tall row | Effectively 44px+ vertically due to header height |
 | Log out button | `px-3 py-1.5` | Borderline -- see recommendation below |
 
 ### AdminSidebar
+
 | Element | Size | Notes |
-|---|---|---|
+| --- | --- | --- |
 | Nav links (desktop + drawer) | `px-4 py-3` = ~44px tall | ✅ Passes |
 | Drawer close (X) button | `p-2` + `w-5 h-5` icon | ~36px hit area, acceptable in a header row context |
 
 ### GigsPage
+
 | Element | Size | Notes |
-|---|---|---|
+| --- | --- | --- |
 | Form inputs | `py-2.5` | ✅ Passes |
 | Save / Cancel buttons | `px-4 py-2` | ✅ Passes |
 | GigCard Edit / Delete | `py-2` | ✅ Passes |
 | GigCard visibility icon | `p-2` | ✅ Passes |
 
 ### VideosPage
+
 | Element | Size | Notes |
-|---|---|---|
+| --- | --- | --- |
 | Form inputs | `py-2.5` | ✅ Passes |
 | Save / Cancel buttons | `px-4 py-2` | ✅ Passes |
 | VideoCard Edit / Delete / visibility | `p-2` / `py-2` | ✅ Passes |
 
 ### SocialLinksPage
+
 | Element | Size | Notes |
-|---|---|---|
+| --- | --- | --- |
 | Form inputs | `py-2.5` | ✅ Passes |
 | Save / Cancel buttons | `px-4 py-2` | ✅ Passes |
 | LinkCard Edit / Delete | `py-2` | ✅ Passes |
 
 ### SiteContentPage
+
 | Element | Size | Notes |
-|---|---|---|
+| --- | --- | --- |
 | Text inputs / textareas | `py-2.5` | ✅ Passes |
 | Save button | `px-4 py-2` | ✅ Passes |
 
 ### GalleryPage -- bulk toolbar, upload zone, dialogs
+
 | Element | Size | Notes |
-|---|---|---|
+| --- | --- | --- |
 | Bulk select / Bulk mode button | `py-2` | ✅ Passes |
 | Select all / Deselect all (text buttons) | Full-width tap area in stacked row | ✅ Passes |
 | Edit metadata / Delete selected | `py-2` | ✅ Passes |
@@ -68,8 +76,9 @@ are compact by design (5 columns on desktop, 2 on mobile). Making the buttons
 full 44px would consume more space than the card's content area allows.
 
 ### GalleryPage -- inline card buttons (Edit, Replace, Delete, Save, Cancel)
+
 | Element | Current size | 44px compliant? |
-|---|---|---|
+| --- | --- | --- |
 | Edit / Replace / Delete (action bar) | `px-2 py-1.5 text-xs` | ❌ ~30px tall |
 | Save / Cancel (edit form) | `px-2 py-1.5 text-xs` | ❌ ~30px tall |
 | Save / Cancel (replace panel) | `px-2 py-1.5 text-xs` | ❌ ~30px tall |
@@ -84,6 +93,7 @@ large square target) is the recommended mobile workflow for multi-image
 operations, specifically to avoid the small per-card buttons.
 
 **Mitigation already in place:**
+
 - Bulk select uses the full square thumbnail as the tap target (large ✅)
 - Visibility toggle is on the thumbnail overlay (larger surface than a standalone icon button)
 - Edit / Replace / Delete span the full card width as a group via `flex` layout
@@ -110,7 +120,7 @@ buttons. This would remove the constraint of fitting inside a small card.
 ## Summary
 
 | Page | Status |
-|---|---|
+| --- | --- |
 | AdminHeader | ✅ Passes (minor Log out recommendation) |
 | AdminSidebar | ✅ Passes |
 | GigsPage | ✅ Passes |
