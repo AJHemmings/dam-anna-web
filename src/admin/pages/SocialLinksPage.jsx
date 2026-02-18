@@ -245,7 +245,8 @@ export default function SocialLinksPage() {
           </h2>
 
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            {/* Platform ID and Display Name -- stack on mobile, 2 cols on md+ */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="platform" className="block text-sm font-medium text-zinc-300 mb-1.5">
                   Platform ID
@@ -296,7 +297,8 @@ export default function SocialLinksPage() {
               onChange={(iconPath) => handleFormChange('icon_path', iconPath)}
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            {/* Display Order and Visibility -- stack on mobile, 2 cols on md+ */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="display_order" className="block text-sm font-medium text-zinc-300 mb-1.5">
                   Display Order
@@ -312,7 +314,7 @@ export default function SocialLinksPage() {
                 <p className="mt-1 text-xs text-zinc-500">Lower numbers appear first.</p>
               </div>
 
-              <div className="flex items-center pt-7">
+              <div className="flex items-center md:pt-7">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
                     type="checkbox"
@@ -362,49 +364,56 @@ export default function SocialLinksPage() {
           {links.map((link) => (
             <div
               key={link.id}
-              className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-4 flex items-center gap-4`}
+              className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-4`}
             >
-              {/* Icon preview */}
-              <div className="w-10 h-10 flex-shrink-0 flex items-center justify-center">
-                {link.icon_path ? (
-                  <img src={link.icon_path} alt={`${link.name} icon`} className="w-8 h-8" />
-                ) : (
-                  <div className="w-8 h-8 bg-zinc-700 rounded" />
-                )}
-              </div>
-
-              {/* Link details */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-white font-medium">{link.name}</h3>
-                  {!link.is_visible && (
-                    <span className="text-xs text-zinc-500 bg-zinc-700 px-2 py-0.5 rounded">
-                      Hidden
-                    </span>
+              {/* Top row: icon + details + order badge */}
+              <div className="flex items-center gap-4">
+                {/* Icon preview */}
+                <div className="w-10 h-10 flex-shrink-0 flex items-center justify-center">
+                  {link.icon_path ? (
+                    <img src={link.icon_path} alt={`${link.name} icon`} className="w-8 h-8" />
+                  ) : (
+                    <div className="w-8 h-8 bg-zinc-700 rounded" />
                   )}
                 </div>
-                <p className="text-zinc-400 text-sm truncate">{link.url}</p>
+
+                {/* Link details */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-white font-medium">{link.name}</h3>
+                    {!link.is_visible && (
+                      <span className="text-xs text-zinc-500 bg-zinc-700 px-2 py-0.5 rounded">
+                        Hidden
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-zinc-400 text-sm truncate">{link.url}</p>
+                </div>
+
+                {/* Order badge -- desktop only */}
+                <span className="hidden md:block text-xs text-zinc-500 flex-shrink-0">
+                  Order: {link.display_order}
+                </span>
               </div>
 
-              {/* Order badge */}
-              <span className="text-xs text-zinc-500 flex-shrink-0">
-                Order: {link.display_order}
-              </span>
-
-              {/* Actions */}
-              <div className="flex items-center gap-2 flex-shrink-0">
+              {/* Actions row */}
+              <div className="flex items-center gap-2 mt-3 pt-3 border-t border-zinc-700">
                 <button
                   onClick={() => handleEdit(link)}
-                  className={`px-3 py-1.5 text-sm rounded transition-colors ${BTN_SECONDARY}`}
+                  className={`px-3 py-2 text-sm rounded transition-colors ${BTN_SECONDARY}`}
                 >
                   Edit
                 </button>
                 <button
                   onClick={() => setDeleteConfirm(link)}
-                  className={`px-3 py-1.5 text-sm rounded transition-colors ${BTN_DANGER}`}
+                  className={`px-3 py-2 text-sm rounded transition-colors ${BTN_DANGER}`}
                 >
                   Delete
                 </button>
+                {/* Order badge -- mobile only */}
+                <span className="md:hidden ml-auto text-xs text-zinc-500">
+                  Order: {link.display_order}
+                </span>
               </div>
             </div>
           ))}

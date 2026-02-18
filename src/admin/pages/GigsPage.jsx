@@ -288,7 +288,8 @@ export default function GigsPage() {
           </h2>
 
           <div className="space-y-4">
-            <div className="grid grid-cols-3 gap-4">
+            {/* Date, Venue, Location -- stack on mobile, 3 cols on md+ */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label htmlFor="date" className="block text-sm font-medium text-zinc-300 mb-1.5">
                   Date
@@ -331,7 +332,8 @@ export default function GigsPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            {/* Ticket Text and URL -- stack on mobile, 2 cols on md+ */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="ticket_text" className="block text-sm font-medium text-zinc-300 mb-1.5">
                   Ticket Button Text
@@ -392,7 +394,8 @@ export default function GigsPage() {
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-4">
+            {/* Display Order and Visibility -- stack on mobile, 2 cols on md+ */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="display_order" className="block text-sm font-medium text-zinc-300 mb-1.5">
                   Display Order
@@ -537,56 +540,62 @@ export default function GigsPage() {
 /**
  * GigCard -- Individual gig row in the list.
  * Extracted as a component to keep the main render clean.
+ *
+ * Mobile: details and actions stack vertically.
+ * Tablet/desktop: single row with actions on the right.
  */
 function GigCard({ gig, onEdit, onDelete, onToggleVisibility }) {
   const upcoming = isUpcoming(gig.date);
 
   return (
-    <div className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-4 flex items-center gap-4`}>
-      {/* Venue image thumbnail */}
-      <div className="w-12 h-12 flex-shrink-0 rounded overflow-hidden bg-zinc-700 flex items-center justify-center">
-        {gig.image_url ? (
-          <img
-            src={gig.image_url}
-            alt={`${gig.venue} logo`}
-            className="w-full h-full object-contain"
-            onError={(e) => { e.target.style.display = 'none'; }}
-          />
-        ) : (
-          <span className="text-zinc-500 text-xs">No img</span>
-        )}
-      </div>
-
-      {/* Gig details */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <h3 className="text-white font-medium">{gig.venue}</h3>
-          {!gig.is_visible && (
-            <span className="text-xs text-zinc-500 bg-zinc-700 px-2 py-0.5 rounded">
-              Hidden
-            </span>
+    <div className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-4`}>
+      {/* Top row: thumbnail + details + order badge */}
+      <div className="flex items-start gap-4">
+        {/* Venue image thumbnail */}
+        <div className="w-12 h-12 flex-shrink-0 rounded overflow-hidden bg-zinc-700 flex items-center justify-center">
+          {gig.image_url ? (
+            <img
+              src={gig.image_url}
+              alt={`${gig.venue} logo`}
+              className="w-full h-full object-contain"
+              onError={(e) => { e.target.style.display = 'none'; }}
+            />
+          ) : (
+            <span className="text-zinc-500 text-xs">No img</span>
           )}
         </div>
-        <p className="text-zinc-400 text-sm">
-          {formatDate(gig.date)} -- {gig.location}
-        </p>
-        {upcoming && gig.ticket_text && (
-          <p className="text-zinc-500 text-xs mt-0.5">
-            Ticket: {gig.ticket_text}
+
+        {/* Gig details */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="text-white font-medium">{gig.venue}</h3>
+            {!gig.is_visible && (
+              <span className="text-xs text-zinc-500 bg-zinc-700 px-2 py-0.5 rounded">
+                Hidden
+              </span>
+            )}
+          </div>
+          <p className="text-zinc-400 text-sm">
+            {formatDate(gig.date)} -- {gig.location}
           </p>
-        )}
+          {upcoming && gig.ticket_text && (
+            <p className="text-zinc-500 text-xs mt-0.5">
+              Ticket: {gig.ticket_text}
+            </p>
+          )}
+        </div>
+
+        {/* Order badge -- desktop only, hidden on mobile to save space */}
+        <span className="hidden md:block text-xs text-zinc-500 flex-shrink-0">
+          Order: {gig.display_order}
+        </span>
       </div>
 
-      {/* Order badge */}
-      <span className="text-xs text-zinc-500 flex-shrink-0">
-        Order: {gig.display_order}
-      </span>
-
-      {/* Actions */}
-      <div className="flex items-center gap-2 flex-shrink-0">
+      {/* Actions row -- sits below on all sizes for consistent layout */}
+      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-zinc-700">
         <button
           onClick={() => onToggleVisibility(gig)}
-          className="p-1.5 rounded transition-colors bg-zinc-700 hover:bg-zinc-600"
+          className="p-2 rounded transition-colors bg-zinc-700 hover:bg-zinc-600"
           title={gig.is_visible ? 'Hide from public site' : 'Show on public site'}
           aria-label={gig.is_visible ? 'Hide gig' : 'Show gig'}
         >
@@ -605,16 +614,20 @@ function GigCard({ gig, onEdit, onDelete, onToggleVisibility }) {
         </button>
         <button
           onClick={() => onEdit(gig)}
-          className="px-3 py-1.5 text-sm rounded transition-colors bg-zinc-700 hover:bg-zinc-600"
+          className="px-3 py-2 text-sm rounded transition-colors bg-zinc-700 hover:bg-zinc-600 text-white"
         >
           Edit
         </button>
         <button
           onClick={() => onDelete(gig)}
-          className="px-3 py-1.5 text-sm rounded transition-colors bg-red-600 text-white hover:bg-red-700"
+          className="px-3 py-2 text-sm rounded transition-colors bg-red-600 text-white hover:bg-red-700"
         >
           Delete
         </button>
+        {/* Order badge -- mobile only, shown here instead of top row */}
+        <span className="md:hidden ml-auto text-xs text-zinc-500">
+          Order: {gig.display_order}
+        </span>
       </div>
     </div>
   );

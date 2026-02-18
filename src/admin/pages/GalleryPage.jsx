@@ -39,6 +39,7 @@ const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gi
 const MAX_FILE_SIZE_MB = 20;
 
 // CUSTOMIZATION: Gallery grid
+// Mobile: 2 cols (good for thumb browsing). Tablet: 3. Desktop: 4-5.
 const GRID_COLS = 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5';
 const THUMBNAIL_ASPECT = 'aspect-square';
 
@@ -119,6 +120,16 @@ export default function GalleryPage() {
   const [editFormData, setEditFormData] = useState({});
   const [editSaving, setEditSaving] = useState(false);
   const [editMessage, setEditMessage] = useState(null);
+
+  // Replace image state
+  const [replacingImage, setReplacingImage] = useState(null);
+  const [replaceMode, setReplaceMode] = useState(null);   // 'url' | 'file'
+  const [replaceUrl, setReplaceUrl] = useState('');
+  const [replaceFile, setReplaceFile] = useState(null);
+  const [replacePreview, setReplacePreview] = useState(null);
+  const [replaceSaving, setReplaceSaving] = useState(false);
+  const [replaceMessage, setReplaceMessage] = useState(null);
+  const replaceFileInputRef = useRef(null);
 
   // Delete state
   const [deleteConfirm, setDeleteConfirm] = useState(null);
@@ -210,10 +221,18 @@ export default function GalleryPage() {
     }));
     setUploadProgress(progressEntries);
 
-    const currentDisplayOrder = images.length;
+    // Find the current minimum display_order so new uploads slot in before everything else.
+    // For multi-file uploads, each file gets a decrementing value so the batch
+    // arrives in the order it was selected (first file = lowest number = first in list).
+    const minOrder = images.length > 0
+      ? Math.min(...images.map((img) => img.display_order ?? 0))
+      : 0;
 
     for (let i = 0; i < validFiles.length; i++) {
       const file = validFiles[i];
+      // Each file in the batch gets a value one lower than the previous,
+      // so file 0 is first, file 1 is second, and so on.
+      const newDisplayOrder = minOrder - (validFiles.length - i);
 
       try {
         // Compress
@@ -256,7 +275,7 @@ export default function GalleryPage() {
             alt: file.name.replace(/\.[^/.]+$/, ''),
             date: '',
             location: '',
-            display_order: currentDisplayOrder + i + 1,
+            display_order: newDisplayOrder,
             is_visible: true,
             storage_path: storagePath,
           });
@@ -389,6 +408,134 @@ export default function GalleryPage() {
       await fetchImages();
     } catch (err) {
       console.error('Error toggling image visibility:', err);
+    }
+  }
+
+  // ─── Replace image handling ───
+
+  function handleReplace(image) {
+    // Close edit form if open
+    setEditingImage(null);
+    setEditFormData({});
+    setEditMessage(null);
+
+    setReplacingImage(image);
+    setReplaceMode(null);
+    setReplaceUrl(image.url || '');
+    setReplaceFile(null);
+    setReplacePreview(null);
+    setReplaceMessage(null);
+  }
+
+  function handleReplaceCancel() {
+    // Revoke any object URL here to free memory -- done on close, not on save,
+    // to avoid the img tag trying to render a revoked URL before unmount.
+    if (replacePreview) URL.revokeObjectURL(replacePreview);
+
+    setReplacingImage(null);
+    setReplaceMode(null);
+    setReplaceUrl('');
+    setReplaceFile(null);
+    setReplacePreview(null);
+    setReplaceMessage(null);
+  }
+
+  function handleReplaceUrlChange(url) {
+    setReplaceUrl(url);
+    setReplaceMode('url');
+    // Clear file selection -- URL wins
+    setReplaceFile(null);
+    setReplacePreview(null);
+  }
+
+  function handleReplaceFileChange(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setReplaceFile(file);
+    setReplaceMode('file');
+    // Show local preview
+    const objectUrl = URL.createObjectURL(file);
+    setReplacePreview(objectUrl);
+    // Clear URL input -- file wins
+    e.target.value = '';
+  }
+
+  async function handleReplaceSave() {
+    if (!replacingImage || !replaceMode) return;
+
+    setReplaceSaving(true);
+    setReplaceMessage(null);
+
+    try {
+      // Helper: delete old storage file if it existed
+      async function deleteOldStorageFile() {
+        if (replacingImage.storage_path) {
+          const { error: storageError } = await supabase
+            .storage
+            .from('gallery')
+            .remove([replacingImage.storage_path]);
+
+          if (storageError) {
+            console.error('Old storage file delete error (continuing):', storageError);
+          }
+        }
+      }
+
+      if (replaceMode === 'file') {
+        // Compress and upload new file
+        const { blob } = await compressImage(replaceFile);
+        const storagePath = generateStoragePath();
+
+        const { error: uploadError } = await supabase
+          .storage
+          .from('gallery')
+          .upload(storagePath, blob, {
+            contentType: 'image/webp',
+            upsert: false,
+          });
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase
+          .storage
+          .from('gallery')
+          .getPublicUrl(storagePath);
+
+        // Delete old storage file before updating DB
+        await deleteOldStorageFile();
+
+        const { error: updateError } = await supabase
+          .from('gallery_images')
+          .update({ url: publicUrl, storage_path: storagePath })
+          .eq('id', replacingImage.id);
+
+        if (updateError) throw updateError;
+
+      } else {
+        // URL mode -- update url, clear storage_path
+        await deleteOldStorageFile();
+
+        const { error: updateError } = await supabase
+          .from('gallery_images')
+          .update({ url: replaceUrl.trim(), storage_path: null })
+          .eq('id', replacingImage.id);
+
+        if (updateError) throw updateError;
+      }
+
+      setReplaceMessage({ type: 'success', text: 'Image replaced.' });
+      await fetchImages();
+
+      setTimeout(() => {
+        handleReplaceCancel();
+      }, 1500);
+
+    } catch (err) {
+      console.error('Error replacing image:', err);
+      setReplaceMessage({ type: 'error', text: err.message || 'Failed to replace image.' });
+    } finally {
+      setReplaceSaving(false);
     }
   }
 
@@ -555,10 +702,10 @@ export default function GalleryPage() {
         </div>
       </div>
 
-      {/* Bulk mode toolbar */}
+      {/* Bulk mode toolbar -- stacks on mobile, single row on sm+ */}
       {bulkMode && (
-        <div className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-4 mb-6 flex items-center justify-between`}>
-          <div className="flex items-center gap-3">
+        <div className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-4 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3`}>
+          <div className="flex items-center gap-3 flex-wrap">
             <span className="text-white text-sm font-medium">
               {selectedCount} selected
             </span>
@@ -576,18 +723,18 @@ export default function GalleryPage() {
             </button>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={() => { setShowBulkMetadata(true); setShowBulkDelete(false); }}
               disabled={selectedCount === 0}
-              className={`px-3 py-1.5 text-sm rounded transition-colors ${BTN_SECONDARY} ${BTN_DISABLED}`}
+              className={`px-3 py-2 text-sm rounded transition-colors ${BTN_SECONDARY} ${BTN_DISABLED}`}
             >
               Edit metadata
             </button>
             <button
               onClick={() => { setShowBulkDelete(true); setShowBulkMetadata(false); }}
               disabled={selectedCount === 0}
-              className={`px-3 py-1.5 text-sm rounded transition-colors ${BTN_DANGER} ${BTN_DISABLED}`}
+              className={`px-3 py-2 text-sm rounded transition-colors ${BTN_DANGER} ${BTN_DISABLED}`}
             >
               Delete selected
             </button>
@@ -605,7 +752,8 @@ export default function GalleryPage() {
             Only fill in the fields you want to update. Blank fields will be left unchanged.
           </p>
 
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          {/* Date and Location -- stack on mobile, 2 cols on md+ */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <label htmlFor="bulk-date" className="block text-sm font-medium text-zinc-300 mb-1.5">
                 Date
@@ -684,7 +832,14 @@ export default function GalleryPage() {
           <p className="text-sm">
             {isDragging
               ? 'Drop images here...'
-              : 'Drag and drop images here, or click to browse'
+              : (
+                <>
+                  <span className="hidden sm:inline">Drag and drop images here, or </span>
+                  <span className="sm:hidden">Tap to browse images, or </span>
+                  <span className="hidden sm:inline">click to browse</span>
+                  <span className="sm:hidden">drag and drop</span>
+                </>
+              )
             }
           </p>
           <p className="text-xs text-zinc-500 mt-1">
@@ -745,6 +900,7 @@ export default function GalleryPage() {
           {images.map((image) => {
             const isSelected = selectedIds.has(image.id);
             const isEditing = editingImage === image.id;
+            const isReplacing = replacingImage?.id === image.id;
 
             return (
               <div
@@ -786,7 +942,30 @@ export default function GalleryPage() {
                     </div>
                   )}
 
-                  {/* Hidden badge */}
+                  {/* Visibility toggle overlay -- top left, badge style, hidden in bulk mode */}
+                  {!bulkMode && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleToggleVisibility(image); }}
+                      className="absolute top-2 left-2 bg-black/60 rounded px-1.5 py-0.5 transition-opacity hover:opacity-80"
+                      title={image.is_visible ? 'Hide image' : 'Show image'}
+                      aria-label={image.is_visible ? 'Hide image' : 'Show image'}
+                    >
+                      {image.is_visible ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 text-white">
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                          <circle cx="12" cy="12" r="3" />
+                        </svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 text-zinc-400">
+                          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                          <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                          <line x1="1" y1="1" x2="23" y2="23" />
+                        </svg>
+                      )}
+                    </button>
+                  )}
+
+                  {/* Hidden badge -- top right */}
                   {!image.is_visible && (
                     <div className="absolute top-2 right-2 bg-black/60 text-zinc-300 text-xs px-2 py-0.5 rounded">
                       Hidden
@@ -808,7 +987,81 @@ export default function GalleryPage() {
 
                 {/* Image info and actions */}
                 <div className="p-2.5">
-                  {isEditing ? (
+                  {isReplacing ? (
+                    // Replace image panel
+                    <div className="space-y-2">
+                      {/* Current image reminder */}
+                      <p className="text-zinc-500 text-xs">Replacing this image. Last change wins.</p>
+
+                      {/* Hidden file input for replace */}
+                      <input
+                        ref={replaceFileInputRef}
+                        type="file"
+                        accept={ACCEPTED_IMAGE_TYPES.join(',')}
+                        onChange={handleReplaceFileChange}
+                        className="hidden"
+                      />
+
+                      {/* New file preview or URL preview */}
+                      {(replacePreview || (replaceMode === 'url' && replaceUrl)) && (
+                        <div className="w-full aspect-video rounded overflow-hidden bg-zinc-700">
+                          <img
+                            src={replacePreview || replaceUrl}
+                            alt="Replacement preview"
+                            className="w-full h-full object-cover"
+                            onError={(e) => { e.target.style.display = 'none'; }}
+                          />
+                        </div>
+                      )}
+
+                      {/* Upload new file button */}
+                      <button
+                        onClick={() => replaceFileInputRef.current?.click()}
+                        disabled={replaceSaving}
+                        className={`w-full px-2 py-1.5 text-xs rounded border border-dashed border-zinc-600 text-zinc-400 hover:border-zinc-400 hover:text-white transition-colors ${BTN_DISABLED} ${
+                          replaceMode === 'file' ? 'border-white text-white' : ''
+                        }`}
+                      >
+                        {replaceFile ? replaceFile.name : 'Upload new image'}
+                      </button>
+
+                      {/* URL input */}
+                      <input
+                        type="url"
+                        value={replaceUrl}
+                        onChange={(e) => handleReplaceUrlChange(e.target.value)}
+                        placeholder="Or paste image URL"
+                        disabled={replaceSaving}
+                        className={`w-full px-2 py-1.5 bg-zinc-900 border rounded text-white text-xs placeholder-zinc-600 focus:outline-none focus:border-white transition-colors ${BTN_DISABLED} ${
+                          replaceMode === 'url' ? 'border-white' : 'border-zinc-600'
+                        }`}
+                      />
+
+                      {/* Save / Cancel */}
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={handleReplaceSave}
+                          disabled={replaceSaving || !replaceMode}
+                          className={`flex-1 px-2 py-1.5 text-xs font-medium rounded transition-colors ${BTN_PRIMARY} ${BTN_DISABLED}`}
+                        >
+                          {replaceSaving ? 'Replacing...' : 'Replace'}
+                        </button>
+                        <button
+                          onClick={handleReplaceCancel}
+                          disabled={replaceSaving}
+                          className={`flex-1 px-2 py-1.5 text-xs font-medium rounded transition-colors ${BTN_SECONDARY} ${BTN_DISABLED}`}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+
+                      {replaceMessage && (
+                        <p className={`text-xs ${replaceMessage.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>
+                          {replaceMessage.text}
+                        </p>
+                      )}
+                    </div>
+                  ) : isEditing ? (
                     // Edit form inline
                     <div className="space-y-2">
                       <input
@@ -818,22 +1071,24 @@ export default function GalleryPage() {
                         placeholder="Description"
                         className="w-full px-2 py-1.5 bg-zinc-900 border border-zinc-600 rounded text-white text-xs focus:outline-none focus:border-white"
                       />
-                      <div className="grid grid-cols-2 gap-1.5">
+                      {/* Date and Location -- stack on mobile, 2 cols on sm+ */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                         <input
                           type="date"
                           value={editFormData.date}
                           onChange={(e) => handleEditChange('date', e.target.value)}
                           placeholder="Date"
-                          className="px-2 py-1.5 bg-zinc-900 border border-zinc-600 rounded text-white text-xs focus:outline-none focus:border-white"
+                          className="w-full px-2 py-1.5 bg-zinc-900 border border-zinc-600 rounded text-white text-xs focus:outline-none focus:border-white"
                         />
                         <input
                           type="text"
                           value={editFormData.location}
                           onChange={(e) => handleEditChange('location', e.target.value)}
                           placeholder="Location"
-                          className="px-2 py-1.5 bg-zinc-900 border border-zinc-600 rounded text-white text-xs focus:outline-none focus:border-white"
+                          className="w-full px-2 py-1.5 bg-zinc-900 border border-zinc-600 rounded text-white text-xs focus:outline-none focus:border-white"
                         />
                       </div>
+                      {/* Order and Visibility -- always 2 cols (compact fields) */}
                       <div className="grid grid-cols-2 gap-1.5">
                         <input
                           type="number"
@@ -858,14 +1113,14 @@ export default function GalleryPage() {
                         <button
                           onClick={handleEditSave}
                           disabled={editSaving}
-                          className={`flex-1 px-2 py-1 text-xs font-medium rounded transition-colors ${BTN_PRIMARY} ${BTN_DISABLED}`}
+                          className={`flex-1 px-2 py-1.5 text-xs font-medium rounded transition-colors ${BTN_PRIMARY} ${BTN_DISABLED}`}
                         >
                           {editSaving ? 'Saving...' : 'Save'}
                         </button>
                         <button
                           onClick={handleEditCancel}
                           disabled={editSaving}
-                          className={`flex-1 px-2 py-1 text-xs font-medium rounded transition-colors ${BTN_SECONDARY} ${BTN_DISABLED}`}
+                          className={`flex-1 px-2 py-1.5 text-xs font-medium rounded transition-colors ${BTN_SECONDARY} ${BTN_DISABLED}`}
                         >
                           Cancel
                         </button>
@@ -887,37 +1142,24 @@ export default function GalleryPage() {
                         {[image.date, image.location].filter(Boolean).join(' -- ') || 'No metadata'}
                       </p>
 
-                      {/* Action buttons */}
+                      {/* Action buttons -- Edit left, Replace middle, Delete pinned right */}
                       {!bulkMode && (
                         <div className="flex items-center gap-1 mt-2">
                           <button
-                            onClick={() => handleToggleVisibility(image)}
-                            className="p-1 rounded transition-colors bg-zinc-700 hover:bg-zinc-600"
-                            title={image.is_visible ? 'Hide' : 'Show'}
-                            aria-label={image.is_visible ? 'Hide image' : 'Show image'}
-                          >
-                            {image.is_visible ? (
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
-                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                                <circle cx="12" cy="12" r="3" />
-                              </svg>
-                            ) : (
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 text-zinc-500">
-                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-                                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-                                <line x1="1" y1="1" x2="23" y2="23" />
-                              </svg>
-                            )}
-                          </button>
-                          <button
                             onClick={() => handleEdit(image)}
-                            className="px-2 py-1 text-xs rounded transition-colors bg-zinc-700 hover:bg-zinc-600"
+                            className="px-2 py-1.5 text-xs rounded transition-colors bg-zinc-700 hover:bg-zinc-600 text-white"
                           >
                             Edit
                           </button>
                           <button
+                            onClick={() => handleReplace(image)}
+                            className="px-2 py-1.5 text-xs rounded transition-colors bg-zinc-700 hover:bg-zinc-600 text-white"
+                          >
+                            Replace
+                          </button>
+                          <button
                             onClick={() => setDeleteConfirm(image)}
-                            className="ml-25 px-2 py-1 text-xs font-bold rounded transition-colors bg-red-800 hover:bg-red-700"
+                            className="ml-auto px-2 py-1.5 text-xs font-bold rounded transition-colors bg-red-800 hover:bg-red-700 text-white"
                           >
                             Delete
                           </button>

@@ -189,7 +189,11 @@ export default function SiteContentPage() {
 
           return (
             <div key={entry.id} className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-5`}>
-              <div className="flex items-start justify-between gap-4">
+              {/*
+                Mobile: stack label, input, then save button full-width below.
+                Tablet (md+): side-by-side -- input takes flex-1, save button sits to the right.
+              */}
+              <div className="flex flex-col md:flex-row md:items-start md:gap-4">
                 <div className="flex-1">
                   <label
                     htmlFor={`field-${entry.key}`}
@@ -217,7 +221,11 @@ export default function SiteContentPage() {
                   )}
                 </div>
 
-                <div className="flex flex-col items-end gap-2 pt-7">
+                {/*
+                  Mobile: save button sits below the input, left-aligned, with top margin.
+                  Tablet (md+): save button sits to the right with pt-7 to align below the label.
+                */}
+                <div className="flex items-center md:flex-col md:items-end gap-2 mt-3 md:mt-0 md:pt-7">
                   <button
                     onClick={() => handleSave(entry)}
                     disabled={!changed || isSaving}
