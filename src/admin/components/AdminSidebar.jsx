@@ -128,7 +128,7 @@ export default function AdminSidebar({ isOpen, onClose }) {
             <span className="text-white font-semibold text-sm">Menu</span>
             <button
               onClick={onClose}
-              className="p-2 text-zinc-400 hover:text-white rounded transition-colors"
+              className="p-2.5 text-zinc-400 hover:text-white rounded transition-colors"
               aria-label="Close navigation menu"
             >
               {/* X icon */}

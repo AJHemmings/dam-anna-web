@@ -43,7 +43,7 @@ export default function AdminHeader({ onMenuClick, sidebarOpen }) {
         {/* Hamburger button -- mobile only */}
         <button
           onClick={onMenuClick}
-          className="md:hidden p-2 text-zinc-400 hover:text-white rounded transition-colors"
+          className="md:hidden p-2.5 text-zinc-400 hover:text-white rounded transition-colors"
           aria-label="Open navigation menu"
           aria-expanded={sidebarOpen}
           aria-controls="mobile-sidebar"
@@ -63,7 +63,7 @@ export default function AdminHeader({ onMenuClick, sidebarOpen }) {
         </span>
         <button
           onClick={handleLogout}
-          className={`px-3 py-1.5 ${LOGOUT_BG} ${LOGOUT_HOVER} text-white text-sm rounded transition-colors`}
+          className={`px-3 py-2 ${LOGOUT_BG} ${LOGOUT_HOVER} text-white text-sm rounded transition-colors`}
         >
           Log out
         </button>
