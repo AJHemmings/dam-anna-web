@@ -12,6 +12,7 @@ import VideosPage from './pages/VideosPage';
 import GigsPage from './pages/GigsPage';
 import GalleryPage from './pages/GalleryPage';
 import AnalyticsPage from './pages/AnalyticsPage';
+import SubmissionsPage from './pages/SubmissionsPage';
 
 /**
  * AdminLayout -- Root layout for the admin dashboard.
@@ -81,6 +82,7 @@ function LoginPageWrapper() {
  */
 function AdminShell() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const isMobile = window.matchMedia('pointer: coarse').matches; // Simple mobile detection for isMobile prop
 
   return (
     <div className="min-h-screen bg-zinc-900 flex flex-col">
@@ -105,6 +107,7 @@ function AdminShell() {
             <Route path="videos" element={<VideosPage />} />
             <Route path="site-content" element={<SiteContentPage />} />
             <Route path="social-links" element={<SocialLinksPage />} />
+            <Route path="submissions" element={<SubmissionsPage isMobile={isMobile} />} />
             <Route path="*" element={<Navigate to="/admin" replace />} />
           </Routes>
         </main>

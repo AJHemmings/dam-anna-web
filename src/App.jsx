@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import PublicSite from './PublicSite';
+import PrivacyPage from './pages/PrivacyPages';
 
 /**
  * App.jsx -- Router shell
@@ -35,6 +36,9 @@ export default function App() {
             </Suspense>
           }
         />
+
+        {/* Privacy policy page */}
+        <Route path="/privacy" element={<PrivacyPage />} />
       </Routes>
     </BrowserRouter>
   );

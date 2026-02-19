@@ -43,7 +43,8 @@ const NAV_ITEMS = [
   { label: 'Site Content', path: '/admin/site-content', enabled: true },
   { label: 'Social Links', path: '/admin/social-links', enabled: true },
   { label: 'Social Media', path: null, enabled: false },
-  { label: 'User Submissions', path: null, enabled: false },
+  { label: 'User Submissions', path: '/admin/submissions', enabled: true },
+  
 ];
 
 export default function AdminSidebar({ isOpen, onClose }) {

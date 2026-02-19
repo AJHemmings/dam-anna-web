@@ -1,32 +1,31 @@
 import { useState, useEffect } from 'react';
-import { label } from 'three/tsl';
 
 /**
  * Navigation - Fixed top navigation bar with blur backdrop
- * 
+ *
  * DESKTOP: Horizontal nav bar with all items visible
  * MOBILE/TABLET: Hamburger menu with slide-in drawer from left
- * 
+ *
  * RESPONSIVE STRATEGY:
  * Uses a combination of CSS breakpoint (1280px / xl) and touch detection
  * to determine when to show the hamburger menu. This handles:
  * - Standard phones (320-430px)
- * - Standard tablets (768-1024px) 
+ * - Standard tablets (768-1024px)
  * - Large tablets like iPad Pro 13" in landscape (~1024-1194px)
  * - Ultra-large tablets like Samsung Galaxy Tab S11 Ultra (~1400px+)
  * - Foldable devices in unfolded state
- * 
+ *
  * Logic: Show hamburger if screen < 1280px OR if device is touch-primary
  * This ensures all tablets get the hamburger menu while touch-screen
  * laptops (Surface, etc.) with fine pointer keep the desktop nav.
- * 
+ *
  * CUSTOMIZATION:
  * - NAV_ITEMS: Add/remove/reorder navigation items
  * - BLUR_AMOUNT: Adjust backdrop blur intensity
  * - BG_OPACITY: Adjust background darkness
  * - DRAWER_WIDTH: Mobile menu width (w-72 = 288px)
  * - ANIMATION_DURATION: Drawer slide + backdrop fade speed
- * 
+ *
  * Future: Will include admin dashboard link after authentication is added
  */
 
@@ -39,7 +38,7 @@ const NAV_ITEMS = [
   { id: 'videos', label: 'Videos', disabled: true }, // Hidden until video section is ready
   { id: 'socials', label: 'Socials', disabled: false },
   { id: 'contact', label: 'Contact', disabled: false },
-  { id: 'you', label: 'You', disabled: false }, 
+  { id: 'you', label: 'You', disabled: false },
 ];
 
 // CUSTOMIZATION: Appearance settings
@@ -48,16 +47,16 @@ const BG_OPACITY = 'bg-black/30'; // Options: bg-black/10, bg-black/20, bg-black
 
 /**
  * Custom hook to detect if the device should show mobile navigation.
- * 
+ *
  * Returns true (show hamburger) when:
  * 1. Screen width < 1280px (catches most tablets in landscape), OR
  * 2. Device primary pointer is "coarse" (touch-primary device like tablets)
- * 
+ *
  * Why "pointer: coarse" instead of "any-pointer: coarse"?
  * - "pointer: coarse" = the PRIMARY input is a fat finger (phones, tablets)
  * - "any-pointer: coarse" = device HAS touch (includes Surface laptops)
  * - This distinction keeps desktop nav on touch-screen laptops
- * 
+ *
  * Re-evaluates on window resize and orientation change to handle
  * foldable devices and tablets rotating between portrait/landscape.
  */
@@ -110,7 +109,8 @@ export default function Navigation({ onNavClick }) {
   // Lock body scroll when mobile menu is open
   useEffect(() => {
     if (isMobileMenuOpen) {
-      const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+      const scrollBarWidth =
+        window.innerWidth - document.documentElement.clientWidth;
       document.body.style.overflow = 'hidden';
       document.body.style.paddingRight = `${scrollBarWidth}px`;
     } else {
@@ -132,15 +132,17 @@ export default function Navigation({ onNavClick }) {
   return (
     <>
       {/* ========== FIXED NAV BAR ========== */}
-      <nav id="main-nav"
+      <nav
+        id="main-nav"
         className={`fixed top-0 left-0 right-0 z-[9998] ${BLUR_AMOUNT} ${BG_OPACITY} shadow-lg border-b border-white/10`}
         style={{
-          backgroundColor: !CSS.supports('backdrop-filter', 'blur(1px)') ? 'rgba(0, 0, 0, 0.9)' : undefined
+          backgroundColor: !CSS.supports('backdrop-filter', 'blur(1px)')
+            ? 'rgba(0, 0, 0, 0.9)'
+            : undefined,
         }}
       >
         <div className="max-w-[1400px] mx-auto px-4 lg:px-8">
           <div className="flex items-center justify-between py-4">
-            
             {/* Logo/Brand - Left side */}
             <div className="flex-shrink-0">
               <button
@@ -188,8 +190,8 @@ export default function Navigation({ onNavClick }) {
                   <span
                     className="block h-0.5 w-full bg-white rounded-full transition-all duration-300 ease-in-out origin-center"
                     style={{
-                      transform: isMobileMenuOpen 
-                        ? 'translateY(9px) rotate(45deg)' 
+                      transform: isMobileMenuOpen
+                        ? 'translateY(9px) rotate(45deg)'
                         : 'translateY(0) rotate(0)',
                     }}
                   />
@@ -205,8 +207,8 @@ export default function Navigation({ onNavClick }) {
                   <span
                     className="block h-0.5 w-full bg-white rounded-full transition-all duration-300 ease-in-out origin-center"
                     style={{
-                      transform: isMobileMenuOpen 
-                        ? 'translateY(-9px) rotate(-45deg)' 
+                      transform: isMobileMenuOpen
+                        ? 'translateY(-9px) rotate(-45deg)'
                         : 'translateY(0) rotate(0)',
                     }}
                   />
@@ -223,8 +225,8 @@ export default function Navigation({ onNavClick }) {
           {/* Backdrop - dark + blur */}
           <div
             className={`fixed inset-0 z-[9997] transition-all duration-300 ease-in-out ${
-              isMobileMenuOpen 
-                ? 'opacity-100 pointer-events-auto' 
+              isMobileMenuOpen
+                ? 'opacity-100 pointer-events-auto'
                 : 'opacity-0 pointer-events-none'
             }`}
             style={{
@@ -261,8 +263,18 @@ export default function Navigation({ onNavClick }) {
                 className="w-11 h-11 flex items-center justify-center text-white hover:text-gray-300 transition-colors"
                 aria-label="Close menu"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -281,7 +293,9 @@ export default function Navigation({ onNavClick }) {
                     }`}
                     style={{
                       opacity: isMobileMenuOpen ? 1 : 0,
-                      transform: isMobileMenuOpen ? 'translateX(0)' : 'translateX(-20px)',
+                      transform: isMobileMenuOpen
+                        ? 'translateX(0)'
+                        : 'translateX(-20px)',
                       transition: `opacity 300ms ease ${isMobileMenuOpen ? index * 50 : 0}ms, transform 300ms ease ${isMobileMenuOpen ? index * 50 : 0}ms, background-color 200ms ease`,
                     }}
                   >

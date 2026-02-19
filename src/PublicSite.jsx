@@ -24,7 +24,7 @@ import VideoSection from './components/sections/VideoSection';
  * Detect if the layout should use mobile mode.
  * Matches the same logic as Navigation.jsx useIsMobileNav():
  * - Screen < 1280px OR touch-primary device
- * 
+ *
  * This ensures the layout and nav are always in sync --
  * a tablet in landscape won't get desktop layout with a hamburger menu.
  */
@@ -73,8 +73,6 @@ export default function PublicSite() {
   const [isGalleryModalOpen, setIsGalleryModalOpen] = useState(false);
 
   function handleNavClick(itemId) {
-    console.log(`Navigation item clicked: ${itemId}`);
-    
     switch (itemId) {
       case 'home':
         scrollToTop();
@@ -116,19 +114,19 @@ export default function PublicSite() {
   return (
     <>
       <Navigation onNavClick={handleNavClick} />
-      
-      <SplashScreen 
-        isLoaded={isGuitarLoaded} 
+
+      <SplashScreen
+        isLoaded={isGuitarLoaded}
         onComplete={handleSplashComplete}
       />
 
-      <ThreeBackground 
-        scrollTop={scrollTop} 
+      <ThreeBackground
+        scrollTop={scrollTop}
         onGuitarLoaded={handleGuitarLoaded}
       />
-      
+
       <Container>
-        <main 
+        <main
           className={`text-white z-[99] relative w-full select-none ${
             isMobileLayout
               ? 'pt-[100px] pb-[60px] grid grid-cols-1 px-4'
@@ -136,50 +134,72 @@ export default function PublicSite() {
           }`}
           style={{
             opacity: splashComplete ? 1 : 0,
-            transition: 'opacity 0.8s ease-in'
+            transition: 'opacity 0.8s ease-in',
           }}
         >
           <HeroSection isMobile={isMobileLayout} />
-          
+
           <BlockQuote isMobile={isMobileLayout}>We make music.</BlockQuote>
-          
+
           {/* Gigs + Gig Photos: side by side on desktop, stacked on mobile */}
-          <div 
-            id="gigs-section" 
+          <div
+            id="gigs-section"
             className={`${isMobileLayout ? '' : 'col-start-2 col-span-10'} ${isMobileLayout ? 'mb-20' : 'mb-87.5'} flex ${isMobileLayout ? 'flex-col items-center' : 'flex-row items-start'} gap-4`}
           >
             <GigsSection onOpenContact={() => setIsContactModalOpen(true)} />
-            <GigPhotosSection isMobile={isMobileLayout} onOpenContact={() => setIsContactModalOpen(true)} />
+            <GigPhotosSection
+              isMobile={isMobileLayout}
+              onOpenContact={() => setIsContactModalOpen(true)}
+            />
           </div>
-          
+
           {/* Previous Gigs + Gallery: side by side on desktop, stacked on mobile */}
-          <div 
+          <div
             className={`${isMobileLayout ? '' : 'col-start-2 col-span-10'} ${isMobileLayout ? 'mb-20' : 'mb-87.5'} flex ${isMobileLayout ? 'flex-col items-center' : 'flex-row items-start'} gap-4`}
           >
             <PreviousGigsSection />
-            <GallerySection onOpenGallery={() => setIsGalleryModalOpen(true)} isMobile={isMobileLayout} />
+            <GallerySection
+              onOpenGallery={() => setIsGalleryModalOpen(true)}
+              isMobile={isMobileLayout}
+            />
           </div>
 
-          <div id='video-section'
+          <div
+            id="video-section"
             className={`${isMobileLayout ? '' : 'col-start-2 col-span-10'} ${isMobileLayout ? 'mb-20' : 'mb-87.5'} flex ${isMobileLayout ? 'flex-col items-center' : 'flex-row items-start'} gap-4`}
           >
             <VideoSection isMobile={isMobileLayout} />
           </div>
 
-          <BlockQuote isMobile={isMobileLayout}>Let it cook! <br />-Dam Anna</BlockQuote>
-          
-          <BlockQuote isMobile={isMobileLayout}>Thanks for checking us out!</BlockQuote>
+          <BlockQuote isMobile={isMobileLayout}>
+            Let it cook! <br />
+            -Dam Anna
+          </BlockQuote>
+
+          <BlockQuote isMobile={isMobileLayout}>
+            Thanks for checking us out!
+          </BlockQuote>
         </main>
       </Container>
 
       {/* All modals rendered via Portal -- outside the main DOM tree
           to prevent layout recalculation on sibling elements */}
       <Portal>
-        {isAboutUsModalOpen && <AboutUsModal onClose={() => setIsAboutUsModalOpen(false)} />}
-        {IsSocialsModalOpen && <SocialsModal onClose={() => setIsSocialsModalOpen(false)} />}
-        {IsContactModalOpen && <ContactModal onClose={() => setIsContactModalOpen(false)} />}
-        {isGalleryModalOpen && <GalleryModal onClose={() => setIsGalleryModalOpen(false)} />}
-        {isYouModalOpen && <YouModal onClose={() => setIsYouModalOpen(false)} />}
+        {isAboutUsModalOpen && (
+          <AboutUsModal onClose={() => setIsAboutUsModalOpen(false)} />
+        )}
+        {IsSocialsModalOpen && (
+          <SocialsModal onClose={() => setIsSocialsModalOpen(false)} />
+        )}
+        {IsContactModalOpen && (
+          <ContactModal onClose={() => setIsContactModalOpen(false)} />
+        )}
+        {isGalleryModalOpen && (
+          <GalleryModal onClose={() => setIsGalleryModalOpen(false)} />
+        )}
+        {isYouModalOpen && (
+          <YouModal onClose={() => setIsYouModalOpen(false)} />
+        )}
       </Portal>
       <Analytics />
     </>
