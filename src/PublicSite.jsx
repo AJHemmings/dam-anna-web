@@ -20,11 +20,6 @@ import GalleryModal from './components/modals/GalleryModal';
 import VideoSection from './components/sections/VideoSection';
 import { trackVisit } from './utils/trackVisit';
 
-// Track page visits for analytics -- runs once on initial load
-useEffect(() => {
-  trackVisit();
-}, []);
-
 /**
  * Detect if the layout should use mobile mode.
  * Matches the same logic as Navigation.jsx useIsMobileNav():
@@ -76,6 +71,11 @@ export default function PublicSite() {
   const [IsContactModalOpen, setIsContactModalOpen] = useState(false);
   const [isYouModalOpen, setIsYouModalOpen] = useState(false);
   const [isGalleryModalOpen, setIsGalleryModalOpen] = useState(false);
+
+  // Track page visits for analytics -- runs once on initial load
+  useEffect(() => {
+    trackVisit();
+  }, []);
 
   function handleNavClick(itemId) {
     switch (itemId) {
