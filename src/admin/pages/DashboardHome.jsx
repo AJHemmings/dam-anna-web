@@ -4,14 +4,14 @@ import { supabase } from '../../lib/supabase';
 
 /**
  * DashboardHome -- Admin landing page with overview cards.
- * 
+ *
  * Cards:
  * 1. Upcoming Gigs -- count + interactive calendar widget with gig dates
  * 2. Gallery Images -- count, clickable to /admin/gallery
  * 3. Videos -- count, clickable to /admin/videos
  * 4. Vercel Analytics -- placeholder, clickable to /admin/analytics
  * 5. Social Media -- greyed out, coming soon
- * 
+ *
  * All counts are fetched from the database on mount.
  */
 
@@ -46,27 +46,63 @@ const CALENDAR_NAV_COLOR = 'text-zinc-400 hover:text-white';
 // CUSTOMIZATION: Card icons (SVG paths)
 const ICONS = {
   gallery: (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="w-8 h-8"
+    >
       <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
       <circle cx="8.5" cy="8.5" r="1.5" />
       <polyline points="21 15 16 10 5 21" />
     </svg>
   ),
   videos: (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="w-8 h-8"
+    >
       <polygon points="23 7 16 12 23 17 23 7" />
       <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
     </svg>
   ),
   analytics: (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="w-8 h-8"
+    >
       <line x1="18" y1="20" x2="18" y2="10" />
       <line x1="12" y1="20" x2="12" y2="4" />
       <line x1="6" y1="20" x2="6" y2="14" />
     </svg>
   ),
   social: (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="w-8 h-8"
+    >
       <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
     </svg>
   ),
@@ -81,8 +117,18 @@ const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
  * Month names for calendar navigation.
  */
 const MONTH_NAMES = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
 ];
 
 export default function DashboardHome() {
@@ -107,25 +153,24 @@ export default function DashboardHome() {
       const today = new Date().toISOString().split('T')[0];
 
       // Fetch all counts in parallel
-      const [gigsResult, galleryResult, videosResult, gigDatesResult] = await Promise.all([
-        supabase
-          .from('gigs')
-          .select('id', { count: 'exact', head: true })
-          .gte('date', today)
-          .eq('is_visible', true),
-        supabase
-          .from('gallery_images')
-          .select('id', { count: 'exact', head: true }),
-        supabase
-          .from('videos')
-          .select('id', { count: 'exact', head: true }),
-        supabase
-          .from('gigs')
-          .select('date, venue')
-          .gte('date', today)
-          .eq('is_visible', true)
-          .order('date', { ascending: true }),
-      ]);
+      const [gigsResult, galleryResult, videosResult, gigDatesResult] =
+        await Promise.all([
+          supabase
+            .from('gigs')
+            .select('id', { count: 'exact', head: true })
+            .gte('date', today)
+            .eq('is_visible', true),
+          supabase
+            .from('gallery_images')
+            .select('id', { count: 'exact', head: true }),
+          supabase.from('videos').select('id', { count: 'exact', head: true }),
+          supabase
+            .from('gigs')
+            .select('date, venue')
+            .gte('date', today)
+            .eq('is_visible', true)
+            .order('date', { ascending: true }),
+        ]);
 
       setStats({
         upcomingGigs: gigsResult.count || 0,
@@ -160,12 +205,15 @@ export default function DashboardHome() {
       <div className={GRID_LAYOUT}>
         {/* Upcoming Gigs card with calendar */}
         {/* md:col-span-2 xl:col-span-1 -- takes full width on tablet so calendar has room */}
-        <div className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} ${CARD_HOVER} p-4 md:p-5 md:col-span-2 xl:col-span-1`}
+        <div
+          className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} ${CARD_HOVER} p-4 md:p-5 md:col-span-2 xl:col-span-1`}
           onClick={() => navigate('/admin/gigs')}
         >
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className={`${COUNT_SIZE} font-bold ${COUNT_COLOR}`}>{stats.upcomingGigs}</p>
+              <p className={`${COUNT_SIZE} font-bold ${COUNT_COLOR}`}>
+                {stats.upcomingGigs}
+              </p>
               <p className={`text-sm ${LABEL_COLOR}`}>Upcoming Gigs</p>
             </div>
           </div>
@@ -183,7 +231,9 @@ export default function DashboardHome() {
         >
           <div className={`${LABEL_COLOR}`}>{ICONS.gallery}</div>
           <div>
-            <p className={`${COUNT_SIZE} font-bold ${COUNT_COLOR}`}>{stats.galleryImages}</p>
+            <p className={`${COUNT_SIZE} font-bold ${COUNT_COLOR}`}>
+              {stats.galleryImages}
+            </p>
             <p className={`text-sm ${LABEL_COLOR}`}>Gallery Images</p>
           </div>
         </div>
@@ -195,7 +245,9 @@ export default function DashboardHome() {
         >
           <div className={`${LABEL_COLOR}`}>{ICONS.videos}</div>
           <div>
-            <p className={`${COUNT_SIZE} font-bold ${COUNT_COLOR}`}>{stats.videos}</p>
+            <p className={`${COUNT_SIZE} font-bold ${COUNT_COLOR}`}>
+              {stats.videos}
+            </p>
             <p className={`text-sm ${LABEL_COLOR}`}>Videos</p>
           </div>
         </div>
@@ -209,21 +261,26 @@ export default function DashboardHome() {
             <div className={`${LABEL_COLOR}`}>{ICONS.analytics}</div>
             <div>
               <p className={`text-lg font-bold ${COUNT_COLOR}`}>Analytics</p>
-              <p className={`text-sm ${LABEL_COLOR}`}>View site traffic and performance</p>
+              <p className={`text-sm ${LABEL_COLOR}`}>
+                View site traffic and performance
+              </p>
             </div>
-          </div>
-          <div className="bg-zinc-700/30 border border-zinc-700 rounded p-3 text-center">
-            <p className="text-zinc-500 text-xs">Vercel Analytics integration coming soon</p>
           </div>
         </div>
 
         {/* Social Media card -- disabled */}
-        <div className={`${CARD_DISABLED_BG} ${CARD_DISABLED_BORDER} ${CARD_RADIUS} p-4 md:p-5 cursor-not-allowed`}>
+        <div
+          className={`${CARD_DISABLED_BG} ${CARD_DISABLED_BORDER} ${CARD_RADIUS} p-4 md:p-5 cursor-not-allowed`}
+        >
           <div className="flex items-center gap-4 mb-3">
             <div className={CARD_DISABLED_TEXT}>{ICONS.social}</div>
             <div>
-              <p className={`text-lg font-bold ${CARD_DISABLED_TEXT}`}>Social Media</p>
-              <p className={`text-sm ${CARD_DISABLED_TEXT}`}>Likes, comments, and DMs</p>
+              <p className={`text-lg font-bold ${CARD_DISABLED_TEXT}`}>
+                Social Media
+              </p>
+              <p className={`text-sm ${CARD_DISABLED_TEXT}`}>
+                Likes, comments, and DMs
+              </p>
             </div>
           </div>
           <div className="bg-zinc-700/20 border border-zinc-700/30 rounded p-3 text-center">
@@ -237,12 +294,12 @@ export default function DashboardHome() {
 
 /**
  * GigCalendar -- Interactive monthly calendar widget.
- * 
+ *
  * Shows the current month with navigation arrows to cycle between months.
  * Days that have gigs are marked with a dot. Clicking a gig day opens
  * a popup overlay showing the venue details.
  * Today is highlighted with a ring.
- * 
+ *
  * Uses Monday as the first day of the week (UK convention).
  * Always renders 6 rows (42 cells) to maintain consistent height.
  */
@@ -324,7 +381,12 @@ function GigCalendar({ gigDates }) {
 
     // Current month days
     for (let day = 1; day <= lastDay.getDate(); day++) {
-      days.push({ day, month: viewMonth, year: viewYear, isCurrentMonth: true });
+      days.push({
+        day,
+        month: viewMonth,
+        year: viewYear,
+        isCurrentMonth: true,
+      });
     }
 
     // Always pad to exactly 42 cells (6 complete rows)
@@ -365,7 +427,16 @@ function GigCalendar({ gigDates }) {
           className={`p-1 rounded ${CALENDAR_NAV_COLOR} transition-colors`}
           aria-label="Previous month"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="w-4 h-4"
+          >
             <polyline points="15 18 9 12 15 6" />
           </svg>
         </button>
@@ -382,7 +453,16 @@ function GigCalendar({ gigDates }) {
           className={`p-1 rounded ${CALENDAR_NAV_COLOR} transition-colors`}
           aria-label="Next month"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="w-4 h-4"
+          >
             <polyline points="9 18 15 12 9 6" />
           </svg>
         </button>
@@ -411,18 +491,28 @@ function GigCalendar({ gigDates }) {
               type="button"
               onClick={() => handleDayClick(dateStr, hasGig)}
               className={`relative text-center py-1.5 rounded text-xs transition-colors ${
-                dayObj.isCurrentMonth ? CALENDAR_DAY_COLOR : CALENDAR_OUTSIDE_COLOR
+                dayObj.isCurrentMonth
+                  ? CALENDAR_DAY_COLOR
+                  : CALENDAR_OUTSIDE_COLOR
               } ${isTodayDate ? CALENDAR_TODAY_RING : ''} ${
-                hasGig ? 'bg-zinc-700/50 cursor-pointer hover:bg-zinc-600/50' : 'cursor-default'
+                hasGig
+                  ? 'bg-zinc-700/50 cursor-pointer hover:bg-zinc-600/50'
+                  : 'cursor-default'
               } ${isSelected ? 'bg-zinc-600' : ''}`}
               disabled={!hasGig}
-              aria-label={hasGig ? `${dayObj.day} -- gig day, click for details` : `${dayObj.day}`}
+              aria-label={
+                hasGig
+                  ? `${dayObj.day} -- gig day, click for details`
+                  : `${dayObj.day}`
+              }
             >
               {dayObj.day}
 
               {/* Gig indicator dot */}
               {hasGig && (
-                <div className={`absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full ${CALENDAR_GIG_DOT}`} />
+                <div
+                  className={`absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full ${CALENDAR_GIG_DOT}`}
+                />
               )}
             </button>
           );
@@ -442,7 +532,9 @@ function GigCalendar({ gigDates }) {
             <div className="bg-zinc-700 border border-zinc-600 rounded-lg p-3 shadow-lg">
               <div className="flex items-center justify-between mb-1.5">
                 <p className="font-medium text-white text-sm">
-                  {new Date(selectedGig.dateStr + 'T00:00:00').toLocaleDateString('en-GB', {
+                  {new Date(
+                    selectedGig.dateStr + 'T00:00:00'
+                  ).toLocaleDateString('en-GB', {
                     weekday: 'long',
                     day: 'numeric',
                     month: 'long',
@@ -454,14 +546,25 @@ function GigCalendar({ gigDates }) {
                   className="text-zinc-400 hover:text-white transition-colors p-0.5"
                   aria-label="Close"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-3.5 h-3.5"
+                  >
                     <line x1="18" y1="6" x2="6" y2="18" />
                     <line x1="6" y1="6" x2="18" y2="18" />
                   </svg>
                 </button>
               </div>
               {selectedGig.venues.map((venue, i) => (
-                <p key={i} className="text-zinc-300 text-sm">{venue}</p>
+                <p key={i} className="text-zinc-300 text-sm">
+                  {venue}
+                </p>
               ))}
             </div>
           </div>
