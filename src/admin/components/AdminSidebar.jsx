@@ -44,7 +44,7 @@ const NAV_ITEMS = [
   { label: 'Social Links', path: '/admin/social-links', enabled: true },
   { label: 'Social Media', path: null, enabled: false },
   { label: 'User Submissions', path: '/admin/submissions', enabled: true },
-  
+  { label: 'Analytics', path: '/admin/analytics', enabled: true },
 ];
 
 export default function AdminSidebar({ isOpen, onClose }) {
@@ -80,7 +80,6 @@ export default function AdminSidebar({ isOpen, onClose }) {
             className={({ isActive }) =>
               `${LINK_BASE} ${isActive ? LINK_ACTIVE : LINK_INACTIVE}`
             }
-            // Close drawer when a link is tapped on mobile
             onClick={onClose}
           >
             {item.label}
@@ -111,7 +110,9 @@ export default function AdminSidebar({ isOpen, onClose }) {
         {/* Backdrop overlay */}
         <div
           className={`fixed inset-0 z-40 ${BACKDROP_COLOR} ${BACKDROP_TRANSITION} ${
-            isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+            isOpen
+              ? 'opacity-100 pointer-events-auto'
+              : 'opacity-0 pointer-events-none'
           }`}
           onClick={onClose}
           aria-hidden="true"
@@ -132,9 +133,19 @@ export default function AdminSidebar({ isOpen, onClose }) {
               className="p-2.5 text-zinc-400 hover:text-white rounded transition-colors"
               aria-label="Close navigation menu"
             >
-              {/* X icon */}
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>

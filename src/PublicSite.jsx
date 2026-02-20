@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useScrollPosition } from './hooks/useScrollPosition';
-import { Analytics } from '@vercel/analytics/react';
 import ThreeBackground from './components/ThreeBackground';
 import SplashScreen from './components/SplashScreen';
 import HeroSection from './components/sections/HeroSection';
@@ -19,6 +18,7 @@ import ContactModal from './components/modals/ContactModal';
 import YouModal from './components/modals/YouModal';
 import GalleryModal from './components/modals/GalleryModal';
 import VideoSection from './components/sections/VideoSection';
+import { trackVisit } from './utils/trackVisit';
 
 /**
  * Detect if the layout should use mobile mode.
@@ -71,6 +71,11 @@ export default function PublicSite() {
   const [IsContactModalOpen, setIsContactModalOpen] = useState(false);
   const [isYouModalOpen, setIsYouModalOpen] = useState(false);
   const [isGalleryModalOpen, setIsGalleryModalOpen] = useState(false);
+
+  // Track page visits for analytics -- runs once on initial load
+  useEffect(() => {
+    trackVisit();
+  }, []);
 
   function handleNavClick(itemId) {
     switch (itemId) {
@@ -201,7 +206,6 @@ export default function PublicSite() {
           <YouModal onClose={() => setIsYouModalOpen(false)} />
         )}
       </Portal>
-      <Analytics />
     </>
   );
 }

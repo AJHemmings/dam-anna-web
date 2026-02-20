@@ -1,36 +1,102 @@
 /**
- * AnalyticsPage -- Placeholder for Vercel Analytics integration.
- * 
- * Will show detailed traffic data, page views, referrers, and performance
- * metrics once the Vercel Analytics API is integrated.
+ * AnalyticsPage.jsx
+ *
+ * Admin analytics dashboard. Displays site visit counts for three time
+ * windows: last 24 hours, last 7 days, last 30 days.
+ *
+ * Default view: last 24 hours.
+ * Toggle between windows via tab buttons.
+ *
+ * Responsive: uses isMobile prop consistent with all other admin pages.
+ * Auto-refreshes every 60 seconds via useAnalytics hook.
+ *
+ * Extensibility: add new metric cards below the visitor count card
+ * as the page_views table gains additional columns.
  */
 
-// CUSTOMIZATION: Card styling
-const CARD_BG = 'bg-zinc-800';
-const CARD_BORDER = 'border border-zinc-700';
-const CARD_RADIUS = 'rounded-lg';
+import { useState } from 'react';
+import useAnalytics from '../../hooks/useAnalytics';
 
-export default function AnalyticsPage() {
+// CUSTOMIZATION: Tab labels and their data keys
+const TIME_WINDOWS = [
+  { key: 'day', label: 'Last 24 hours' },
+  { key: 'week', label: 'Last 7 days' },
+  { key: 'month', label: 'Last 30 days' },
+];
+
+// CUSTOMIZATION: Colours for the active tab indicator
+const TAB_ACTIVE_CLASS = 'bg-white text-black font-semibold';
+const TAB_INACTIVE_CLASS = 'text-white/60 hover:text-white transition-colors';
+
+export default function AnalyticsPage({ isMobile }) {
+  const [activeWindow, setActiveWindow] = useState('day');
+  const { data, loading, error } = useAnalytics();
+
+  const activeLabel = TIME_WINDOWS.find((w) => w.key === activeWindow)?.label;
+  const activeCount = data[activeWindow];
+
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-white mb-2">Analytics</h1>
-      <p className="text-zinc-400 text-sm mb-6">
-        Detailed site traffic and performance metrics.
-      </p>
-
-      <div className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-8 text-center`}>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-12 h-12 text-zinc-600 mx-auto mb-4">
-          <line x1="18" y1="20" x2="18" y2="10" />
-          <line x1="12" y1="20" x2="12" y2="4" />
-          <line x1="6" y1="20" x2="6" y2="14" />
-        </svg>
-        <h2 className="text-lg font-semibold text-zinc-400 mb-2">Vercel Analytics</h2>
-        <p className="text-zinc-500 text-sm max-w-md mx-auto">
-          This page will display detailed analytics from Vercel including page views,
-          unique visitors, top pages, referrers, and performance metrics.
-          Integration will be added in a future session.
+    <div className={`p-4 ${isMobile ? 'pt-4' : 'pt-6'}`}>
+      {/* Page header */}
+      <div className="mb-6">
+        <h1
+          className={`font-bold text-white ${isMobile ? 'text-2xl' : 'text-3xl'}`}
+        >
+          Analytics
+        </h1>
+        <p className="text-white/50 text-sm mt-1">
+          Site visitor counts -- refreshes every 60 seconds
         </p>
       </div>
+
+      {/* Time window toggle */}
+      <div className="flex gap-1 bg-white/10 rounded-xl p-1 mb-6 w-fit">
+        {TIME_WINDOWS.map(({ key, label }) => (
+          <button
+            key={key}
+            onClick={() => setActiveWindow(key)}
+            className={`
+              px-4 py-2 rounded-lg text-sm transition-all
+              ${activeWindow === key ? TAB_ACTIVE_CLASS : TAB_INACTIVE_CLASS}
+            `}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* Visitor count card */}
+      <div
+        className={`
+        bg-white/10 rounded-2xl border border-white/10
+        ${isMobile ? 'p-5' : 'p-8'}
+        max-w-sm
+      `}
+      >
+        <p className="text-white/60 text-sm mb-2 uppercase tracking-wider">
+          Visitors
+        </p>
+        <p className="text-white/50 text-xs mb-4">{activeLabel}</p>
+
+        {/* Count display */}
+        {loading ? (
+          <div className="h-16 flex items-center">
+            <div className="w-24 h-10 bg-white/10 rounded-lg animate-pulse" />
+          </div>
+        ) : error ? (
+          <div className="h-16 flex items-center">
+            <p className="text-red-400 text-sm">{error}</p>
+          </div>
+        ) : (
+          <p
+            className={`font-bold text-white leading-none ${isMobile ? 'text-5xl' : 'text-6xl'}`}
+          >
+            {activeCount?.toLocaleString() ?? '—'}
+          </p>
+        )}
+      </div>
+
+      {/* Extensibility placeholder -- future metric cards go here */}
     </div>
   );
 }
