@@ -3,14 +3,14 @@ import { supabase } from '../../lib/supabase';
 
 /**
  * VideosPage -- Manage YouTube videos displayed on the public site.
- * 
+ *
  * Features:
  * - View all videos with thumbnails and titles
  * - Add new videos by pasting a YouTube URL (auto-extracts video ID and thumbnail)
  * - Edit video metadata (title, description, display order, visibility)
  * - Delete videos with confirmation
  * - Maximum 10 curated videos shown on public site (enforced by display)
- * 
+ *
  * YouTube URL formats supported:
  * - https://www.youtube.com/watch?v=VIDEO_ID
  * - https://youtu.be/VIDEO_ID
@@ -30,7 +30,8 @@ const BTN_SECONDARY = 'bg-zinc-700 text-white hover:bg-zinc-600';
 const BTN_DISABLED = 'disabled:opacity-50 disabled:cursor-not-allowed';
 
 // CUSTOMIZATION: Input styling
-const INPUT_STYLE = 'w-full px-3 py-2.5 bg-zinc-900 border border-zinc-600 rounded text-white placeholder-zinc-500 focus:outline-none focus:border-white transition-colors';
+const INPUT_STYLE =
+  'w-full px-3 py-2.5 bg-zinc-900 border border-zinc-600 rounded text-white placeholder-zinc-500 focus:outline-none focus:border-white transition-colors';
 
 // CUSTOMIZATION: Maximum curated videos on public site
 const MAX_PUBLIC_VIDEOS = 10;
@@ -41,7 +42,7 @@ const THUMBNAIL_HEIGHT = 'h-24';
 
 /**
  * Extract YouTube video ID from various URL formats.
- * Returns the video ID string or null if the URL is not recognised.
+ * Returns the video ID string or null if the URL is not recognized.
  */
 function extractYouTubeId(url) {
   if (!url) return null;
@@ -222,7 +223,10 @@ export default function VideosPage() {
         if (insertError) throw insertError;
       }
 
-      setSaveMessage({ type: 'success', text: editingVideo ? 'Video updated.' : 'Video added.' });
+      setSaveMessage({
+        type: 'success',
+        text: editingVideo ? 'Video updated.' : 'Video added.',
+      });
       await fetchVideos();
 
       setTimeout(() => {
@@ -310,11 +314,15 @@ export default function VideosPage() {
         <div>
           <h1 className="text-2xl font-bold text-white mb-1">Videos</h1>
           <p className="text-zinc-400 text-sm">
-            Manage YouTube videos shown on your site.
-            {' '}
-            <span className={visibleCount >= MAX_PUBLIC_VIDEOS ? 'text-amber-400' : ''}>
-             Max display: {visibleCount}/{MAX_PUBLIC_VIDEOS} visible on public site. 
-             Consider hiding some existing videos if you want to add more.
+            Manage YouTube videos shown on your site.{' '}
+            <span
+              className={
+                visibleCount >= MAX_PUBLIC_VIDEOS ? 'text-amber-400' : ''
+              }
+            >
+              Max display: {visibleCount}/{MAX_PUBLIC_VIDEOS} visible on public
+              site. Consider hiding some existing videos if you want to add
+              more.
             </span>
           </p>
         </div>
@@ -338,7 +346,10 @@ export default function VideosPage() {
           <div className="space-y-4">
             {/* YouTube URL with live preview */}
             <div>
-              <label htmlFor="video_url" className="block text-sm font-medium text-zinc-300 mb-1.5">
+              <label
+                htmlFor="video_url"
+                className="block text-sm font-medium text-zinc-300 mb-1.5"
+              >
                 YouTube URL
               </label>
               <input
@@ -359,7 +370,9 @@ export default function VideosPage() {
             {/* Thumbnail preview */}
             {urlPreview && (
               <div className="flex items-start gap-4">
-                <div className={`${THUMBNAIL_WIDTH} ${THUMBNAIL_HEIGHT} flex-shrink-0 rounded overflow-hidden bg-zinc-700`}>
+                <div
+                  className={`${THUMBNAIL_WIDTH} ${THUMBNAIL_HEIGHT} flex-shrink-0 rounded overflow-hidden bg-zinc-700`}
+                >
                   <img
                     src={urlPreview.thumbnail}
                     alt="Video thumbnail preview"
@@ -367,14 +380,22 @@ export default function VideosPage() {
                   />
                 </div>
                 <div className="text-sm text-zinc-400">
-                  <p>Video ID: <span className="text-zinc-300 font-mono">{urlPreview.videoId}</span></p>
+                  <p>
+                    Video ID:{' '}
+                    <span className="text-zinc-300 font-mono">
+                      {urlPreview.videoId}
+                    </span>
+                  </p>
                   <p className="mt-1">Thumbnail auto-generated from YouTube.</p>
                 </div>
               </div>
             )}
 
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-zinc-300 mb-1.5">
+              <label
+                htmlFor="title"
+                className="block text-sm font-medium text-zinc-300 mb-1.5"
+              >
                 Title
               </label>
               <input
@@ -388,13 +409,18 @@ export default function VideosPage() {
             </div>
 
             <div>
-              <label htmlFor="description" className="block text-sm font-medium text-zinc-300 mb-1.5">
+              <label
+                htmlFor="description"
+                className="block text-sm font-medium text-zinc-300 mb-1.5"
+              >
                 Description
               </label>
               <textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) => handleFormChange('description', e.target.value)}
+                onChange={(e) =>
+                  handleFormChange('description', e.target.value)
+                }
                 placeholder="Short description (optional)"
                 rows={3}
                 className={`${INPUT_STYLE} resize-y`}
@@ -404,7 +430,10 @@ export default function VideosPage() {
             {/* Display Order and Visibility -- stack on mobile, 2 cols on md+ */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="display_order" className="block text-sm font-medium text-zinc-300 mb-1.5">
+                <label
+                  htmlFor="display_order"
+                  className="block text-sm font-medium text-zinc-300 mb-1.5"
+                >
                   Display Order
                 </label>
                 <input
@@ -412,10 +441,17 @@ export default function VideosPage() {
                   type="number"
                   min="0"
                   value={formData.display_order}
-                  onChange={(e) => handleFormChange('display_order', parseInt(e.target.value, 10) || 0)}
+                  onChange={(e) =>
+                    handleFormChange(
+                      'display_order',
+                      parseInt(e.target.value, 10) || 0
+                    )
+                  }
                   className={INPUT_STYLE}
                 />
-                <p className="mt-1 text-xs text-zinc-500">Lower numbers appear first.</p>
+                <p className="mt-1 text-xs text-zinc-500">
+                  Lower numbers appear first.
+                </p>
               </div>
 
               {/* pt-7 only applies on md+ where label sits beside the input */}
@@ -424,21 +460,29 @@ export default function VideosPage() {
                   <input
                     type="checkbox"
                     checked={formData.is_visible}
-                    onChange={(e) => handleFormChange('is_visible', e.target.checked)}
+                    onChange={(e) =>
+                      handleFormChange('is_visible', e.target.checked)
+                    }
                     className="w-4 h-4 rounded bg-zinc-900 border-zinc-600 text-white focus:ring-0 focus:ring-offset-0"
                   />
-                  <span className="text-sm text-zinc-300">Visible on public site</span>
+                  <span className="text-sm text-zinc-300">
+                    Visible on public site
+                  </span>
                 </label>
               </div>
             </div>
 
             {/* Visible count warning */}
-            {!editingVideo && formData.is_visible && visibleCount >= MAX_PUBLIC_VIDEOS && (
-              <div className="p-3 bg-amber-900/30 border border-amber-700 rounded text-amber-300 text-sm">
-                You already have {visibleCount} visible videos. The public site displays a maximum of {MAX_PUBLIC_VIDEOS}.
-                Consider hiding an existing video or unchecking "Visible on public site" above.
-              </div>
-            )}
+            {!editingVideo &&
+              formData.is_visible &&
+              visibleCount >= MAX_PUBLIC_VIDEOS && (
+                <div className="p-3 bg-amber-900/30 border border-amber-700 rounded text-amber-300 text-sm">
+                  You already have {visibleCount} visible videos. The public
+                  site displays a maximum of {MAX_PUBLIC_VIDEOS}. Consider
+                  hiding an existing video or unchecking "Visible on public
+                  site" above.
+                </div>
+              )}
 
             {/* Save/Cancel buttons */}
             <div className="flex items-center gap-3 pt-2">
@@ -447,7 +491,11 @@ export default function VideosPage() {
                 disabled={saving || !isFormValid()}
                 className={`px-4 py-2 text-sm font-medium rounded transition-colors ${BTN_PRIMARY} ${BTN_DISABLED}`}
               >
-                {saving ? 'Saving...' : editingVideo ? 'Update video' : 'Add video'}
+                {saving
+                  ? 'Saving...'
+                  : editingVideo
+                    ? 'Update video'
+                    : 'Add video'}
               </button>
               <button
                 onClick={handleCancel}
@@ -458,7 +506,9 @@ export default function VideosPage() {
               </button>
 
               {saveMessage && (
-                <span className={`text-sm ${saveMessage.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>
+                <span
+                  className={`text-sm ${saveMessage.type === 'success' ? 'text-green-400' : 'text-red-400'}`}
+                >
                   {saveMessage.text}
                 </span>
               )}
@@ -469,14 +519,20 @@ export default function VideosPage() {
 
       {/* Videos list */}
       {videos.length === 0 ? (
-        <div className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-6 text-center`}>
-          <p className="text-zinc-400">No videos yet. Click "Add new video" to get started.</p>
+        <div
+          className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-6 text-center`}
+        >
+          <p className="text-zinc-400">
+            No videos yet. Click "Add new video" to get started.
+          </p>
         </div>
       ) : (
         <div className="space-y-3">
           {videos.map((video) => {
             const videoId = extractYouTubeId(video.video_url);
-            const thumbnail = video.thumbnail_url || (videoId ? getThumbnailUrl(videoId) : null);
+            const thumbnail =
+              video.thumbnail_url ||
+              (videoId ? getThumbnailUrl(videoId) : null);
 
             return (
               <div
@@ -503,7 +559,9 @@ export default function VideosPage() {
                   {/* Video details */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="text-white font-medium truncate">{video.title}</h3>
+                      <h3 className="text-white font-medium truncate">
+                        {video.title}
+                      </h3>
                       {!video.is_visible && (
                         <span className="text-xs text-zinc-500 bg-zinc-700 px-2 py-0.5 rounded flex-shrink-0">
                           Hidden
@@ -511,11 +569,17 @@ export default function VideosPage() {
                       )}
                     </div>
                     {video.description && (
-                      <p className="text-zinc-400 text-sm truncate mt-0.5">{video.description}</p>
+                      <p className="text-zinc-400 text-sm truncate mt-0.5">
+                        {video.description}
+                      </p>
                     )}
-                    <p className="text-zinc-500 text-xs mt-1 truncate">{video.video_url}</p>
+                    <p className="text-zinc-500 text-xs mt-1 truncate">
+                      {video.video_url}
+                    </p>
                     {/* Order badge inline on mobile */}
-                    <p className="md:hidden text-xs text-zinc-600 mt-1">Order: {video.display_order}</p>
+                    <p className="md:hidden text-xs text-zinc-600 mt-1">
+                      Order: {video.display_order}
+                    </p>
                   </div>
 
                   {/* Order badge -- desktop only */}
@@ -529,16 +593,38 @@ export default function VideosPage() {
                   <button
                     onClick={() => handleToggleVisibility(video)}
                     className={`p-2 rounded transition-colors ${BTN_SECONDARY}`}
-                    title={video.is_visible ? 'Hide from public site' : 'Show on public site'}
+                    title={
+                      video.is_visible
+                        ? 'Hide from public site'
+                        : 'Show on public site'
+                    }
                     aria-label={video.is_visible ? 'Hide video' : 'Show video'}
                   >
                     {video.is_visible ? (
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="w-4 h-4"
+                      >
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                         <circle cx="12" cy="12" r="3" />
                       </svg>
                     ) : (
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-zinc-500">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="w-4 h-4 text-zinc-500"
+                      >
                         <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
                         <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
                         <line x1="1" y1="1" x2="23" y2="23" />
@@ -567,10 +653,16 @@ export default function VideosPage() {
       {/* Delete confirmation dialog */}
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-6 max-w-sm w-full mx-4`}>
-            <h3 className="text-lg font-semibold text-white mb-2">Delete video?</h3>
+          <div
+            className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-6 max-w-sm w-full mx-4`}
+          >
+            <h3 className="text-lg font-semibold text-white mb-2">
+              Delete video?
+            </h3>
             <p className="text-zinc-400 text-sm mb-4">
-              Are you sure you want to delete <strong className="text-white">{deleteConfirm.title}</strong>? This will remove it from the public site immediately.
+              Are you sure you want to delete{' '}
+              <strong className="text-white">{deleteConfirm.title}</strong>?
+              This will remove it from the public site immediately.
             </p>
             <div className="flex items-center gap-3">
               <button

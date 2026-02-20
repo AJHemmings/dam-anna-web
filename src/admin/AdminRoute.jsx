@@ -3,12 +3,12 @@ import { useAuthContext } from '../context/AuthContext';
 
 /**
  * AdminRoute -- Protected route wrapper for admin pages.
- * 
- * Behaviour:
+ *
+ * Behavior:
  * - While auth is loading: shows a loading spinner (prevents login page flash)
  * - If authenticated: renders the child component
  * - If not authenticated: redirects to /admin/login
- * 
+ *
  * Usage:
  *   <Route path="gigs" element={<AdminRoute><GigsPage /></AdminRoute>} />
  */

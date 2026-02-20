@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase';
 
 /**
  * GalleryPage -- Manage gallery images with upload, compression, and bulk operations.
- * 
+ *
  * Features:
  * - View all gallery images (mixed: ImageShack URLs and Supabase Storage)
  * - Upload new images to Supabase Storage with client-side compression (WebP)
@@ -12,7 +12,7 @@ import { supabase } from '../../lib/supabase';
  * - Toggle visibility with eye icon
  * - Bulk select for bulk delete and bulk metadata editing
  * - Drag-and-drop upload zone
- * 
+ *
  * Image compression uses Canvas API to resize and convert to WebP before upload.
  */
 
@@ -28,14 +28,20 @@ const BTN_SECONDARY = 'bg-zinc-700 text-white hover:bg-zinc-600';
 const BTN_DISABLED = 'disabled:opacity-50 disabled:cursor-not-allowed';
 
 // CUSTOMIZATION: Input styling
-const INPUT_STYLE = 'w-full px-3 py-2.5 bg-zinc-900 border border-zinc-600 rounded text-white placeholder-zinc-500 focus:outline-none focus:border-white transition-colors';
+const INPUT_STYLE =
+  'w-full px-3 py-2.5 bg-zinc-900 border border-zinc-600 rounded text-white placeholder-zinc-500 focus:outline-none focus:border-white transition-colors';
 
 // CUSTOMIZATION: Image compression settings -- adjust these to experiment
 const MAX_IMAGE_WIDTH = 1920;
 const WEBP_QUALITY = 0.8;
 
 // CUSTOMIZATION: Accepted upload file types
-const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const ACCEPTED_IMAGE_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+];
 const MAX_FILE_SIZE_MB = 20;
 
 // CUSTOMIZATION: Gallery grid
@@ -123,7 +129,7 @@ export default function GalleryPage() {
 
   // Replace image state
   const [replacingImage, setReplacingImage] = useState(null);
-  const [replaceMode, setReplaceMode] = useState(null);   // 'url' | 'file'
+  const [replaceMode, setReplaceMode] = useState(null); // 'url' | 'file'
   const [replaceUrl, setReplaceUrl] = useState('');
   const [replaceFile, setReplaceFile] = useState(null);
   const [replacePreview, setReplacePreview] = useState(null);
@@ -202,7 +208,9 @@ export default function GalleryPage() {
         return false;
       }
       if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-        console.warn(`Skipped ${file.name}: exceeds ${MAX_FILE_SIZE_MB}MB limit`);
+        console.warn(
+          `Skipped ${file.name}: exceeds ${MAX_FILE_SIZE_MB}MB limit`
+        );
         return false;
       }
       return true;
@@ -212,7 +220,7 @@ export default function GalleryPage() {
 
     setUploading(true);
 
-    // Initialise progress tracking
+    // Initialize progress tracking
     const progressEntries = validFiles.map((file) => ({
       name: file.name,
       status: 'compressing',
@@ -224,9 +232,10 @@ export default function GalleryPage() {
     // Find the current minimum display_order so new uploads slot in before everything else.
     // For multi-file uploads, each file gets a decrementing value so the batch
     // arrives in the order it was selected (first file = lowest number = first in list).
-    const minOrder = images.length > 0
-      ? Math.min(...images.map((img) => img.display_order ?? 0))
-      : 0;
+    const minOrder =
+      images.length > 0
+        ? Math.min(...images.map((img) => img.display_order ?? 0))
+        : 0;
 
     for (let i = 0; i < validFiles.length; i++) {
       const file = validFiles[i];
@@ -237,22 +246,25 @@ export default function GalleryPage() {
       try {
         // Compress
         setUploadProgress((prev) =>
-          prev.map((p, idx) => (idx === i ? { ...p, status: 'compressing' } : p))
+          prev.map((p, idx) =>
+            idx === i ? { ...p, status: 'compressing' } : p
+          )
         );
 
         const { blob, width, height } = await compressImage(file);
 
         setUploadProgress((prev) =>
           prev.map((p, idx) =>
-            idx === i ? { ...p, status: 'uploading', compressedSize: blob.size } : p
+            idx === i
+              ? { ...p, status: 'uploading', compressedSize: blob.size }
+              : p
           )
         );
 
         // Upload to Supabase Storage
         const storagePath = generateStoragePath();
 
-        const { error: uploadError } = await supabase
-          .storage
+        const { error: uploadError } = await supabase.storage
           .from('gallery')
           .upload(storagePath, blob, {
             contentType: 'image/webp',
@@ -262,10 +274,9 @@ export default function GalleryPage() {
         if (uploadError) throw uploadError;
 
         // Get public URL
-        const { data: { publicUrl } } = supabase
-          .storage
-          .from('gallery')
-          .getPublicUrl(storagePath);
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from('gallery').getPublicUrl(storagePath);
 
         // Insert database record
         const { error: insertError } = await supabase
@@ -368,13 +379,15 @@ export default function GalleryPage() {
     try {
       // If image is stored in Supabase Storage, delete the file too
       if (image.storage_path) {
-        const { error: storageError } = await supabase
-          .storage
+        const { error: storageError } = await supabase.storage
           .from('gallery')
           .remove([image.storage_path]);
 
         if (storageError) {
-          console.error('Storage delete error (continuing with DB delete):', storageError);
+          console.error(
+            'Storage delete error (continuing with DB delete):',
+            storageError
+          );
         }
       }
 
@@ -471,13 +484,15 @@ export default function GalleryPage() {
       // Helper: delete old storage file if it existed
       async function deleteOldStorageFile() {
         if (replacingImage.storage_path) {
-          const { error: storageError } = await supabase
-            .storage
+          const { error: storageError } = await supabase.storage
             .from('gallery')
             .remove([replacingImage.storage_path]);
 
           if (storageError) {
-            console.error('Old storage file delete error (continuing):', storageError);
+            console.error(
+              'Old storage file delete error (continuing):',
+              storageError
+            );
           }
         }
       }
@@ -487,8 +502,7 @@ export default function GalleryPage() {
         const { blob } = await compressImage(replaceFile);
         const storagePath = generateStoragePath();
 
-        const { error: uploadError } = await supabase
-          .storage
+        const { error: uploadError } = await supabase.storage
           .from('gallery')
           .upload(storagePath, blob, {
             contentType: 'image/webp',
@@ -497,10 +511,9 @@ export default function GalleryPage() {
 
         if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase
-          .storage
-          .from('gallery')
-          .getPublicUrl(storagePath);
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from('gallery').getPublicUrl(storagePath);
 
         // Delete old storage file before updating DB
         await deleteOldStorageFile();
@@ -511,7 +524,6 @@ export default function GalleryPage() {
           .eq('id', replacingImage.id);
 
         if (updateError) throw updateError;
-
       } else {
         // URL mode -- update url, clear storage_path
         await deleteOldStorageFile();
@@ -530,10 +542,12 @@ export default function GalleryPage() {
       setTimeout(() => {
         handleReplaceCancel();
       }, 1500);
-
     } catch (err) {
       console.error('Error replacing image:', err);
-      setReplaceMessage({ type: 'error', text: err.message || 'Failed to replace image.' });
+      setReplaceMessage({
+        type: 'error',
+        text: err.message || 'Failed to replace image.',
+      });
     } finally {
       setReplaceSaving(false);
     }
@@ -583,13 +597,15 @@ export default function GalleryPage() {
         .map((img) => img.storage_path);
 
       if (storagePaths.length > 0) {
-        const { error: storageError } = await supabase
-          .storage
+        const { error: storageError } = await supabase.storage
           .from('gallery')
           .remove(storagePaths);
 
         if (storageError) {
-          console.error('Bulk storage delete error (continuing with DB delete):', storageError);
+          console.error(
+            'Bulk storage delete error (continuing with DB delete):',
+            storageError
+          );
         }
       }
 
@@ -687,7 +703,8 @@ export default function GalleryPage() {
         <div>
           <h1 className="text-2xl font-bold text-white mb-1">Gallery</h1>
           <p className="text-zinc-400 text-sm">
-            {images.length} images. Compression: {MAX_IMAGE_WIDTH}px max width, WebP quality {WEBP_QUALITY}.
+            {images.length} images. Compression: {MAX_IMAGE_WIDTH}px max width,
+            WebP quality {WEBP_QUALITY}.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -704,7 +721,9 @@ export default function GalleryPage() {
 
       {/* Bulk mode toolbar -- stacks on mobile, single row on sm+ */}
       {bulkMode && (
-        <div className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-4 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3`}>
+        <div
+          className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-4 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3`}
+        >
           <div className="flex items-center gap-3 flex-wrap">
             <span className="text-white text-sm font-medium">
               {selectedCount} selected
@@ -725,14 +744,20 @@ export default function GalleryPage() {
 
           <div className="flex items-center gap-2 flex-wrap">
             <button
-              onClick={() => { setShowBulkMetadata(true); setShowBulkDelete(false); }}
+              onClick={() => {
+                setShowBulkMetadata(true);
+                setShowBulkDelete(false);
+              }}
               disabled={selectedCount === 0}
               className={`px-3 py-2 text-sm rounded transition-colors ${BTN_SECONDARY} ${BTN_DISABLED}`}
             >
               Edit metadata
             </button>
             <button
-              onClick={() => { setShowBulkDelete(true); setShowBulkMetadata(false); }}
+              onClick={() => {
+                setShowBulkDelete(true);
+                setShowBulkMetadata(false);
+              }}
               disabled={selectedCount === 0}
               className={`px-3 py-2 text-sm rounded transition-colors ${BTN_DANGER} ${BTN_DISABLED}`}
             >
@@ -749,34 +774,48 @@ export default function GalleryPage() {
             Edit Metadata for {selectedCount} Images
           </h2>
           <p className="text-zinc-400 text-sm mb-4">
-            Only fill in the fields you want to update. Blank fields will be left unchanged.
+            Only fill in the fields you want to update. Blank fields will be
+            left unchanged.
           </p>
 
           {/* Date and Location -- stack on mobile, 2 cols on md+ */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label htmlFor="bulk-date" className="block text-sm font-medium text-zinc-300 mb-1.5">
+              <label
+                htmlFor="bulk-date"
+                className="block text-sm font-medium text-zinc-300 mb-1.5"
+              >
                 Date
               </label>
               <input
                 id="bulk-date"
                 type="date"
                 value={bulkMetadata.date}
-                onChange={(e) => setBulkMetadata((prev) => ({ ...prev, date: e.target.value }))}
+                onChange={(e) =>
+                  setBulkMetadata((prev) => ({ ...prev, date: e.target.value }))
+                }
                 placeholder="e.g. 27-02-26"
                 className={INPUT_STYLE}
               />
             </div>
 
             <div>
-              <label htmlFor="bulk-location" className="block text-sm font-medium text-zinc-300 mb-1.5">
+              <label
+                htmlFor="bulk-location"
+                className="block text-sm font-medium text-zinc-300 mb-1.5"
+              >
                 Location
               </label>
               <input
                 id="bulk-location"
                 type="text"
                 value={bulkMetadata.location}
-                onChange={(e) => setBulkMetadata((prev) => ({ ...prev, location: e.target.value }))}
+                onChange={(e) =>
+                  setBulkMetadata((prev) => ({
+                    ...prev,
+                    location: e.target.value,
+                  }))
+                }
                 placeholder="e.g. London"
                 className={INPUT_STYLE}
               />
@@ -786,10 +825,16 @@ export default function GalleryPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={handleBulkMetadataSave}
-              disabled={bulkMetadataSaving || (bulkMetadata.date.trim() === '' && bulkMetadata.location.trim() === '')}
+              disabled={
+                bulkMetadataSaving ||
+                (bulkMetadata.date.trim() === '' &&
+                  bulkMetadata.location.trim() === '')
+              }
               className={`px-4 py-2 text-sm font-medium rounded transition-colors ${BTN_PRIMARY} ${BTN_DISABLED}`}
             >
-              {bulkMetadataSaving ? 'Updating...' : `Update ${selectedCount} images`}
+              {bulkMetadataSaving
+                ? 'Updating...'
+                : `Update ${selectedCount} images`}
             </button>
             <button
               onClick={() => setShowBulkMetadata(false)}
@@ -824,33 +869,46 @@ export default function GalleryPage() {
         />
 
         <div className="text-zinc-400">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10 mx-auto mb-3 text-zinc-500">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="w-10 h-10 mx-auto mb-3 text-zinc-500"
+          >
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
             <polyline points="17 8 12 3 7 8" />
             <line x1="12" y1="3" x2="12" y2="15" />
           </svg>
           <p className="text-sm">
-            {isDragging
-              ? 'Drop images here...'
-              : (
-                <>
-                  <span className="hidden sm:inline">Drag and drop images here, or </span>
-                  <span className="sm:hidden">Tap to browse images, or </span>
-                  <span className="hidden sm:inline">click to browse</span>
-                  <span className="sm:hidden">drag and drop</span>
-                </>
-              )
-            }
+            {isDragging ? (
+              'Drop images here...'
+            ) : (
+              <>
+                <span className="hidden sm:inline">
+                  Drag and drop images here, or{' '}
+                </span>
+                <span className="sm:hidden">Tap to browse images, or </span>
+                <span className="hidden sm:inline">click to browse</span>
+                <span className="sm:hidden">drag and drop</span>
+              </>
+            )}
           </p>
           <p className="text-xs text-zinc-500 mt-1">
-            JPEG, PNG, WebP, GIF. Max {MAX_FILE_SIZE_MB}MB per file. Auto-compressed to WebP.
+            JPEG, PNG, WebP, GIF. Max {MAX_FILE_SIZE_MB}MB per file.
+            Auto-compressed to WebP.
           </p>
         </div>
       </div>
 
       {/* Upload progress */}
       {uploadProgress.length > 0 && (
-        <div className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-4 mb-6 space-y-2`}>
+        <div
+          className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-4 mb-6 space-y-2`}
+        >
           {uploadProgress.map((item, idx) => (
             <div key={idx} className="flex items-center gap-3 text-sm">
               {item.status === 'compressing' && (
@@ -860,12 +918,30 @@ export default function GalleryPage() {
                 <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin flex-shrink-0" />
               )}
               {item.status === 'done' && (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-green-400 flex-shrink-0">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-4 h-4 text-green-400 flex-shrink-0"
+                >
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
               )}
               {item.status === 'error' && (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-red-400 flex-shrink-0">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-4 h-4 text-red-400 flex-shrink-0"
+                >
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
@@ -875,10 +951,12 @@ export default function GalleryPage() {
 
               <span className="text-zinc-500 flex-shrink-0">
                 {item.status === 'compressing' && 'Compressing...'}
-                {item.status === 'uploading' && `Uploading (${formatFileSize(item.compressedSize)})`}
+                {item.status === 'uploading' &&
+                  `Uploading (${formatFileSize(item.compressedSize)})`}
                 {item.status === 'done' && (
                   <>
-                    {formatFileSize(item.originalSize)} → {formatFileSize(item.compressedSize)}
+                    {formatFileSize(item.originalSize)} →{' '}
+                    {formatFileSize(item.compressedSize)}
                   </>
                 )}
                 {item.status === 'error' && (
@@ -892,8 +970,12 @@ export default function GalleryPage() {
 
       {/* Image grid */}
       {images.length === 0 ? (
-        <div className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-6 text-center`}>
-          <p className="text-zinc-400">No images in the gallery. Upload some above.</p>
+        <div
+          className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-6 text-center`}
+        >
+          <p className="text-zinc-400">
+            No images in the gallery. Upload some above.
+          </p>
         </div>
       ) : (
         <div className={`grid ${GRID_COLS} gap-3`}>
@@ -934,7 +1016,16 @@ export default function GalleryPage() {
                         }`}
                       >
                         {isSelected && (
-                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="black"
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="w-4 h-4"
+                          >
                             <polyline points="20 6 9 17 4 12" />
                           </svg>
                         )}
@@ -945,18 +1036,41 @@ export default function GalleryPage() {
                   {/* Visibility toggle overlay -- top left, badge style, hidden in bulk mode */}
                   {!bulkMode && (
                     <button
-                      onClick={(e) => { e.stopPropagation(); handleToggleVisibility(image); }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleVisibility(image);
+                      }}
                       className="absolute top-2 left-2 bg-black/60 rounded px-1.5 py-0.5 transition-opacity hover:opacity-80"
                       title={image.is_visible ? 'Hide image' : 'Show image'}
-                      aria-label={image.is_visible ? 'Hide image' : 'Show image'}
+                      aria-label={
+                        image.is_visible ? 'Hide image' : 'Show image'
+                      }
                     >
                       {image.is_visible ? (
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 text-white">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="w-3.5 h-3.5 text-white"
+                        >
                           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                           <circle cx="12" cy="12" r="3" />
                         </svg>
                       ) : (
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 text-zinc-400">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="w-3.5 h-3.5 text-zinc-400"
+                        >
                           <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
                           <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
                           <line x1="1" y1="1" x2="23" y2="23" />
@@ -991,7 +1105,9 @@ export default function GalleryPage() {
                     // Replace image panel
                     <div className="space-y-2">
                       {/* Current image reminder */}
-                      <p className="text-zinc-500 text-xs">Replacing this image. Last change wins.</p>
+                      <p className="text-zinc-500 text-xs">
+                        Replacing this image. Last change wins.
+                      </p>
 
                       {/* Hidden file input for replace */}
                       <input
@@ -1003,13 +1119,16 @@ export default function GalleryPage() {
                       />
 
                       {/* New file preview or URL preview */}
-                      {(replacePreview || (replaceMode === 'url' && replaceUrl)) && (
+                      {(replacePreview ||
+                        (replaceMode === 'url' && replaceUrl)) && (
                         <div className="w-full aspect-video rounded overflow-hidden bg-zinc-700">
                           <img
                             src={replacePreview || replaceUrl}
                             alt="Replacement preview"
                             className="w-full h-full object-cover"
-                            onError={(e) => { e.target.style.display = 'none'; }}
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                            }}
                           />
                         </div>
                       )}
@@ -1019,7 +1138,9 @@ export default function GalleryPage() {
                         onClick={() => replaceFileInputRef.current?.click()}
                         disabled={replaceSaving}
                         className={`w-full px-2 py-1.5 text-xs rounded border border-dashed border-zinc-600 text-zinc-400 hover:border-zinc-400 hover:text-white transition-colors ${BTN_DISABLED} ${
-                          replaceMode === 'file' ? 'border-white text-white' : ''
+                          replaceMode === 'file'
+                            ? 'border-white text-white'
+                            : ''
                         }`}
                       >
                         {replaceFile ? replaceFile.name : 'Upload new image'}
@@ -1033,7 +1154,9 @@ export default function GalleryPage() {
                         placeholder="Or paste image URL"
                         disabled={replaceSaving}
                         className={`w-full px-2 py-1.5 bg-zinc-900 border rounded text-white text-xs placeholder-zinc-600 focus:outline-none focus:border-white transition-colors ${BTN_DISABLED} ${
-                          replaceMode === 'url' ? 'border-white' : 'border-zinc-600'
+                          replaceMode === 'url'
+                            ? 'border-white'
+                            : 'border-zinc-600'
                         }`}
                       />
 
@@ -1056,7 +1179,9 @@ export default function GalleryPage() {
                       </div>
 
                       {replaceMessage && (
-                        <p className={`text-xs ${replaceMessage.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>
+                        <p
+                          className={`text-xs ${replaceMessage.type === 'success' ? 'text-green-400' : 'text-red-400'}`}
+                        >
                           {replaceMessage.text}
                         </p>
                       )}
@@ -1067,7 +1192,9 @@ export default function GalleryPage() {
                       <input
                         type="text"
                         value={editFormData.alt}
-                        onChange={(e) => handleEditChange('alt', e.target.value)}
+                        onChange={(e) =>
+                          handleEditChange('alt', e.target.value)
+                        }
                         placeholder="Description"
                         className="w-full px-2 py-1.5 bg-zinc-900 border border-zinc-600 rounded text-white text-xs focus:outline-none focus:border-white"
                       />
@@ -1076,14 +1203,18 @@ export default function GalleryPage() {
                         <input
                           type="date"
                           value={editFormData.date}
-                          onChange={(e) => handleEditChange('date', e.target.value)}
+                          onChange={(e) =>
+                            handleEditChange('date', e.target.value)
+                          }
                           placeholder="Date"
                           className="w-full px-2 py-1.5 bg-zinc-900 border border-zinc-600 rounded text-white text-xs focus:outline-none focus:border-white"
                         />
                         <input
                           type="text"
                           value={editFormData.location}
-                          onChange={(e) => handleEditChange('location', e.target.value)}
+                          onChange={(e) =>
+                            handleEditChange('location', e.target.value)
+                          }
                           placeholder="Location"
                           className="w-full px-2 py-1.5 bg-zinc-900 border border-zinc-600 rounded text-white text-xs focus:outline-none focus:border-white"
                         />
@@ -1094,7 +1225,12 @@ export default function GalleryPage() {
                           type="number"
                           min="0"
                           value={editFormData.display_order}
-                          onChange={(e) => handleEditChange('display_order', parseInt(e.target.value, 10) || 0)}
+                          onChange={(e) =>
+                            handleEditChange(
+                              'display_order',
+                              parseInt(e.target.value, 10) || 0
+                            )
+                          }
                           placeholder="Order"
                           className="px-2 py-1.5 bg-zinc-900 border border-zinc-600 rounded text-white text-xs focus:outline-none focus:border-white"
                         />
@@ -1102,7 +1238,9 @@ export default function GalleryPage() {
                           <input
                             type="checkbox"
                             checked={editFormData.is_visible}
-                            onChange={(e) => handleEditChange('is_visible', e.target.checked)}
+                            onChange={(e) =>
+                              handleEditChange('is_visible', e.target.checked)
+                            }
                             className="w-3.5 h-3.5 rounded bg-zinc-900 border-zinc-600"
                           />
                           Visible
@@ -1127,7 +1265,9 @@ export default function GalleryPage() {
                       </div>
 
                       {editMessage && (
-                        <p className={`text-xs ${editMessage.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>
+                        <p
+                          className={`text-xs ${editMessage.type === 'success' ? 'text-green-400' : 'text-red-400'}`}
+                        >
                           {editMessage.text}
                         </p>
                       )}
@@ -1139,7 +1279,9 @@ export default function GalleryPage() {
                         {image.alt || 'No description'}
                       </p>
                       <p className="text-zinc-500 text-xs truncate">
-                        {[image.date, image.location].filter(Boolean).join(' -- ') || 'No metadata'}
+                        {[image.date, image.location]
+                          .filter(Boolean)
+                          .join(' -- ') || 'No metadata'}
                       </p>
 
                       {/* Action buttons -- Edit left, Replace middle, Delete pinned right */}
@@ -1177,8 +1319,12 @@ export default function GalleryPage() {
       {/* Single delete confirmation */}
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-6 max-w-sm w-full mx-4`}>
-            <h3 className="text-lg font-semibold text-white mb-2">Delete image?</h3>
+          <div
+            className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-6 max-w-sm w-full mx-4`}
+          >
+            <h3 className="text-lg font-semibold text-white mb-2">
+              Delete image?
+            </h3>
             <p className="text-zinc-400 text-sm mb-4">
               Are you sure you want to delete this image?
               {deleteConfirm.storage_path
@@ -1187,7 +1333,11 @@ export default function GalleryPage() {
             </p>
             {deleteConfirm.url && (
               <div className="w-24 h-24 rounded overflow-hidden bg-zinc-700 mb-4">
-                <img src={deleteConfirm.url} alt="To be deleted" className="w-full h-full object-cover" />
+                <img
+                  src={deleteConfirm.url}
+                  alt="To be deleted"
+                  className="w-full h-full object-cover"
+                />
               </div>
             )}
             <div className="flex items-center gap-3">
@@ -1213,10 +1363,16 @@ export default function GalleryPage() {
       {/* Bulk delete confirmation */}
       {showBulkDelete && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-6 max-w-sm w-full mx-4`}>
-            <h3 className="text-lg font-semibold text-white mb-2">Delete {selectedCount} images?</h3>
+          <div
+            className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-6 max-w-sm w-full mx-4`}
+          >
+            <h3 className="text-lg font-semibold text-white mb-2">
+              Delete {selectedCount} images?
+            </h3>
             <p className="text-zinc-400 text-sm mb-4">
-              This will permanently delete {selectedCount} images. Supabase-hosted images will also be removed from storage. This cannot be undone.
+              This will permanently delete {selectedCount} images.
+              Supabase-hosted images will also be removed from storage. This
+              cannot be undone.
             </p>
             <div className="flex items-center gap-3">
               <button
@@ -1224,7 +1380,9 @@ export default function GalleryPage() {
                 disabled={bulkDeleting}
                 className={`px-4 py-2 text-sm font-medium rounded transition-colors ${BTN_DANGER} ${BTN_DISABLED}`}
               >
-                {bulkDeleting ? 'Deleting...' : `Delete ${selectedCount} images`}
+                {bulkDeleting
+                  ? 'Deleting...'
+                  : `Delete ${selectedCount} images`}
               </button>
               <button
                 onClick={() => setShowBulkDelete(false)}

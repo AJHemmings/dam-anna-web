@@ -3,11 +3,11 @@ import { supabase } from '../../lib/supabase';
 
 /**
  * SiteContentPage -- Edit key-value site content stored in the site_content table.
- * 
+ *
  * Each content entry is displayed as an editable field with its own save button.
  * Changes save directly to the database and reflect on the public site immediately.
- * 
- * Multi-line keys (about_us paragraphs) render as textareas.
+ *
+ * Multi-line keys (about_us paragraphs) render as text areas.
  * Single-line keys (email, headings) render as text inputs.
  */
 
@@ -22,8 +22,13 @@ const SAVE_TEXT = 'text-zinc-900';
 const SAVE_HOVER = 'hover:bg-zinc-200';
 const SAVE_DISABLED = 'disabled:opacity-50 disabled:cursor-not-allowed';
 
-// CUSTOMIZATION: Keys that should render as multi-line textareas
-const MULTILINE_KEYS = ['about_us_p1', 'about_us_p2', 'about_us_p3', 'mailing_list_description'];
+// CUSTOMIZATION: Keys that should render as multi-line text areas
+const MULTILINE_KEYS = [
+  'about_us_p1',
+  'about_us_p2',
+  'about_us_p3',
+  'mailing_list_description',
+];
 
 // CUSTOMIZATION: Textarea rows
 const TEXTAREA_ROWS = 5;
@@ -79,7 +84,7 @@ export default function SiteContentPage() {
 
       setEntries(data || []);
 
-      // Initialise edited values with current database values
+      // Initialize edited values with current database values
       const initialValues = {};
       (data || []).forEach((entry) => {
         initialValues[entry.key] = entry.value;
@@ -176,7 +181,8 @@ export default function SiteContentPage() {
     <div>
       <h1 className="text-2xl font-bold text-white mb-2">Site Content</h1>
       <p className="text-zinc-400 text-sm mb-6">
-        Edit your website content below. Changes go live immediately after saving.
+        Edit your website content below. Changes go live immediately after
+        saving.
       </p>
 
       <div className="space-y-4">
@@ -188,7 +194,10 @@ export default function SiteContentPage() {
           const isSaving = saveState === 'saving';
 
           return (
-            <div key={entry.id} className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-5`}>
+            <div
+              key={entry.id}
+              className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-5`}
+            >
               {/*
                 Mobile: stack label, input, then save button full-width below.
                 Tablet (md+): side-by-side -- input takes flex-1, save button sits to the right.
