@@ -101,13 +101,19 @@ function AdminShell() {
         <main className="flex-1 p-4 md:p-6 overflow-y-auto">
           <Routes>
             <Route index element={<DashboardHome />} />
-            <Route path="analytics" element={<AnalyticsPage />} />
+            <Route
+              path="analytics"
+              element={<AnalyticsPage isMobile={isMobile} />}
+            />
             <Route path="gigs" element={<GigsPage />} />
             <Route path="gallery" element={<GalleryPage />} />
             <Route path="videos" element={<VideosPage />} />
             <Route path="site-content" element={<SiteContentPage />} />
             <Route path="social-links" element={<SocialLinksPage />} />
-            <Route path="submissions" element={<SubmissionsPage isMobile={isMobile} />} />
+            <Route
+              path="submissions"
+              element={<SubmissionsPage isMobile={isMobile} />}
+            />
             <Route path="*" element={<Navigate to="/admin" replace />} />
           </Routes>
         </main>
