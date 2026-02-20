@@ -9,15 +9,12 @@ import { supabase } from '../lib/supabase';
  * RESPONSIBILITIES:
  * - Fetch pending/all submissions for the admin review queue
  * - Submit a new photo from the public YouModal form
- * - Approve a submission (move to gallery_images, update status)
+ * - Approve a submission (move to gallery_images with admin-provided metadata)
  * - Reject a submission (delete from storage, update status + reason)
  * - Block an email address (insert into blocked_emails, silent on public side)
  * - Check if an email is blocked before allowing submission
  * - Clear reviewed submissions from default view (sets is_cleared: true)
  * - Retrieve cleared submissions by reviewed_at date range
- *
- * RESPONSIVE STRATEGY:
- * Data only -- no layout concerns. Consumed by YouModal and SubmissionsPage.
  *
  * CUSTOMIZATION:
  * - SUBMISSIONS_BUCKET: Supabase Storage bucket name for raw submissions
@@ -25,11 +22,8 @@ import { supabase } from '../lib/supabase';
  * - MAX_FILE_SIZE_MB: Client-side file size limit before compression
  */
 
-// CUSTOMIZATION: Storage bucket names
 const SUBMISSIONS_BUCKET = 'user-submissions';
 const GALLERY_BUCKET = 'gallery';
-
-// CUSTOMIZATION: File size limit in MB (before compression)
 const MAX_FILE_SIZE_MB = 20;
 
 // ---------------------------------------------------------------------------
@@ -91,9 +85,6 @@ export function useUserSubmissions({ adminMode = true } = {}) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // -------------------------------------------------------------------------
-  // Fetch active submissions -- excludes cleared records by default
-  // -------------------------------------------------------------------------
   const fetchSubmissions = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -117,9 +108,6 @@ export function useUserSubmissions({ adminMode = true } = {}) {
     if (adminMode) fetchSubmissions();
   }, [adminMode, fetchSubmissions]);
 
-  // -------------------------------------------------------------------------
-  // Check if an email is blocked
-  // -------------------------------------------------------------------------
   const isEmailBlocked = useCallback(async (email) => {
     try {
       const { data, error: checkError } = await supabase
@@ -135,9 +123,6 @@ export function useUserSubmissions({ adminMode = true } = {}) {
     }
   }, []);
 
-  // -------------------------------------------------------------------------
-  // Submit a photo from the public YouModal form
-  // -------------------------------------------------------------------------
   const submitPhoto = useCallback(
     async ({ file, email, name, date, location }) => {
       try {
@@ -155,10 +140,7 @@ export function useUserSubmissions({ adminMode = true } = {}) {
 
         const uploadResult = await supabase.storage
           .from(SUBMISSIONS_BUCKET)
-          .upload(storagePath, compressed, {
-            contentType: 'image/webp',
-            upsert: false,
-          });
+          .upload(storagePath, compressed, { contentType: 'image/webp', upsert: false });
 
         if (uploadResult.error) throw uploadResult.error;
 
@@ -179,7 +161,6 @@ export function useUserSubmissions({ adminMode = true } = {}) {
           });
 
         if (insertError) throw insertError;
-
         return { success: true };
       } catch (err) {
         return { success: false, message: err.message };
@@ -190,25 +171,26 @@ export function useUserSubmissions({ adminMode = true } = {}) {
 
   // -------------------------------------------------------------------------
   // Approve a submission
+  // metadata: { alt, date, location, display_order, is_visible }
+  // All fields are provided by the admin via the approval edit form.
   // -------------------------------------------------------------------------
   const approveSubmission = useCallback(
-    async (submission) => {
+    async (submission, metadata = {}) => {
       setLoading(true);
       try {
         const galleryPath = `approved/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
 
+        // Download from submissions bucket
         const { data: fileData, error: downloadError } = await supabase.storage
           .from(SUBMISSIONS_BUCKET)
           .download(submission.storage_path);
 
         if (downloadError) throw downloadError;
 
+        // Re-upload to gallery bucket
         const { error: uploadError } = await supabase.storage
           .from(GALLERY_BUCKET)
-          .upload(galleryPath, fileData, {
-            contentType: 'image/webp',
-            upsert: false,
-          });
+          .upload(galleryPath, fileData, { contentType: 'image/webp', upsert: false });
 
         if (uploadError) throw uploadError;
 
@@ -216,27 +198,34 @@ export function useUserSubmissions({ adminMode = true } = {}) {
           .from(GALLERY_BUCKET)
           .getPublicUrl(galleryPath);
 
-        const { data: orderData } = await supabase
-          .from('gallery_images')
-          .select('display_order')
-          .order('display_order', { ascending: true })
-          .limit(1)
-          .maybeSingle();
+        // Use display_order from metadata if provided, otherwise slot before existing images
+        let displayOrder = metadata.display_order;
+        if (displayOrder === undefined || displayOrder === null || displayOrder === '') {
+          const { data: orderData } = await supabase
+            .from('gallery_images')
+            .select('display_order')
+            .order('display_order', { ascending: true })
+            .limit(1)
+            .maybeSingle();
+          displayOrder = orderData ? orderData.display_order - 1 : 0;
+        }
 
-        const newOrder = orderData ? orderData.display_order - 1 : 0;
-
+        // Insert into gallery_images with admin-provided metadata
         const { error: galleryError } = await supabase
           .from('gallery_images')
           .insert({
             url: urlData.publicUrl,
             storage_path: galleryPath,
-            alt: submission.alt || submission.submitted_by || 'Fan photo',
-            display_order: newOrder,
-            is_visible: true,
+            alt: metadata.alt || submission.submitted_by || 'Fan photo',
+            date: metadata.date || null,
+            location: metadata.location || null,
+            display_order: Number(displayOrder),
+            is_visible: metadata.is_visible ?? true,
           });
 
         if (galleryError) throw galleryError;
 
+        // Update submission status and gallery URL
         const { error: updateError } = await supabase
           .from('user_submissions')
           .update({
@@ -248,6 +237,7 @@ export function useUserSubmissions({ adminMode = true } = {}) {
 
         if (updateError) throw updateError;
 
+        // Delete original from submissions bucket
         await supabase.storage
           .from(SUBMISSIONS_BUCKET)
           .remove([submission.storage_path]);
@@ -264,9 +254,6 @@ export function useUserSubmissions({ adminMode = true } = {}) {
     [fetchSubmissions]
   );
 
-  // -------------------------------------------------------------------------
-  // Reject a submission
-  // -------------------------------------------------------------------------
   const rejectSubmission = useCallback(
     async (submission, rejectionReason = null) => {
       setLoading(true);
@@ -300,9 +287,6 @@ export function useUserSubmissions({ adminMode = true } = {}) {
     [fetchSubmissions]
   );
 
-  // -------------------------------------------------------------------------
-  // Block an email
-  // -------------------------------------------------------------------------
   const blockEmail = useCallback(
     async ({ email, reason, submissionId }) => {
       setLoading(true);
@@ -333,10 +317,6 @@ export function useUserSubmissions({ adminMode = true } = {}) {
     [submissions, fetchSubmissions, rejectSubmission]
   );
 
-  // -------------------------------------------------------------------------
-  // Clear selected submissions -- sets is_cleared: true on given IDs
-  // Only applies to approved or rejected submissions, not pending
-  // -------------------------------------------------------------------------
   const clearSubmissions = useCallback(
     async (ids) => {
       setLoading(true);
@@ -361,10 +341,6 @@ export function useUserSubmissions({ adminMode = true } = {}) {
     [fetchSubmissions]
   );
 
-  // -------------------------------------------------------------------------
-  // Retrieve cleared submissions by reviewed_at date range
-  // Returns records directly -- does not merge into main submissions state
-  // -------------------------------------------------------------------------
   const retrieveCleared = useCallback(async ({ from, to }) => {
     try {
       const { data, error: retrieveError } = await supabase

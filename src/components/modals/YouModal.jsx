@@ -9,8 +9,14 @@ import { useUserSubmissions } from '../../hooks/useUserSubmissions';
  *
  * RESPONSIVE STRATEGY:
  * Single column form throughout. Max width constrained by MODAL_WIDTH.
- * Drop zone scales naturally. No isMobile prop needed -- layout is identical
- * across breakpoints, only spacing changes via Tailwind classes.
+ * Modal scrolls internally on small screens -- the outer wrapper locks the
+ * background scroll and the inner card overflows vertically as needed.
+ * No isMobile prop needed -- layout is identical across breakpoints,
+ * only spacing changes via Tailwind classes.
+ *
+ * SCROLL LOCK:
+ * overflow:hidden is applied to <html> on mount and restored on unmount.
+ * This matches the pattern used by GalleryModal and VideoModal.
  *
  * CUSTOMIZATION POINTS:
  * - BLUR_AMOUNT: backdrop blur intensity
@@ -27,13 +33,18 @@ const DARKNESS_OVERLAY = 'bg-black/10';
 const ANIMATION_DURATION = 500;
 
 // CUSTOMIZATION: Close button
-const CLOSE_BTN_TOP = 'top-20 md:top-20 lg:top-8';
+// top-4 on mobile keeps the button within the viewport and away from the modal card top edge.
+// lg:top-8 gives breathing room on desktop where the card is centred with more space above.
+const CLOSE_BTN_TOP = 'top-4 md:top-6 lg:top-8';
 const CLOSE_BTN_SIZE = 'text-3xl lg:text-4xl';
 
 // CUSTOMIZATION: Modal dimensions
 const MODAL_WIDTH = 'w-full max-w-[700px]';
-const MODAL_PADDING = 'p-6 md:p-8 lg:p-12';
-const OUTER_PADDING = 'p-4 md:p-6 lg:p-8';
+// p-4 on mobile reclaims width on 320px screens where the border image already consumes 60px.
+// Padding scales up on larger screens.
+const MODAL_PADDING = 'p-4 sm:p-6 md:p-8 lg:p-12';
+// OUTER_PADDING: horizontal padding only on mobile -- vertical scroll handles spacing top/bottom.
+const OUTER_PADDING = 'px-3 py-4 sm:px-4 sm:py-6 md:p-6 lg:p-8';
 
 // CUSTOMIZATION: Typography
 const HEADING_SIZE = 'text-3xl md:text-4xl lg:text-6xl';
@@ -41,7 +52,8 @@ const BODY_TEXT_SIZE = 'text-base md:text-lg lg:text-xl';
 const LABEL_SIZE = 'text-sm md:text-base';
 
 // CUSTOMIZATION: Icon
-const ICON_SIZE = 'w-16 h-16 md:w-24 md:h-24 lg:w-30 lg:h-30';
+// lg:w-30 is not a valid Tailwind class -- corrected to lg:w-32 lg:h-32.
+const ICON_SIZE = 'w-16 h-16 md:w-24 md:h-24 lg:w-32 lg:h-32';
 
 // CUSTOMIZATION: File validation
 const ACCEPTED_TYPES = [
@@ -82,20 +94,40 @@ export default function YouModal({ onClose }) {
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState(null);
 
-  // Privacy Checkbox state
-
+  // Privacy checkbox state
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
 
-  // Honeypot ref -- never shown to users, bots fill it in
+  // Honeypot -- controlled state, never shown to users, bots fill it in.
+  // ref-based honeypot was dropped in Session 6 (null at submit time due to re-renders).
   const [honeypot, setHoneypot] = useState('');
-  // const honeypotRef = useRef(null);
   const fileInputRef = useRef(null);
 
   const { submitPhoto } = useUserSubmissions({ adminMode: false });
 
+  // Mount animation
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 10);
     return () => clearTimeout(timer);
+  }, []);
+
+  // Scroll lock -- applied to <html> on mount, restored on unmount.
+  // Matches the pattern used by GalleryModal and VideoModal.
+  useEffect(() => {
+    const html = document.documentElement;
+    const prevOverflow = html.style.overflow;
+    const prevPaddingRight = html.style.paddingRight;
+
+    // Compensate for scrollbar width to prevent layout shift on desktop.
+    const scrollbarWidth = window.innerWidth - html.clientWidth;
+    if (scrollbarWidth > 0) {
+      html.style.paddingRight = `${scrollbarWidth}px`;
+    }
+    html.style.overflow = 'hidden';
+
+    return () => {
+      html.style.overflow = prevOverflow;
+      html.style.paddingRight = prevPaddingRight;
+    };
   }, []);
 
   // Revoke object URL on unmount to avoid memory leaks
@@ -142,7 +174,7 @@ export default function YouModal({ onClose }) {
   }
 
   // ---------------------------------------------------------------------------
-  // Drag and drop handlers
+  // Drag and drop handlers (desktop only -- mobile uses file picker directly)
   // ---------------------------------------------------------------------------
   function handleDragOver(e) {
     e.preventDefault();
@@ -213,7 +245,7 @@ export default function YouModal({ onClose }) {
   if (submitted) {
     return (
       <div
-        className={`fixed inset-0 z-[9999] overflow-y-auto ${BLUR_AMOUNT} ${DARKNESS_OVERLAY} flex items-center justify-center ${OUTER_PADDING} transition-opacity duration-500 opacity-100`}
+        className={`fixed inset-0 z-[9999] overflow-y-auto ${BLUR_AMOUNT} ${DARKNESS_OVERLAY} flex items-start justify-center ${OUTER_PADDING} transition-opacity duration-500 opacity-100`}
         style={{
           backgroundColor: !CSS.supports('backdrop-filter', 'blur(1px)')
             ? 'rgb(55, 65, 81)'
@@ -221,6 +253,7 @@ export default function YouModal({ onClose }) {
         }}
         onClick={handleBackdropClick}
       >
+        {/* Close button -- fixed so it stays visible during scroll */}
         <button
           onClick={handleClose}
           className={`fixed ${CLOSE_BTN_TOP} right-4 md:right-6 lg:right-8 ${CLOSE_BTN_SIZE} text-white hover:text-gray-300 active:text-gray-400 transition-colors z-[10000] w-11 h-11 flex items-center justify-center`}
@@ -266,7 +299,7 @@ export default function YouModal({ onClose }) {
   // ---------------------------------------------------------------------------
   return (
     <div
-      className={`fixed inset-0 z-[9999] overflow-y-auto ${BLUR_AMOUNT} ${DARKNESS_OVERLAY} flex items-center justify-center ${OUTER_PADDING} transition-opacity duration-500 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+      className={`fixed inset-0 z-[9999] overflow-y-auto ${BLUR_AMOUNT} ${DARKNESS_OVERLAY} flex items-start justify-center ${OUTER_PADDING} transition-opacity duration-500 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
       style={{
         backgroundColor: !CSS.supports('backdrop-filter', 'blur(1px)')
           ? 'rgb(55, 65, 81)'
@@ -274,6 +307,7 @@ export default function YouModal({ onClose }) {
       }}
       onClick={handleBackdropClick}
     >
+      {/* Close button -- fixed so it stays visible during scroll */}
       <button
         onClick={handleClose}
         className={`fixed ${CLOSE_BTN_TOP} right-4 md:right-6 lg:right-8 ${CLOSE_BTN_SIZE} text-white hover:text-gray-300 active:text-gray-400 transition-colors z-[10000] w-11 h-11 flex items-center justify-center`}
@@ -336,7 +370,10 @@ export default function YouModal({ onClose }) {
               />
             </div>
 
-            {/* Drop zone / file picker */}
+            {/* Drop zone / file picker
+                Clicking the zone triggers the hidden file input on all devices.
+                Drag and drop works on desktop. On mobile the native file picker
+                opens directly -- no drag-and-drop language shown. */}
             <div className="mb-5">
               {!file ? (
                 <div
@@ -350,7 +387,7 @@ export default function YouModal({ onClose }) {
                   onKeyDown={(e) =>
                     e.key === 'Enter' && fileInputRef.current?.click()
                   }
-                  aria-label="Upload photo"
+                  aria-label="Choose a photo"
                 >
                   <input
                     ref={fileInputRef}
@@ -362,8 +399,7 @@ export default function YouModal({ onClose }) {
                   <div className="flex flex-col items-center gap-2 pointer-events-none">
                     <span className="text-3xl">📷</span>
                     <p className={`${BODY_TEXT_SIZE} text-white/80`}>
-                      Drop your photo here, or{' '}
-                      <span className="underline">browse</span>
+                      Choose a photo
                     </p>
                     <p className="text-xs text-white/40">
                       JPEG, PNG, WebP or HEIC up to {MAX_FILE_SIZE_MB}MB
@@ -377,10 +413,11 @@ export default function YouModal({ onClose }) {
                     alt="Preview"
                     className="w-full max-h-64 object-cover rounded-lg"
                   />
+                  {/* Remove button: 44x44px touch target to meet minimum standard */}
                   <button
                     type="button"
                     onClick={handleRemoveFile}
-                    className="absolute top-2 right-2 bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-black transition-colors text-lg leading-none"
+                    className="absolute top-2 right-2 bg-black/70 text-white rounded-full w-11 h-11 flex items-center justify-center hover:bg-black transition-colors text-lg leading-none"
                     aria-label="Remove photo"
                   >
                     ×
@@ -477,29 +514,35 @@ export default function YouModal({ onClose }) {
               </p>
             )}
 
-            {/* Privacy consent checkbox */}
-            <div className="mb-4 flex items-start gap-3">
-              <input
-                id="privacy-consent"
-                type="checkbox"
-                checked={privacyAccepted}
-                onChange={(e) => setPrivacyAccepted(e.target.checked)}
-                className="mt-1 w-4 h-4 shrink-0 accent-white cursor-pointer"
-              />
+            {/* Privacy consent checkbox
+                The label wraps the checkbox and text to maximise the tap target
+                area on mobile. The checkbox itself is 16px but the full label
+                line height gives an adequate touch target on all screen sizes. */}
+            <div className="mb-4">
               <label
                 htmlFor="privacy-consent"
-                className="text-xs text-white/50 leading-relaxed cursor-pointer"
+                className="flex items-start gap-3 cursor-pointer"
               >
-                I agree to the{' '}
-                <a
-                  href="/privacy"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline text-white/70 hover:text-white transition-colors"
-                >
-                  privacy policy
-                </a>
-                . My email is only used to manage my submission.
+                <input
+                  id="privacy-consent"
+                  type="checkbox"
+                  checked={privacyAccepted}
+                  onChange={(e) => setPrivacyAccepted(e.target.checked)}
+                  className="mt-1 w-4 h-4 shrink-0 accent-white cursor-pointer"
+                />
+                <span className="text-xs text-white/50 leading-relaxed">
+                  I agree to the{' '}
+                  <a
+                    href="/privacy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline text-white/70 hover:text-white transition-colors"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    privacy policy
+                  </a>
+                  . My email is only used to manage my submission.
+                </span>
               </label>
             </div>
 
