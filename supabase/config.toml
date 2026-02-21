@@ -393,3 +393,69 @@ entrypoint = "./functions/notify-new-submission/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/notify-new-submission/*.html" ]
+
+[functions.google-oauth-callback]
+enabled = true
+verify_jwt = true
+import_map = "./functions/google-oauth-callback/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/google-oauth-callback/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/google-oauth-callback/*.html" ]
+
+[functions.google-oauth-init]
+enabled = true
+verify_jwt = true
+import_map = "./functions/google-oauth-init/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/google-oauth-init/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/google-oauth-init/*.html" ]
+
+[functions.google-token-refresh]
+enabled = true
+verify_jwt = true
+import_map = "./functions/google-token-refresh/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/google-token-refresh/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/google-token-refresh/*.html" ]
+
+[functions.fetch-gmail-inbox]
+enabled = true
+verify_jwt = true
+import_map = "./functions/fetch-gmail-inbox/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/fetch-gmail-inbox/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/fetch-gmail-inbox/*.html" ]
+
+[functions.fetch-gmail-thread]
+enabled = true
+verify_jwt = false
+import_map = "./functions/fetch-gmail-thread/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/fetch-gmail-thread/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/fetch-gmail-thread/*.html" ]
+
+[functions.send-gmail-reply]
+enabled = true
+verify_jwt = false
+import_map = "./functions/send-gmail-reply/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/send-gmail-reply/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/send-gmail-reply/*.html" ]
