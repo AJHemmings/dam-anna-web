@@ -35,7 +35,7 @@ const NAV_ITEMS = [
   { id: 'about', label: 'About Us', disabled: false },
   { id: 'gigs', label: 'Gigs', disabled: false },
   { id: 'gallery', label: 'Gallery', disabled: false },
-  { id: 'videos', label: 'Videos', disabled: false }, // Hidden until video section is ready
+  { id: 'videos', label: 'Videos', disabled: false },
   { id: 'socials', label: 'Socials', disabled: false },
   { id: 'contact', label: 'Contact', disabled: false },
   { id: 'you', label: 'You', disabled: false },

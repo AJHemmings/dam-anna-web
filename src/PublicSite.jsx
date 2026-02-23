@@ -100,11 +100,10 @@ export default function PublicSite() {
       case 'you':
         setIsYouModalOpen(true);
         break;
-      case 'video':
+      case 'videos':
         scrollToSection('video-section');
         break;
       default:
-        console.log(`Handler for ${itemId} not implemented yet`);
     }
   }
 
