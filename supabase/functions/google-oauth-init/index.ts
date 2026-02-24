@@ -3,7 +3,6 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 
 const REDIRECT_URI = `${SUPABASE_URL}/functions/v1/google-oauth-callback`;
 
-// Request Gmail and YouTube scopes together so OAuth only happens once
 const SCOPES = [
   "https://www.googleapis.com/auth/gmail.readonly",
   "https://www.googleapis.com/auth/gmail.send",
@@ -11,7 +10,16 @@ const SCOPES = [
   "https://www.googleapis.com/auth/youtube.force-ssl",
 ].join(" ");
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
 Deno.serve(async (req: Request) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
   const authUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
 
   authUrl.searchParams.set("client_id", GOOGLE_CLIENT_ID);
@@ -23,6 +31,6 @@ Deno.serve(async (req: Request) => {
 
   return new Response(null, {
     status: 302,
-    headers: { Location: authUrl.toString() },
+    headers: { ...corsHeaders, Location: authUrl.toString() },
   });
 });

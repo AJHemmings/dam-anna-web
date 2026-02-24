@@ -45,6 +45,7 @@ const NAV_ITEMS = [
   { label: 'Social Media', path: null, enabled: false },
   { label: 'User Submissions', path: '/admin/submissions', enabled: true },
   { label: 'Analytics', path: '/admin/analytics', enabled: true },
+  { label: 'Mail', path: '/admin/gmail', enabled: true },
 ];
 
 export default function AdminSidebar({ isOpen, onClose }) {

@@ -7,21 +7,28 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
 const REDIRECT_URI = `${SUPABASE_URL}/functions/v1/google-oauth-callback`;
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
 Deno.serve(async (req: Request) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
   const url = new URL(req.url);
   const code = url.searchParams.get("code");
   const error = url.searchParams.get("error");
 
-  // User denied access on Google consent screen
   if (error) {
-    return new Response(`OAuth error: ${error}`, { status: 400 });
+    return new Response(`OAuth error: ${error}`, { status: 400, headers: corsHeaders });
   }
 
   if (!code) {
-    return new Response("Missing authorization code", { status: 400 });
+    return new Response("Missing authorization code", { status: 400, headers: corsHeaders });
   }
 
-  // Exchange authorization code for tokens
   const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -39,13 +46,12 @@ Deno.serve(async (req: Request) => {
   if (!tokenResponse.ok) {
     return new Response(`Token exchange failed: ${JSON.stringify(tokens)}`, {
       status: 500,
+      headers: corsHeaders,
     });
   }
 
-  // Calculate when the access token expires
   const expiresAt = new Date(Date.now() + tokens.expires_in * 1000).toISOString();
 
-  // Store tokens in Supabase using service role (bypasses RLS)
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
   const { error: dbError } = await supabase
@@ -62,12 +68,11 @@ Deno.serve(async (req: Request) => {
     );
 
   if (dbError) {
-    return new Response(`Database error: ${dbError.message}`, { status: 500 });
+    return new Response(`Database error: ${dbError.message}`, { status: 500, headers: corsHeaders });
   }
 
-  // Redirect admin back to the dashboard
   return new Response(null, {
     status: 302,
-    headers: { Location: "https://www.damannaband.com/admin" },
+    headers: { ...corsHeaders, Location: "https://www.damannaband.com/admin" },
   });
 });
