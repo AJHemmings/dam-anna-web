@@ -15,10 +15,15 @@ async function callWithTokenRefresh(functionName, params = {}) {
     headers,
   });
 
+  const errorMessage = error?.message ?? '';
+  const contextStatus = error?.context?.status;
+
   const is401 =
     error?.status === 401 ||
-    error?.message?.includes('401') ||
-    error?.context?.status === 401;
+    contextStatus === 401 ||
+    errorMessage.includes('401') ||
+    errorMessage.toLowerCase().includes('expired') ||
+    errorMessage.toLowerCase().includes('token');
 
   if (error && is401) {
     const { error: refreshError } = await supabase.functions.invoke(

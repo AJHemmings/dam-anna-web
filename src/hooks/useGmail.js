@@ -12,25 +12,29 @@ async function callWithTokenRefresh(functionName, params = {}) {
     data: { session },
   } = await supabase.auth.getSession();
 
+  const headers = session
+    ? { Authorization: `Bearer ${session.access_token}` }
+    : {};
+
   const { data, error } = await supabase.functions.invoke(functionName, {
     body: params,
-    headers: session ? { Authorization: `Bearer ${session.access_token}` } : {},
+    headers,
   });
+
+  const errorMessage = error?.message ?? '';
+  const contextStatus = error?.context?.status;
 
   const is401 =
     error?.status === 401 ||
-    error?.message?.includes('401') ||
-    error?.context?.status === 401;
+    contextStatus === 401 ||
+    errorMessage.includes('401') ||
+    errorMessage.toLowerCase().includes('expired') ||
+    errorMessage.toLowerCase().includes('token');
 
   if (error && is401) {
     const { error: refreshError } = await supabase.functions.invoke(
       'google-token-refresh',
-      {
-        body: {},
-        headers: session
-          ? { Authorization: `Bearer ${session.access_token}` }
-          : {},
-      }
+      { body: {}, headers }
     );
 
     if (refreshError) {
@@ -42,9 +46,7 @@ async function callWithTokenRefresh(functionName, params = {}) {
 
     const retry = await supabase.functions.invoke(functionName, {
       body: params,
-      headers: session
-        ? { Authorization: `Bearer ${session.access_token}` }
-        : {},
+      headers,
     });
 
     return { data: retry.data, error: retry.error?.message ?? null };
