@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase';
 
 /**
  * GigsPage -- Manage all gigs (upcoming and previous) from one page.
- * 
+ *
  * Features:
  * - View all gigs sorted by date, with visual separation of upcoming vs previous
  * - Add new gigs with date, venue, location, ticket info, and venue image URL
@@ -11,7 +11,7 @@ import { supabase } from '../../lib/supabase';
  * - Delete gigs with confirmation
  * - Toggle visibility with eye icon
  * - Date IS the logic: date >= today = upcoming, date < today = previous
- * 
+ *
  * No manual archiving needed. The public site filters automatically by date.
  */
 
@@ -27,13 +27,20 @@ const BTN_SECONDARY = 'bg-zinc-700 text-white hover:bg-zinc-600';
 const BTN_DISABLED = 'disabled:opacity-50 disabled:cursor-not-allowed';
 
 // CUSTOMIZATION: Input styling
-const INPUT_STYLE = 'w-full px-3 py-2.5 bg-zinc-900 border border-zinc-600 rounded text-white placeholder-zinc-500 focus:outline-none focus:border-white transition-colors';
+const INPUT_STYLE =
+  'w-full px-3 py-2.5 bg-zinc-900 border border-zinc-600 rounded text-white placeholder-zinc-500 focus:outline-none focus:border-white transition-colors';
 
 // CUSTOMIZATION: Section header styling
-const SECTION_HEADER = 'text-lg font-semibold text-zinc-300 mb-3 mt-8 first:mt-0';
+const SECTION_HEADER =
+  'text-lg font-semibold text-zinc-300 mb-3 mt-8 first:mt-0';
 
 // CUSTOMIZATION: Date display format
-const DATE_OPTIONS = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+const DATE_OPTIONS = {
+  weekday: 'short',
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+};
 
 /**
  * Format a date string (YYYY-MM-DD) into a readable format.
@@ -59,6 +66,7 @@ export default function GigsPage() {
   const [gigs, setGigs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showAllPrevious, setShowAllPrevious] = useState(false);
 
   // Form state
   const [editingGig, setEditingGig] = useState(null);
@@ -176,7 +184,10 @@ export default function GigsPage() {
         if (insertError) throw insertError;
       }
 
-      setSaveMessage({ type: 'success', text: editingGig ? 'Gig updated.' : 'Gig added.' });
+      setSaveMessage({
+        type: 'success',
+        text: editingGig ? 'Gig updated.' : 'Gig added.',
+      });
       await fetchGigs();
 
       setTimeout(() => {
@@ -235,7 +246,9 @@ export default function GigsPage() {
 
   // Split gigs into upcoming and previous
   const upcomingGigs = gigs.filter((g) => isUpcoming(g.date));
-  const previousGigs = gigs.filter((g) => !isUpcoming(g.date));
+  const previousGigs = gigs
+    .filter((g) => !isUpcoming(g.date))
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
 
   if (loading) {
     return (
@@ -266,8 +279,8 @@ export default function GigsPage() {
         <div>
           <h1 className="text-2xl font-bold text-white mb-1">Gigs</h1>
           <p className="text-zinc-400 text-sm">
-            {upcomingGigs.length} upcoming, {previousGigs.length} previous.
-            Gigs automatically move to "previous" once the date passes.
+            {upcomingGigs.length} upcoming, {previousGigs.length} previous. Gigs
+            automatically move to "previous" once the date passes.
           </p>
         </div>
         {!showAddForm && !editingGig && (
@@ -291,7 +304,10 @@ export default function GigsPage() {
             {/* Date, Venue, Location -- stack on mobile, 3 cols on md+ */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label htmlFor="date" className="block text-sm font-medium text-zinc-300 mb-1.5">
+                <label
+                  htmlFor="date"
+                  className="block text-sm font-medium text-zinc-300 mb-1.5"
+                >
                   Date
                 </label>
                 <input
@@ -304,7 +320,10 @@ export default function GigsPage() {
               </div>
 
               <div>
-                <label htmlFor="venue" className="block text-sm font-medium text-zinc-300 mb-1.5">
+                <label
+                  htmlFor="venue"
+                  className="block text-sm font-medium text-zinc-300 mb-1.5"
+                >
                   Venue
                 </label>
                 <input
@@ -318,7 +337,10 @@ export default function GigsPage() {
               </div>
 
               <div>
-                <label htmlFor="location" className="block text-sm font-medium text-zinc-300 mb-1.5">
+                <label
+                  htmlFor="location"
+                  className="block text-sm font-medium text-zinc-300 mb-1.5"
+                >
                   Location
                 </label>
                 <input
@@ -335,29 +357,41 @@ export default function GigsPage() {
             {/* Ticket Text and URL -- stack on mobile, 2 cols on md+ */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="ticket_text" className="block text-sm font-medium text-zinc-300 mb-1.5">
+                <label
+                  htmlFor="ticket_text"
+                  className="block text-sm font-medium text-zinc-300 mb-1.5"
+                >
                   Ticket Button Text
                 </label>
                 <input
                   id="ticket_text"
                   type="text"
                   value={formData.ticket_text}
-                  onChange={(e) => handleFormChange('ticket_text', e.target.value)}
+                  onChange={(e) =>
+                    handleFormChange('ticket_text', e.target.value)
+                  }
                   placeholder="e.g. Get Tickets, Free Entry"
                   className={INPUT_STYLE}
                 />
-                <p className="mt-1 text-xs text-zinc-500">Leave blank for past gigs or gigs without tickets.</p>
+                <p className="mt-1 text-xs text-zinc-500">
+                  Leave blank for past gigs or gigs without tickets.
+                </p>
               </div>
 
               <div>
-                <label htmlFor="ticket_url" className="block text-sm font-medium text-zinc-300 mb-1.5">
+                <label
+                  htmlFor="ticket_url"
+                  className="block text-sm font-medium text-zinc-300 mb-1.5"
+                >
                   Ticket URL
                 </label>
                 <input
                   id="ticket_url"
                   type="url"
                   value={formData.ticket_url}
-                  onChange={(e) => handleFormChange('ticket_url', e.target.value)}
+                  onChange={(e) =>
+                    handleFormChange('ticket_url', e.target.value)
+                  }
                   placeholder="https://tickets.example.com/..."
                   className={INPUT_STYLE}
                 />
@@ -365,7 +399,10 @@ export default function GigsPage() {
             </div>
 
             <div>
-              <label htmlFor="image_url" className="block text-sm font-medium text-zinc-300 mb-1.5">
+              <label
+                htmlFor="image_url"
+                className="block text-sm font-medium text-zinc-300 mb-1.5"
+              >
                 Venue Image URL
               </label>
               <input
@@ -376,7 +413,9 @@ export default function GigsPage() {
                 placeholder="https://example.com/venue-logo.png"
                 className={INPUT_STYLE}
               />
-              <p className="mt-1 text-xs text-zinc-500">Optional. Shown in the venue photos slideshow for upcoming gigs.</p>
+              <p className="mt-1 text-xs text-zinc-500">
+                Optional. Shown in the venue photos slideshow for upcoming gigs.
+              </p>
             </div>
 
             {/* Image preview */}
@@ -387,7 +426,9 @@ export default function GigsPage() {
                     src={formData.image_url}
                     alt="Venue image preview"
                     className="w-full h-full object-contain"
-                    onError={(e) => { e.target.style.display = 'none'; }}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                    }}
                   />
                 </div>
                 <span className="text-xs text-zinc-400">Image preview</span>
@@ -397,7 +438,10 @@ export default function GigsPage() {
             {/* Display Order and Visibility -- stack on mobile, 2 cols on md+ */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="display_order" className="block text-sm font-medium text-zinc-300 mb-1.5">
+                <label
+                  htmlFor="display_order"
+                  className="block text-sm font-medium text-zinc-300 mb-1.5"
+                >
                   Display Order
                 </label>
                 <input
@@ -405,10 +449,17 @@ export default function GigsPage() {
                   type="number"
                   min="0"
                   value={formData.display_order}
-                  onChange={(e) => handleFormChange('display_order', parseInt(e.target.value, 10) || 0)}
+                  onChange={(e) =>
+                    handleFormChange(
+                      'display_order',
+                      parseInt(e.target.value, 10) || 0
+                    )
+                  }
                   className={INPUT_STYLE}
                 />
-                <p className="mt-1 text-xs text-zinc-500">Tiebreaker when multiple gigs share the same date.</p>
+                <p className="mt-1 text-xs text-zinc-500">
+                  Tiebreaker when multiple gigs share the same date.
+                </p>
               </div>
 
               <div className="flex items-center pt-7">
@@ -416,22 +467,34 @@ export default function GigsPage() {
                   <input
                     type="checkbox"
                     checked={formData.is_visible}
-                    onChange={(e) => handleFormChange('is_visible', e.target.checked)}
+                    onChange={(e) =>
+                      handleFormChange('is_visible', e.target.checked)
+                    }
                     className="w-4 h-4 rounded bg-zinc-900 border-zinc-600 text-white focus:ring-0 focus:ring-offset-0"
                   />
-                  <span className="text-sm text-zinc-300">Visible on public site</span>
+                  <span className="text-sm text-zinc-300">
+                    Visible on public site
+                  </span>
                 </label>
               </div>
             </div>
 
             {/* Date hint */}
             {formData.date && (
-              <div className={`p-3 rounded text-sm ${
-                isUpcoming(formData.date)
-                  ? 'bg-green-900/20 border border-green-800 text-green-300'
-                  : 'bg-zinc-700/30 border border-zinc-600 text-zinc-400'
-              }`}>
-                This gig will appear under <strong>{isUpcoming(formData.date) ? 'Upcoming Gigs' : 'Previous Gigs'}</strong> on the public site.
+              <div
+                className={`p-3 rounded text-sm ${
+                  isUpcoming(formData.date)
+                    ? 'bg-green-900/20 border border-green-800 text-green-300'
+                    : 'bg-zinc-700/30 border border-zinc-600 text-zinc-400'
+                }`}
+              >
+                This gig will appear under{' '}
+                <strong>
+                  {isUpcoming(formData.date)
+                    ? 'Upcoming Gigs'
+                    : 'Previous Gigs'}
+                </strong>{' '}
+                on the public site.
               </div>
             )}
 
@@ -453,7 +516,9 @@ export default function GigsPage() {
               </button>
 
               {saveMessage && (
-                <span className={`text-sm ${saveMessage.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>
+                <span
+                  className={`text-sm ${saveMessage.type === 'success' ? 'text-green-400' : 'text-red-400'}`}
+                >
                   {saveMessage.text}
                 </span>
               )}
@@ -463,12 +528,14 @@ export default function GigsPage() {
       )}
 
       {/* Upcoming gigs */}
-      <h2 className={SECTION_HEADER}>
-        Upcoming Gigs ({upcomingGigs.length})
-      </h2>
+      <h2 className={SECTION_HEADER}>Upcoming Gigs ({upcomingGigs.length})</h2>
       {upcomingGigs.length === 0 ? (
-        <div className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-4 text-center`}>
-          <p className="text-zinc-400 text-sm">No upcoming gigs. Click "Add new gig" to create one.</p>
+        <div
+          className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-4 text-center`}
+        >
+          <p className="text-zinc-400 text-sm">
+            No upcoming gigs. Click "Add new gig" to create one.
+          </p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -485,34 +552,57 @@ export default function GigsPage() {
       )}
 
       {/* Previous gigs */}
-      <h2 className={SECTION_HEADER}>
-        Previous Gigs ({previousGigs.length})
-      </h2>
+      <h2 className={SECTION_HEADER}>Previous Gigs ({previousGigs.length})</h2>
       {previousGigs.length === 0 ? (
-        <div className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-4 text-center`}>
+        <div
+          className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-4 text-center`}
+        >
           <p className="text-zinc-400 text-sm">No previous gigs.</p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {previousGigs.map((gig) => (
-            <GigCard
-              key={gig.id}
-              gig={gig}
-              onEdit={handleEdit}
-              onDelete={setDeleteConfirm}
-              onToggleVisibility={handleToggleVisibility}
-            />
-          ))}
-        </div>
+        <>
+          <div className="space-y-3">
+            {(showAllPrevious ? previousGigs : previousGigs.slice(0, 4)).map(
+              (gig) => (
+                <GigCard
+                  key={gig.id}
+                  gig={gig}
+                  onEdit={handleEdit}
+                  onDelete={setDeleteConfirm}
+                  onToggleVisibility={handleToggleVisibility}
+                />
+              )
+            )}
+          </div>
+          {previousGigs.length > 4 && (
+            <button
+              onClick={() => setShowAllPrevious(!showAllPrevious)}
+              className="mt-3 text-sm text-zinc-400 hover:text-white underline transition-colors"
+            >
+              {showAllPrevious
+                ? 'Show less'
+                : `Show ${previousGigs.length - 4} older gig${previousGigs.length - 4 === 1 ? '' : 's'}`}
+            </button>
+          )}
+        </>
       )}
 
       {/* Delete confirmation dialog */}
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-6 max-w-sm w-full mx-4`}>
-            <h3 className="text-lg font-semibold text-white mb-2">Delete gig?</h3>
+          <div
+            className={`${CARD_BG} ${CARD_BORDER} ${CARD_RADIUS} p-6 max-w-sm w-full mx-4`}
+          >
+            <h3 className="text-lg font-semibold text-white mb-2">
+              Delete gig?
+            </h3>
             <p className="text-zinc-400 text-sm mb-4">
-              Are you sure you want to delete the gig at <strong className="text-white">{deleteConfirm.venue}</strong> on <strong className="text-white">{formatDate(deleteConfirm.date)}</strong>? This cannot be undone.
+              Are you sure you want to delete the gig at{' '}
+              <strong className="text-white">{deleteConfirm.venue}</strong> on{' '}
+              <strong className="text-white">
+                {formatDate(deleteConfirm.date)}
+              </strong>
+              ? This cannot be undone.
             </p>
             <div className="flex items-center gap-3">
               <button
@@ -558,7 +648,9 @@ function GigCard({ gig, onEdit, onDelete, onToggleVisibility }) {
               src={gig.image_url}
               alt={`${gig.venue} logo`}
               className="w-full h-full object-contain"
-              onError={(e) => { e.target.style.display = 'none'; }}
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
             />
           ) : (
             <span className="text-zinc-500 text-xs">No img</span>
@@ -596,16 +688,36 @@ function GigCard({ gig, onEdit, onDelete, onToggleVisibility }) {
         <button
           onClick={() => onToggleVisibility(gig)}
           className="p-2 rounded transition-colors bg-zinc-700 hover:bg-zinc-600"
-          title={gig.is_visible ? 'Hide from public site' : 'Show on public site'}
+          title={
+            gig.is_visible ? 'Hide from public site' : 'Show on public site'
+          }
           aria-label={gig.is_visible ? 'Hide gig' : 'Show gig'}
         >
           {gig.is_visible ? (
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="w-4 h-4"
+            >
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
               <circle cx="12" cy="12" r="3" />
             </svg>
           ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-zinc-500">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="w-4 h-4 text-zinc-500"
+            >
               <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
               <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
               <line x1="1" y1="1" x2="23" y2="23" />
