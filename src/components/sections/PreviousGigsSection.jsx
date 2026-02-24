@@ -3,10 +3,10 @@ import usePreviousGigs from '../../hooks/usePreviousGigs';
 
 /**
  * PreviousGigsSection - Past performances loaded from Supabase
- * 
+ *
  * Displays gigs where date < today, most recent first.
  * Falls back gracefully if database is unreachable.
- * 
+ *
  * RESPONSIVE CUSTOMIZATION:
  * Adjust the constants below to control sizes at each breakpoint.
  * Mobile = default, Tablet = md (768px+), Desktop = lg (1024px+)
@@ -30,16 +30,18 @@ export default function PreviousGigsSection() {
   return (
     <FramedSection className={`mb-0 ${SECTION_WIDTH} flex-shrink-0`}>
       <h2 className={`font-hero ${HEADING_SIZE} mb-4`}>Previous Gigs</h2>
-      
+
       {loading ? (
-        <p className={`font-hero ${STATUS_TEXT_SIZE} text-gray-400`}>Loading...</p>
+        <p className={`font-hero ${STATUS_TEXT_SIZE} text-gray-400`}>
+          Loading...
+        </p>
       ) : error ? (
         <p className={`font-hero ${LIST_TEXT_SIZE}`}>Check back soon!</p>
       ) : gigs.length === 0 ? (
         <p className={`font-hero ${LIST_TEXT_SIZE}`}>No previous gigs yet.</p>
       ) : (
         <div className={`font-hero ${LIST_TEXT_SIZE}`}>
-          {gigs.map((gig) => (
+          {gigs.slice(0, 4).map((gig) => (
             <p key={gig.id} className="mb-1">
               {gig.venue} - {gig.location}
             </p>

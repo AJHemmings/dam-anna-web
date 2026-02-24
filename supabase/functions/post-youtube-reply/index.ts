@@ -29,29 +29,43 @@ Deno.serve(async (req: Request) => {
     return new Response("Access token expired. Please refresh.", { status: 401, headers: corsHeaders });
   }
 
-  // Read threadId from request body
   const body = await req.json().catch(() => ({}));
-  const threadId = body.threadId;
+  const { parentId, text } = body;
 
-  if (!threadId) {
-    return new Response("Missing threadId parameter", { status: 400, headers: corsHeaders });
+  if (!parentId || !text) {
+    return new Response("Missing required fields: parentId, text", {
+      status: 400,
+      headers: corsHeaders,
+    });
   }
 
-  const gmailResponse = await fetch(
-    `https://gmail.googleapis.com/gmail/v1/users/me/threads/${threadId}?format=full`,
-    { headers: { Authorization: `Bearer ${data.access_token}` } }
+  const replyResponse = await fetch(
+    "https://www.googleapis.com/youtube/v3/comments?part=snippet",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${data.access_token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        snippet: {
+          parentId,
+          textOriginal: text,
+        },
+      }),
+    }
   );
 
-  const gmailData = await gmailResponse.json();
+  const replyData = await replyResponse.json();
 
-  if (!gmailResponse.ok) {
-    return new Response(`Gmail API error: ${JSON.stringify(gmailData)}`, {
+  if (!replyResponse.ok) {
+    return new Response(`YouTube API error: ${JSON.stringify(replyData)}`, {
       status: 500,
       headers: corsHeaders,
     });
   }
 
-  return new Response(JSON.stringify(gmailData), {
+  return new Response(JSON.stringify({ success: true, comment: replyData }), {
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 });

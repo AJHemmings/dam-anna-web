@@ -42,9 +42,11 @@ const NAV_ITEMS = [
   { label: 'Videos', path: '/admin/videos', enabled: true },
   { label: 'Site Content', path: '/admin/site-content', enabled: true },
   { label: 'Social Links', path: '/admin/social-links', enabled: true },
-  { label: 'Social Media', path: null, enabled: false },
+  { label: 'YouTube', path: '/admin/youtube', enabled: true },
+  { label: 'Instagram', path: '/admin/instagram', enabled: true },
   { label: 'User Submissions', path: '/admin/submissions', enabled: true },
   { label: 'Analytics', path: '/admin/analytics', enabled: true },
+  { label: 'Mail', path: '/admin/gmail', enabled: true },
 ];
 
 export default function AdminSidebar({ isOpen, onClose }) {

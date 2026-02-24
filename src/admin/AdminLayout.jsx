@@ -13,6 +13,9 @@ import GigsPage from './pages/GigsPage';
 import GalleryPage from './pages/GalleryPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import SubmissionsPage from './pages/SubmissionsPage';
+import GmailPage from './pages/GmailPage';
+import YouTubePage from './pages/YouTubePage';
+import InstagramPage from './pages/InstagramPage';
 
 /**
  * AdminLayout -- Root layout for the admin dashboard.
@@ -83,6 +86,7 @@ function LoginPageWrapper() {
 function AdminShell() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const isMobile = window.matchMedia('pointer: coarse').matches; // Simple mobile detection for isMobile prop
+  // const isMobile = true; // Force mobile layout for testing
 
   return (
     <div className="min-h-screen bg-zinc-900 flex flex-col">
@@ -98,7 +102,7 @@ function AdminShell() {
         />
 
         {/* Content area -- reduced padding on mobile */}
-        <main className="flex-1 p-4 md:p-6 overflow-y-auto">
+        <main className="flex-1 min-h-0 p-4 md:p-6 overflow-y-auto">
           <Routes>
             <Route index element={<DashboardHome />} />
             <Route
@@ -108,8 +112,14 @@ function AdminShell() {
             <Route path="gigs" element={<GigsPage />} />
             <Route path="gallery" element={<GalleryPage />} />
             <Route path="videos" element={<VideosPage />} />
+            <Route
+              path="youtube"
+              element={<YouTubePage isMobile={isMobile} />}
+            />
+            <Route path="instagram" element={<InstagramPage />} />
             <Route path="site-content" element={<SiteContentPage />} />
             <Route path="social-links" element={<SocialLinksPage />} />
+            <Route path="gmail" element={<GmailPage isMobile={isMobile} />} />
             <Route
               path="submissions"
               element={<SubmissionsPage isMobile={isMobile} />}
