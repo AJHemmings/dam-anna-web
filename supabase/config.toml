@@ -459,3 +459,18 @@ entrypoint = "./functions/send-gmail-reply/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/send-gmail-reply/*.html" ]
+
+[functions.fetch-youtube-videos]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/fetch-youtube-videos/index.ts"
+
+[functions.fetch-youtube-comments]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/fetch-youtube-comments/index.ts"
+
+[functions.post-youtube-reply]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/post-youtube-reply/index.ts"
