@@ -15,6 +15,7 @@ import AnalyticsPage from './pages/AnalyticsPage';
 import SubmissionsPage from './pages/SubmissionsPage';
 import GmailPage from './pages/GmailPage';
 import YouTubePage from './pages/YouTubePage';
+import InstagramPage from './pages/InstagramPage';
 
 /**
  * AdminLayout -- Root layout for the admin dashboard.
@@ -115,6 +116,7 @@ function AdminShell() {
               path="youtube"
               element={<YouTubePage isMobile={isMobile} />}
             />
+            <Route path="instagram" element={<InstagramPage />} />
             <Route path="site-content" element={<SiteContentPage />} />
             <Route path="social-links" element={<SocialLinksPage />} />
             <Route path="gmail" element={<GmailPage isMobile={isMobile} />} />

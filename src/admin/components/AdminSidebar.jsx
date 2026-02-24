@@ -43,7 +43,7 @@ const NAV_ITEMS = [
   { label: 'Site Content', path: '/admin/site-content', enabled: true },
   { label: 'Social Links', path: '/admin/social-links', enabled: true },
   { label: 'YouTube', path: '/admin/youtube', enabled: true },
-  { label: 'Instagram', path: '/admin/instagram', enabled: false },
+  { label: 'Instagram', path: '/admin/instagram', enabled: true },
   { label: 'User Submissions', path: '/admin/submissions', enabled: true },
   { label: 'Analytics', path: '/admin/analytics', enabled: true },
   { label: 'Mail', path: '/admin/gmail', enabled: true },
