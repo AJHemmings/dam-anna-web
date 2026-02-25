@@ -630,6 +630,16 @@ _This applies to the public site only. Admin dashboard uses CSS breakpoints — 
 
 **Outcome:** Admin and public both show 4 most recent previous gigs by default. Toggle expands full list in admin.
 
+## [ENTRY-030] — Texture Compression
+
+- Background texture med-annie-spratt-unsplash.jpg compressed from 1.7MB to 483KB (72% reduction)
+- Resized from 1920x2560 to 1280x1707, quality 70, progressive JPEG
+- Tool used: sharp npm package via one-off compress-texture.js script (deleted after use)
+- New file: public/textures/med-annie-spratt-optimised.jpg
+- Original file retained in public/textures/ for reference
+- ThreeBackground.jsx updated to reference optimised texture
+- guitar.glb also reduced in size with gltf-transform. Down from 15MB to 5.52MB -- that's a 63% reduction.
+
 ---
 
 ## Known Issues (Carried Forward)

@@ -5,16 +5,16 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 /**
  * ThreeBackground - 3D guitar model with scroll-based animation
- * 
+ *
  * PERFORMANCE OPTIMIZATION:
  * Detects mobile/tablet devices via pointer: coarse (touch-primary)
  * and reduces rendering load accordingly.
- * 
+ *
  * MOBILE FIX:
  * Uses window.innerWidth and a fixed initial height for the canvas
  * to prevent the mobile browser address bar show/hide from causing
  * the canvas to resize and jump. Only width changes trigger a resize.
- * 
+ *
  * CUSTOMIZATION: Adjust the constants below per device type.
  */
 
@@ -57,10 +57,16 @@ export default function ThreeBackground({ scrollTop, onGuitarLoaded }) {
     // Detect device type once at init
     const isMobile = getIsMobileDevice();
     const starCount = isMobile ? STAR_COUNT_MOBILE : STAR_COUNT_DESKTOP;
-    const starSegments = isMobile ? STAR_SEGMENTS_MOBILE : STAR_SEGMENTS_DESKTOP;
-    const maxPixelRatio = isMobile ? MAX_PIXEL_RATIO_MOBILE : MAX_PIXEL_RATIO_DESKTOP;
+    const starSegments = isMobile
+      ? STAR_SEGMENTS_MOBILE
+      : STAR_SEGMENTS_DESKTOP;
+    const maxPixelRatio = isMobile
+      ? MAX_PIXEL_RATIO_MOBILE
+      : MAX_PIXEL_RATIO_DESKTOP;
 
-    console.log(`ThreeBackground: ${isMobile ? 'Mobile/Tablet' : 'Desktop'} mode — ${starCount} stars, ${starSegments} segments, pixelRatio capped at ${maxPixelRatio}`);
+    console.log(
+      `ThreeBackground: ${isMobile ? 'Mobile/Tablet' : 'Desktop'} mode — ${starCount} stars, ${starSegments} segments, pixelRatio capped at ${maxPixelRatio}`
+    );
 
     // Capture viewport dimensions.
     // On mobile, use screen.height as the renderer height — this is the full
@@ -73,7 +79,7 @@ export default function ThreeBackground({ scrollTop, onGuitarLoaded }) {
     // Scene setup
     const scene = new THREE.Scene();
     sceneRef.current = scene;
-    
+
     // Camera setup
     const camera = new THREE.PerspectiveCamera(
       75,
@@ -95,21 +101,21 @@ export default function ThreeBackground({ scrollTop, onGuitarLoaded }) {
     // Load guitar model
     const loader = new GLTFLoader();
     loader.load(
-      '/models/guitar.glb',
+      '/models/guitar-optimised.glb',
       function (gltf) {
         const guitarModel = gltf.scene;
         guitarModel.scale.set(GUITAR_SCALE, GUITAR_SCALE, GUITAR_SCALE);
         guitarModel.position.set(30, 0, 0);
         scene.add(guitarModel);
         guitarRef.current = guitarModel;
-        
+
         // Apply initial scroll position immediately after loading
         const t = document.body.getBoundingClientRect().top;
         guitarModel.position.x = 30 + t * 0.03;
         guitarModel.position.y = t * 0.01 - 15;
         guitarModel.rotation.y = t * 0.002;
 
-        // Notify that guitar has loaded 
+        // Notify that guitar has loaded
         if (onGuitarLoaded) {
           onGuitarLoaded();
         }
@@ -139,7 +145,11 @@ export default function ThreeBackground({ scrollTop, onGuitarLoaded }) {
     // controlsRef.current = controls;
 
     // Stars - count and detail based on device type
-    const starGeometry = new THREE.SphereGeometry(0.25, starSegments, starSegments);
+    const starGeometry = new THREE.SphereGeometry(
+      0.25,
+      starSegments,
+      starSegments
+    );
     const starMaterial = new THREE.MeshStandardMaterial({ color: 0x404040 });
 
     for (let i = 0; i < starCount; i++) {
@@ -155,7 +165,7 @@ export default function ThreeBackground({ scrollTop, onGuitarLoaded }) {
 
     // Background texture
     const grungeTexture = new THREE.TextureLoader().load(
-      '/textures/med-annie-spratt-unsplash.jpg'
+      '/textures/med-annie-spratt-optimised.jpg'
     );
     scene.background = grungeTexture;
 
