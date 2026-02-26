@@ -81,7 +81,7 @@ export default function AboutUsModal({ onClose }) {
           isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
         }`}
         style={{ 
-          borderImage: 'url(/boarder1.png) 60 stretch',
+          borderImage: 'url(/boarder1.webp) 60 stretch',
           borderWidth: '30px',
           borderStyle: 'solid',
           boxShadow: 'inset 0 0 40px 20px rgba(0, 0, 0, 0.8)'

@@ -54,6 +54,8 @@ export default function GigPhotosSlideshow() {
               src={photo.url}
               alt={photo.alt}
               className="w-full h-full object-cover"
+              loading="lazy"
+              decoding="async"
             />
           </div>
         );

@@ -264,7 +264,7 @@ export default function YouModal({ onClose }) {
         <div
           className={`relative ${MODAL_WIDTH} ${MODAL_PADDING} text-white text-center transition-all duration-500 opacity-100 scale-100`}
           style={{
-            borderImage: 'url(/boarder1.png) 60 stretch',
+            borderImage: 'url(/boarder1.webp) 60 stretch',
             borderWidth: '30px',
             borderStyle: 'solid',
             boxShadow: 'inset 0 0 40px 20px rgba(0, 0, 0, 0.8)',
@@ -319,7 +319,7 @@ export default function YouModal({ onClose }) {
       <div
         className={`relative ${MODAL_WIDTH} ${MODAL_PADDING} text-white transition-all duration-500 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
         style={{
-          borderImage: 'url(/boarder1.png) 60 stretch',
+          borderImage: 'url(/boarder1.webp) 60 stretch',
           borderWidth: '30px',
           borderStyle: 'solid',
           boxShadow: 'inset 0 0 40px 20px rgba(0, 0, 0, 0.8)',

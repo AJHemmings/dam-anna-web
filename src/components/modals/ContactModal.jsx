@@ -96,7 +96,7 @@ export default function ContactModal({ onClose }) {
 
       <div 
         className={`relative ${MODAL_WIDTH} ${MODAL_PADDING} text-white ${BODY_TEXT_SIZE} leading-relaxed transition-all duration-500 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
-        style={{borderImage: 'url(/boarder1.png) 60 stretch', borderWidth: '30px', borderStyle: 'solid', boxShadow: 'inset 0 0 40px 20px rgba(0, 0, 0, 0.8)'}}
+        style={{borderImage: 'url(/boarder1.webp) 60 stretch', borderWidth: '30px', borderStyle: 'solid', boxShadow: 'inset 0 0 40px 20px rgba(0, 0, 0, 0.8)'}}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="absolute inset-0 bg-black/70 -z-10 blur-sm"></div>
