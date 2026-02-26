@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useScrollPosition } from './hooks/useScrollPosition';
-import ThreeBackground from './components/ThreeBackground';
 import SplashScreen from './components/SplashScreen';
 import HeroSection from './components/sections/HeroSection';
 import GigsSection from './components/sections/GigsSection';
@@ -19,6 +18,8 @@ import YouModal from './components/modals/YouModal';
 import GalleryModal from './components/modals/GalleryModal';
 import VideoSection from './components/sections/VideoSection';
 import { trackVisit } from './utils/trackVisit';
+
+const ThreeBackground = lazy(() => import('./components/ThreeBackground'));
 
 /**
  * Detect if the layout should use mobile mode.
@@ -124,10 +125,12 @@ export default function PublicSite() {
         onComplete={handleSplashComplete}
       />
 
-      <ThreeBackground
-        scrollTop={scrollTop}
-        onGuitarLoaded={handleGuitarLoaded}
-      />
+      <Suspense fallback={<div className="fixed inset-0 bg-black" />}>
+        <ThreeBackground
+          scrollTop={scrollTop}
+          onGuitarLoaded={handleGuitarLoaded}
+        />
+      </Suspense>
 
       <Container>
         <main
