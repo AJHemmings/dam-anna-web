@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-Session 13 — 26 February 2026 — Lazy loading + HTML background fix shipped
+Session 13 — 26 February 2026 — Performance sprint complete. Lighthouse 45 → 88.
 
 ---
 
@@ -28,15 +28,15 @@ Session 13 — 26 February 2026 — Lazy loading + HTML background fix shipped
 | Hosting            | Vercel — auto-deploys from main             |
 | Database           | Supabase (project ID: jkkejczvoungwoledjzm) |
 | Auth               | Supabase Auth — admin-only protected routes |
-| Last merged branch | feat/perf-lazy-loading (pending merge)      |
+| Last merged branch | feat/perf-lighthouse (pending merge)        |
 | Production URL     | Verify in Vercel dashboard                  |
 
 ---
 
 ## Current Phase
 
-Performance optimisation — second pass. Lazy loading and asset compression are
-complete. Remaining Lighthouse recommendations to address in the next session.
+Performance sprint complete. Lighthouse score 45 → 88. Returning to feature
+work — see backlog for priorities.
 
 ---
 
