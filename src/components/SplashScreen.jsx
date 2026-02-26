@@ -52,7 +52,7 @@ export default function SplashScreen({ isLoaded, onComplete }) {
 
   return (
     <div className={`splash-screen ${isFadingOut ? 'fade-out' : ''}`}>
-      <img src="/logo3-resize.png" alt="Dam Anna" className="splash-logo" />
+      <img src="/logo3-resize.webp" alt="Dam Anna" className="splash-logo" />
     </div>
   );
 }

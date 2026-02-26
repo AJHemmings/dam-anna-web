@@ -27,7 +27,7 @@ export default function BlockQuote({ children, isMobile = false }) {
       <div
         className={`${isMobile ? QUOTE_PADDING_MOBILE : QUOTE_PADDING_DESKTOP} relative inline-block`}
         style={{ 
-          borderImage: 'url(/boarder1.png) 60 stretch',
+          borderImage: 'url(/boarder1.webp) 60 stretch',
           borderWidth: '30px',
           borderStyle: 'solid',
           boxShadow: 'inset 0 0 40px 20px rgba(255, 255, 255, 0.3)'
