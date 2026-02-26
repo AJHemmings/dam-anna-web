@@ -65,13 +65,13 @@ work — see backlog for priorities.
 
 Lighthouse flagged these additional items at score 60. Ordered by impact:
 
-| Item                                      | Priority | Notes                                                              |
-| ----------------------------------------- | -------- | ------------------------------------------------------------------ |
-| PNG → WebP for border1 and logo3-resize   | High     | Both must retain transparent backgrounds. WebP supports alpha      |
-| Cache lifetime headers                    | High     | Add Cache-Control headers in vercel.json for static assets         |
-| Responsive images — slideshows + video    | High     | Add srcset/sizes to GigPhotoSection, GallerySection, VideoSection  |
-| Back/forward cache (bfcache) blocked      | Medium   | Investigate what is preventing bfcache restoration                 |
-| Contrast ratio failures                   | Medium   | Identify specific elements — do not guess, check Lighthouse detail |
+| Item                                    | Priority | Notes                                                              |
+| --------------------------------------- | -------- | ------------------------------------------------------------------ |
+| PNG → WebP for border1 and logo3-resize | High     | Both must retain transparent backgrounds. WebP supports alpha      |
+| Cache lifetime headers                  | High     | Add Cache-Control headers in vercel.json for static assets         |
+| Responsive images — slideshows + video  | High     | Add srcset/sizes to GigPhotoSection, GallerySection, VideoSection  |
+| Back/forward cache (bfcache) blocked    | Medium   | Investigate what is preventing bfcache restoration                 |
+| Contrast ratio failures                 | Medium   | Identify specific elements — do not guess, check Lighthouse detail |
 
 ---
 
@@ -120,19 +120,19 @@ from 45 to 60. The next phase targets the remaining Lighthouse recommendations.
 
 ## Remaining Feature Backlog
 
-| Feature                         | Priority | Notes                                        |
-| ------------------------------- | -------- | -------------------------------------------- |
-| Notifications system            | High     | Alert admin of new submissions and comments  |
-| Instagram integration           | Medium   | Requires Meta App setup and review           |
-| SEO metadata management         | Medium   | Page titles, descriptions, OG tags via admin |
-| Band member profiles page       | Medium   | Bio, photo, social links                     |
-| Press kit / EPK page            | Medium   | Downloadable assets for press                |
-| Email newsletter integration    | Medium   | Mailchimp or similar                         |
-| Accessibility audit             | Medium   | Keyboard nav, ARIA labels, colour contrast   |
-| callWithTokenRefresh refactor   | Low      | Extract to src/utils/googleApi.js            |
-| Production security hardening   | Low      | CSP headers, rate limiting on Edge Functions |
-| Performance — responsive images | Medium   | srcset/sizes on slideshows and video thumbnails      |
-| Ultra-wide layout fix           | Low      | Centering on screens > 1920px                |
+| Feature                         | Priority | Notes                                           |
+| ------------------------------- | -------- | ----------------------------------------------- |
+| Notifications system            | High     | Alert admin of new submissions and comments     |
+| Instagram integration           | Medium   | Requires Meta App setup and review              |
+| SEO metadata management         | Medium   | Page titles, descriptions, OG tags via admin    |
+| Band member profiles page       | Medium   | Bio, photo, social links                        |
+| Press kit / EPK page            | Medium   | Downloadable assets for press                   |
+| Email newsletter integration    | Medium   | Mailchimp or similar                            |
+| Accessibility audit             | Medium   | Keyboard nav, ARIA labels, colour contrast      |
+| callWithTokenRefresh refactor   | Low      | Extract to src/utils/googleApi.js               |
+| Production security hardening   | Low      | CSP headers, rate limiting on Edge Functions    |
+| Performance — responsive images | Medium   | srcset/sizes on slideshows and video thumbnails |
+| Ultra-wide layout fix           | Low      | Centering on screens > 1920px                   |
 
 ---
 
