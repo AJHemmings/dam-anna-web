@@ -62,6 +62,8 @@ export default function GallerySlideshow({ onImageClick }) {
             className={`w-full h-full object-cover transition-transform duration-300 ${
               isHovered ? 'scale-110' : 'scale-100'
             }`}
+            loading="lazy"
+            decoding="async"
           />
         </div>
       ))}

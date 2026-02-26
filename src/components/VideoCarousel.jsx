@@ -24,6 +24,31 @@ const MOBILE_CENTRE_SIZE = 'w-full max-w-[350px] aspect-video';
 // CUSTOMIZATION: Swipe sensitivity
 const SWIPE_THRESHOLD = 50;
 
+// CUSTOMIZATION: YouTube thumbnail sizes used in srcset.
+// hqdefault (480x360) always exists and is used as the primary src.
+// maxresdefault (1280x720) is excluded — it does not exist for all videos.
+const YOUTUBE_THUMBNAIL_SIZES = '(max-width: 768px) 350px, 400px';
+
+/**
+ * Returns img props for a video thumbnail.
+ * YouTube videos get srcset with reliable thumbnail sizes.
+ * Custom thumbnail_url values are returned as-is.
+ */
+function getThumbnailProps(video) {
+  if (video.thumbnail_url) {
+    return { src: video.thumbnail_url };
+  }
+  const id = video.videoId;
+  return {
+    src: `https://img.youtube.com/vi/${id}/hqdefault.jpg`,
+    srcSet: [
+      `https://img.youtube.com/vi/${id}/mqdefault.jpg 320w`,
+      `https://img.youtube.com/vi/${id}/hqdefault.jpg 480w`,
+    ].join(', '),
+    sizes: YOUTUBE_THUMBNAIL_SIZES,
+  };
+}
+
 // CUSTOMIZATION: Desktop carousel dimensions
 const CENTRE_WIDTH = 400;
 const CENTRE_HEIGHT = 225;
@@ -174,9 +199,11 @@ export default function VideoCarousel({ videos, isMobile, onVideoSelect }) {
           aria-label={`Play ${centreVideo.title}`}
         >
           <img
-            src={centreVideo.thumbnail_url || `https://img.youtube.com/vi/${centreVideo.videoId}/maxresdefault.jpg`}
+            {...getThumbnailProps(centreVideo)}
             alt={centreVideo.title}
             className="w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
           />
           <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors">
             <svg className="w-12 h-12 text-white/90" fill="currentColor" viewBox="0 0 24 24">
@@ -228,9 +255,11 @@ export default function VideoCarousel({ videos, isMobile, onVideoSelect }) {
                 aria-label={isCentre ? `Play ${video.title}` : undefined}
               >
                 <img
-                  src={video.thumbnail_url || `https://img.youtube.com/vi/${video.videoId}/maxresdefault.jpg`}
+                  {...getThumbnailProps(video)}
                   alt={video.title}
                   className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
                 />
                 {isCentre && (
                   <>
