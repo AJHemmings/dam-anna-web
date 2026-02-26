@@ -642,17 +642,69 @@ _This applies to the public site only. Admin dashboard uses CSS breakpoints — 
 
 ---
 
+## SESSION 13 — Performance Optimisation — Lazy Loading
+
+**Date:** 26 February 2026
+
+---
+
+### [ENTRY-031] ThreeBackground lazy loading
+
+**Status:** Shipped
+
+**Problem:** Three.js (541 kB minified) and ThreeBackground (47 kB) were bundled into the main JavaScript chunk, loading synchronously on every page visit and blocking First Contentful Paint.
+
+**Options:**
+
+| Option                          | Pros                                              | Cons                                          |
+| ------------------------------- | ------------------------------------------------- | --------------------------------------------- |
+| Static import (previous)        | Simple                                            | Every visitor downloads Three.js upfront      |
+| React.lazy() + Suspense (chosen)| Three.js defers to a separate chunk               | Requires Suspense boundary in PublicSite.jsx  |
+
+**Decision:** React.lazy() + Suspense. Three.js and ThreeBackground split into separate deferred chunks. The existing SplashScreen architecture already covers the Suspense loading period — the splash screen sits on top of the Suspense fallback throughout, so no timing coordination was needed. The `onGuitarLoaded` callback fires correctly after lazy loading because ThreeBackground's internals are unchanged.
+
+**Implementation:**
+
+- `src/PublicSite.jsx` — static import replaced with `lazy()`, wrapped in `<Suspense fallback={<div className="fixed inset-0 bg-black" />}>`
+
+**Build output:**
+
+| Chunk                    | Size (minified) | Size (gzip) |
+| ------------------------ | --------------- | ----------- |
+| Main bundle (index.js)   | 415 kB          | 121 kB      |
+| three.js (deferred)      | 541 kB          | 138 kB      |
+| ThreeBackground (deferred)| 47 kB          | 14 kB       |
+
+**Outcome:** Production preview Lighthouse performance score: 60 (up from baseline 45). FCP significantly improved — React boots on the smaller main bundle before Three.js is fetched.
+
+---
+
+### [ENTRY-032] HTML body background colour
+
+**Status:** Shipped
+
+**Problem:** Before React boots, the browser renders the bare HTML document with no background colour. The default white background was visible for 3–4 seconds on Slow 4G before the splash screen appeared — a flash of unstyled content at the HTML level, invisible to React or CSS.
+
+**Decision:** Set `background-color: #000; margin: 0` inline on the `<body>` in `index.html`. Applied at the HTML level so it takes effect from the first byte the browser renders, before any CSS, JS, or React loads.
+
+**Implementation:**
+
+- `index.html` — `style="background-color: #000; margin: 0;"` added to `<body>`
+
+**Outcome:** White flash before React boot eliminated.
+
+---
+
 ## Known Issues (Carried Forward)
 
 | Issue                                                      | Severity | Notes                                              |
 | ---------------------------------------------------------- | -------- | -------------------------------------------------- |
-| `callWithTokenRefresh` duplicated in useGmail + useYoutube | Low      | Extract to shared utility — see ENTRY-027          |
-| Gmail body formatting                                      | Low      | Raw URLs, no line breaks in plain-text emails      |
-| Three.js intermittent freeze on page load                  | Low      | Likely loading race condition, not user-reported   |
-| `guitar.glb` is 15MB                                       | Medium   | Draco compression via gltf-transform, target 3-5MB |
-| Instagram integration                                      | Deferred | Meta API setup required — see ENTRY-028            |
-| Ultra-wide layout centering                                | Low      | Not user-reported                                  |
-| Google OAuth app not verified                              | Low      | Required before full production use                |
+| `callWithTokenRefresh` duplicated in useGmail + useYoutube | Low      | Extract to shared utility — see ENTRY-027        |
+| Gmail body formatting                                      | Low      | Raw URLs, no line breaks in plain-text emails    |
+| Three.js intermittent freeze on page load                  | Low      | Likely loading race condition, not user-reported |
+| Instagram integration                                      | Deferred | Meta API setup required — see ENTRY-028          |
+| Ultra-wide layout centering                                | Low      | Not user-reported                                |
+| Google OAuth app not verified                              | Low      | Required before full production use              |
 
 ---
 
@@ -660,7 +712,6 @@ _This applies to the public site only. Admin dashboard uses CSS breakpoints — 
 
 | Item                                             | Priority |
 | ------------------------------------------------ | -------- |
-| `guitar.glb` Draco compression                   | High     |
 | Shared `BaseModal` component refactor            | Medium   |
 | `callWithTokenRefresh` shared utility            | Low      |
 | Edge Function rate limiting on YouModal          | Medium   |
