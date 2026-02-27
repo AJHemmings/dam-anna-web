@@ -110,7 +110,7 @@ export default function ContactModal({ onClose }) {
             ) : (
               <a 
                 href={`mailto:${bandEmail}`} 
-                className={`text-blue-400 hover:text-blue-300 active:text-blue-200 underline ${EMAIL_SIZE}`}
+                className={`text-sky-300 hover:text-sky-200 active:text-sky-100 underline ${EMAIL_SIZE}`}
               >
                 {bandEmail}
               </a>

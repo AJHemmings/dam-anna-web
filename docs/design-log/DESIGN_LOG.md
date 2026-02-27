@@ -695,6 +695,100 @@ _This applies to the public site only. Admin dashboard uses CSS breakpoints — 
 
 ---
 
+## SESSION 13 (continued) — Lighthouse Optimisation Pass
+
+**Date:** 26 February 2026
+
+---
+
+### [ENTRY-033] WebP image conversion — boarder1 and logo3-resize
+
+**Status:** Shipped
+
+**Problem:** Lighthouse flagged `boarder1.png` (304 kB) and `logo3-resize.png` (175 kB) as candidates for modern image formats. Both require alpha channel transparency.
+
+**Decision:** Converted to WebP using sharp (one-off script, deleted after use). WebP supports alpha transparency. Updated all 8 references across components and modals.
+
+**Results:** boarder1: 304 kB → 89 kB (71%). logo3-resize: 175 kB → 46 kB (74%).
+
+**Implementation:**
+
+- `public/boarder1.webp`, `public/logo3-resize.webp` — created
+- `src/components/FramedSection.jsx`, `BlockQuote.jsx`, `SplashScreen.jsx`, `HeroSection.jsx`, `modals/ContactModal.jsx`, `modals/AboutUsModal.jsx`, `modals/YouModal.jsx` — references updated
+
+---
+
+### [ENTRY-034] Vercel cache headers
+
+**Status:** Shipped
+
+**Problem:** Static assets were re-fetched on every visit — no long-lived cache headers.
+
+**Decision:** Added `Cache-Control` headers in `vercel.json`. Vite hash-named chunks (content-addressable) cached immutably for 1 year. Models, textures, and images cached for 30 days.
+
+**Implementation:**
+
+- `vercel.json` — headers block added alongside existing SPA rewrite rule
+
+**Note:** Supabase gallery images have a 1-hour CDN TTL set by Supabase — not configurable from our codebase.
+
+---
+
+### [ENTRY-035] Responsive images and lazy loading
+
+**Status:** Shipped
+
+**Problem:** Video thumbnails were fetching `maxresdefault.jpg` (1280px) for a 400px display area. Slideshow images were loaded eagerly regardless of scroll position.
+
+**Decisions:**
+
+- `VideoCarousel`: switched to `hqdefault.jpg` (480px, always exists) as primary src. Added `srcset` with `mqdefault` (320w) and `hqdefault` (480w) for YouTube URLs. `maxresdefault` excluded — unreliable across all videos. Custom `thumbnail_url` values served as-is.
+- `GallerySlideshow`, `GigPhotosSlideshow`: added `loading="lazy"` and `decoding="async"`. Containers are below the fold so lazy loading defers network requests until near-viewport.
+
+**Implementation:**
+
+- `src/components/VideoCarousel.jsx` — `getThumbnailProps()` helper, srcset, sizes, lazy/async
+- `src/components/GallerySlideshow.jsx`, `GigPhotosSlideshow.jsx` — lazy/async added
+
+---
+
+### [ENTRY-036] Colour contrast fixes
+
+**Status:** Shipped
+
+**Problem:** Lighthouse flagged `text-blue-400` links (gig ticket links, contact button, email link) as insufficient contrast against the blurred semi-transparent overlay. Also flagged `body` — our `background-color: #000` addition meant any text inheriting the browser default (near-black) colour would be black-on-black.
+
+**Decision:**
+
+- `text-blue-400` (#60a5fa) → `text-sky-300` (#7dd3fc). Sky-300 achieves ~13:1 contrast on dark backgrounds. Hover/active states stepped lighter accordingly. Same visual language, reliably readable.
+- `color: #fff` added to `body` in `index.html` alongside the existing black background.
+
+**Implementation:**
+
+- `index.html` — `color: #fff` added to body style
+- `src/components/sections/GigsSection.jsx`, `modals/ContactModal.jsx` — link colours updated
+
+**Outcome:** Lighthouse Accessibility contrast audit passing.
+
+---
+
+### [ENTRY-037] Performance sprint results
+
+**Status:** Complete
+
+| Metric                  | Before sprint | After sprint |
+| ----------------------- | ------------- | ------------ |
+| Lighthouse performance  | 45            | 88           |
+| Main bundle size        | ~1,003 kB     | 415 kB       |
+| White flash before boot | Yes           | No           |
+
+**Remaining known JS performance items (diagnostics — do not affect score):**
+
+- Three.js execution time (~1.7s) and main thread work (~3.0s) are inherent to the WebGL scene. Not reducible without Three.js tree-shaking (see Pinned for Future Sessions) or removing the 3D feature.
+- Unused JavaScript (~130 kB estimated) is partially attributable to Three.js importing the full library via `import * as THREE`. Tree-shaking requires modifying ThreeBackground internals — needs explicit approval.
+
+---
+
 ## Known Issues (Carried Forward)
 
 | Issue                                                      | Severity | Notes                                              |

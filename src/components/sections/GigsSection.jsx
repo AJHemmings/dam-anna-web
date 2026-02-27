@@ -43,7 +43,7 @@ export default function GigsSection({ onOpenContact }) {
           No upcoming gigs right now — stay tuned or{' '}
           <button
             onClick={onOpenContact}
-            className="text-blue-400 hover:text-blue-300 active:text-blue-200 underline"
+            className="text-sky-300 hover:text-sky-200 active:text-sky-100 underline"
           >
             contact us
           </button>
@@ -64,7 +64,7 @@ export default function GigsSection({ onOpenContact }) {
                   href={gig.ticket_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`text-blue-400 hover:text-blue-300 active:text-blue-200 underline whitespace-nowrap flex-shrink-0 ${TICKET_TEXT_SIZE}`}
+                  className={`text-sky-300 hover:text-sky-200 active:text-sky-100 underline whitespace-nowrap flex-shrink-0 ${TICKET_TEXT_SIZE}`}
                 >
                   {gig.ticket_text || 'Tickets'}
                 </a>
