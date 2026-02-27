@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-Session 13 — 26 February 2026 — Performance sprint complete. Lighthouse 45 → 88.
+Session 14 — 27 February 2026 — Performance sprint shipped. Lighthouse 88 on production. Report generator created. GitHub CLI set up.
 
 ---
 
@@ -28,50 +28,48 @@ Session 13 — 26 February 2026 — Performance sprint complete. Lighthouse 45 �
 | Hosting            | Vercel — auto-deploys from main             |
 | Database           | Supabase (project ID: jkkejczvoungwoledjzm) |
 | Auth               | Supabase Auth — admin-only protected routes |
-| Last merged branch | feat/perf-lighthouse (pending merge)        |
+| Last merged branch | feat/perf-lighthouse (merged Session 14)    |
 | Production URL     | Verify in Vercel dashboard                  |
 
 ---
 
 ## Current Phase
 
-Performance sprint complete. Lighthouse score 45 → 88. Returning to feature
+Performance sprint complete and confirmed on production. Returning to feature
 work — see backlog for priorities.
 
 ---
 
 ## Current State
 
-- Lazy loading shipped — Three.js (541 kB) and ThreeBackground (47 kB) now
-  load as deferred chunks, separate from the main bundle (415 kB)
-- HTML body background fix shipped — white flash before React boot eliminated
-- Production preview Lighthouse score: 60 (up from baseline of 45)
-- feat/perf-lazy-loading branch ready to merge
+- Lighthouse score 88 confirmed on production (incognito, extensions disabled)
+- Three.js (541 kB) and ThreeBackground (47 kB) lazy-loaded as deferred chunks
+- Main bundle: 415 kB
+- HTML body background fix live — no white flash before React boot
+- WebP images live — border1 and logo3-resize with transparency preserved
+- Cache-Control headers live via vercel.json
+- Responsive images (srcset/sizes) live on GigPhotoSection, GallerySection, VideoSection
+- Colour contrast fixes live
+- Vite chunkSizeWarningLimit set to 600 kB — build warning resolved
+- Session report generator live — scripts/generate-report.cjs (docx package, data-driven)
+- docs/*.docx added to .gitignore — generated files excluded from git
+- GitHub CLI installed and authenticated — use gh for all PR workflows
 
 ---
 
 ## What Was Just Worked On
 
-- `src/PublicSite.jsx` — ThreeBackground converted to `React.lazy()` + Suspense.
-  Three.js and ThreeBackground now split into separate deferred chunks. The splash
-  screen covers the Suspense loading period — no user-visible flash.
-- `index.html` — `background-color: #000; margin: 0` added to `<body>` to
-  eliminate the white flash before React boots.
-- Production preview Lighthouse score confirmed at 60 (up from 45).
-
----
-
-## Remaining Lighthouse Recommendations
-
-Lighthouse flagged these additional items at score 60. Ordered by impact:
-
-| Item                                    | Priority | Notes                                                              |
-| --------------------------------------- | -------- | ------------------------------------------------------------------ |
-| PNG → WebP for border1 and logo3-resize | High     | Both must retain transparent backgrounds. WebP supports alpha      |
-| Cache lifetime headers                  | High     | Add Cache-Control headers in vercel.json for static assets         |
-| Responsive images — slideshows + video  | High     | Add srcset/sizes to GigPhotoSection, GallerySection, VideoSection  |
-| Back/forward cache (bfcache) blocked    | Medium   | Investigate what is preventing bfcache restoration                 |
-| Contrast ratio failures                 | Medium   | Identify specific elements — do not guess, check Lighthouse detail |
+- Merged `feat/perf-lighthouse` to main via PR #34 (GitHub CLI)
+- Confirmed Lighthouse 88 on production in incognito with extensions disabled
+- `vite.config.js` — raised `chunkSizeWarningLimit` to 600 kB to silence
+  false-positive warning on the intentionally large Three.js chunk
+- Created `scripts/generate-report.cjs` — DOCX session report generator using
+  the `docx` npm package. Data-driven: REPORT CONFIG at top, generic renderer
+  below. Copy file, update config, run script for future reports.
+- Fixed table width bug in report generator: `WidthType.DXA` → `WidthType.PERCENTAGE`
+  so tables fill the page regardless of margin settings
+- `docs/*.docx` added to `.gitignore`
+- GitHub CLI (`gh`) installed and authenticated — use for all PR workflows
 
 ---
 
@@ -84,39 +82,29 @@ Lighthouse flagged these additional items at score 60. Ordered by impact:
 | Ultra-wide layout                | Minor centering issue on screens wider than 1920px. Not user-reported                 |
 | Instagram integration            | Stub only. Requires Facebook Developer App + Meta App Review to build out             |
 | callWithTokenRefresh duplication | Duplicated in useGmail.js and useYoutube.js. Extract to shared utility                |
-
----
-
-## Success Criteria (Session 13 — Met)
-
-- ~~Performance score moves from confirmed baseline of 45 to 55+ on production~~
-  Achieved: 60 on production preview build
-- ~~No flash of unstyled content or white screen during load~~
-  Resolved: HTML body background fix
-- Three.js scene renders correctly and scroll animations work — confirmed
+| Back/forward cache (bfcache)     | bfcache restoration still blocked — not yet investigated                              |
 
 ---
 
 ## Immediate Next Steps
 
-1. Merge feat/perf-lazy-loading to main and deploy to production
-2. Run production Lighthouse (incognito, all extensions disabled) to confirm 60
-3. Convert border1.png and logo3-resize.png to WebP — maintain transparency
-4. Add Cache-Control headers in vercel.json for static assets
-5. Implement responsive images on GigPhotoSection, GallerySection, VideoSection
+1. Investigate bfcache blocker (medium priority Lighthouse item)
+2. Pick up feature backlog — notifications system is highest priority
 
 ---
 
 ## Broader Context
 
-This is Session 13 of the Dam Anna website project. The site is a React/Vite
+This is Session 14 of the Dam Anna website project. The site is a React/Vite
 application with Supabase backend, deployed on Vercel. The Three.js scene is
 a core visual element featuring an interactive 3D guitar model. Previous sessions
 completed the admin dashboard, social media integrations (Gmail, YouTube OAuth),
 and photo submission system with GDPR compliance. Session 12 addressed asset
 compression. Session 13 completed the performance optimisation sprint — lazy
 loading Three.js and fixing the HTML body background raised the Lighthouse score
-from 45 to 60. The next phase targets the remaining Lighthouse recommendations.
+from 45 to 60. Session 14 shipped the remaining Lighthouse items (WebP, cache
+headers, responsive images, contrast fixes), confirmed 88 on production, and
+resolved the Vite chunk size build warning.
 
 ## Remaining Feature Backlog
 
@@ -129,9 +117,9 @@ from 45 to 60. The next phase targets the remaining Lighthouse recommendations.
 | Press kit / EPK page            | Medium   | Downloadable assets for press                   |
 | Email newsletter integration    | Medium   | Mailchimp or similar                            |
 | Accessibility audit             | Medium   | Keyboard nav, ARIA labels, colour contrast      |
+| bfcache investigation           | Medium   | What is blocking back/forward cache restoration |
 | callWithTokenRefresh refactor   | Low      | Extract to src/utils/googleApi.js               |
 | Production security hardening   | Low      | CSP headers, rate limiting on Edge Functions    |
-| Performance — responsive images | Medium   | srcset/sizes on slideshows and video thumbnails |
 | Ultra-wide layout fix           | Low      | Centering on screens > 1920px                   |
 
 ---

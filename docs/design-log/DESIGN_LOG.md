@@ -789,6 +789,54 @@ _This applies to the public site only. Admin dashboard uses CSS breakpoints — 
 
 ---
 
+## SESSION 14 — Production Ship, Housekeeping & Tooling
+
+**Date:** 27 February 2026
+
+---
+
+### [ENTRY-038] Session report generator
+
+**Status:** Shipped
+
+**Problem:** Session reports were written manually as prose. No consistent structure, slow to produce, and not reusable.
+
+**Decision:** Node.js script using the `docx` npm package. Data-driven: all session content lives in a `REPORT CONFIG` object at the top of the file. The renderer at the bottom is generic and unchanged between reports. To create a future report, copy the file, update the config, run the script.
+
+**Table width:** Initial version used `WidthType.DXA` (fixed twip units) which caused tables to compress when page margins differed from the hardcoded value. Corrected to `WidthType.PERCENTAGE` — table `100%` wide, columns as equal percentage slices. Margin-agnostic.
+
+**Implementation:**
+
+- `scripts/generate-report.cjs` — created (`.cjs` extension required because `package.json` has `"type": "module"`)
+- `.gitignore` — `docs/*.docx` added (generated artefacts, not source)
+- `docx` added as a dev dependency
+
+**Usage:**
+
+```bash
+cp scripts/generate-report.cjs scripts/generate-report-s15.cjs
+# edit REPORT CONFIG at the top
+node scripts/generate-report-s15.cjs
+# output: docs/<filename>.docx
+```
+
+---
+
+### [ENTRY-039] GitHub CLI
+
+**Status:** Shipped
+
+**Decision:** GitHub CLI (`gh`) installed and authenticated. All future PR creation, review, and merge workflows should use `gh` from the terminal rather than the GitHub web UI.
+
+**Workflow used this session:**
+
+```bash
+gh pr create --title "..." --base main --head feat/branch --body "..."
+gh pr merge 34 --merge --delete-branch
+```
+
+---
+
 ## Known Issues (Carried Forward)
 
 | Issue                                                      | Severity | Notes                                              |
