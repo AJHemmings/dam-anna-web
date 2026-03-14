@@ -54,18 +54,21 @@ Deno.serve(async (req: Request) => {
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
+  const upsertData: Record<string, string> = {
+    platform: "google",
+    access_token: tokens.access_token,
+    expires_at: expiresAt,
+    updated_at: new Date().toISOString(),
+  };
+  // Google only returns a refresh_token on first auth or when prompt=consent forces a new one.
+  // Only overwrite the stored refresh_token if we actually received a new one.
+  if (tokens.refresh_token) {
+    upsertData.refresh_token = tokens.refresh_token;
+  }
+
   const { error: dbError } = await supabase
     .from("oauth_tokens")
-    .upsert(
-      {
-        platform: "google",
-        access_token: tokens.access_token,
-        refresh_token: tokens.refresh_token,
-        expires_at: expiresAt,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "platform" }
-    );
+    .upsert(upsertData, { onConflict: "platform" });
 
   if (dbError) {
     return new Response(`Database error: ${dbError.message}`, { status: 500, headers: corsHeaders });

@@ -251,15 +251,25 @@ export default function GmailPage({ isMobile }) {
   }
 
   if (error) {
+    const isExpired = error.toLowerCase().includes('expired') || error.toLowerCase().includes('reconnect');
     return (
       <div className="flex flex-col items-center justify-center h-full gap-3 text-center px-4">
         <p className="text-red-400 text-sm">{error}</p>
-        <button
-          onClick={refresh}
-          className="text-sm text-white/60 hover:text-white underline"
-        >
-          Try again
-        </button>
+        {isExpired ? (
+          <a
+            href={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/google-oauth-init`}
+            className="px-4 py-2 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 transition-colors"
+          >
+            Reconnect Google Account
+          </a>
+        ) : (
+          <button
+            onClick={refresh}
+            className="text-sm text-white/60 hover:text-white underline"
+          >
+            Try again
+          </button>
+        )}
       </div>
     );
   }
