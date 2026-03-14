@@ -846,7 +846,6 @@ gh pr merge 34 --merge --delete-branch
 | Three.js intermittent freeze on page load                  | Low      | Likely loading race condition, not user-reported |
 | Instagram integration                                      | Deferred | Meta API setup required — see ENTRY-028          |
 | Ultra-wide layout centering                                | Low      | Not user-reported                                |
-| Google OAuth app not verified                              | Low      | Required before full production use              |
 
 ---
 
@@ -860,4 +859,37 @@ gh pr merge 34 --merge --delete-branch
 | React Query for data caching                     | Low      |
 | Extended analytics (page path, device, referrer) | Low      |
 | Instagram full integration                       | Deferred |
-| Google OAuth app verification                    | Low      |
+
+---
+
+## SESSION 15 — Google OAuth Token Fix
+
+**Date:** 14 March 2026
+
+---
+
+### [ENTRY-040] Google OAuth — persistent token expiry fix
+
+**Status:** Shipped
+
+**Problem:** YouTube and Gmail APIs stopped working on the live server with the error "Your Google account connection has expired. Please reconnect." The `google-token-refresh` Edge Function was failing because Google had revoked the refresh token.
+
+**Root cause:** The Google OAuth app was in **Testing mode** (unverified). Google enforces a hard 7-day limit on OAuth sessions for apps in Testing mode — after 7 days the refresh token is invalidated and cannot be used regardless of how frequently the access token is refreshed by the `pg_cron` job.
+
+**Secondary problem:** Neither `GmailPage.jsx` nor `YouTubePage.jsx` had a way to re-trigger the OAuth flow from the UI. The error state only showed a "Try again" button, which would fail immediately. The admin had no path to recovery without direct Supabase dashboard access.
+
+**Fixes:**
+
+| Fix | Where | What |
+| --- | ----- | ---- |
+| Reconnect button | `GmailPage.jsx`, `YouTubePage.jsx` | Error state detects "expired"/"reconnect" in message and shows a "Reconnect Google Account" link to `google-oauth-init` instead of "Try again" |
+| Protect refresh token | `google-oauth-callback/index.ts` | Upsert no longer overwrites the stored `refresh_token` if Google does not return a new one in the token exchange |
+| Publish OAuth app | Google Cloud Console | App moved from Testing → Production, removing the 7-day session limit permanently |
+
+**Implementation:**
+
+- `src/admin/pages/GmailPage.jsx` — reconnect button in error state
+- `src/admin/pages/YouTubePage.jsx` — reconnect button in error state
+- `supabase/functions/google-oauth-callback/index.ts` — conditional refresh_token in upsert
+
+**Outcome:** OAuth app published to Production. Tokens reconnected. Gmail and YouTube APIs working on live server. Refresh tokens will no longer expire automatically.

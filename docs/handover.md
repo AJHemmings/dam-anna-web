@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-Session 14 — 27 February 2026 — Performance sprint shipped. Lighthouse 88 on production. Report generator created. GitHub CLI set up.
+Session 15 — 14 March 2026 — Google OAuth token expiry fixed. Gmail and YouTube APIs working on live server.
 
 ---
 
@@ -35,8 +35,7 @@ Session 14 — 27 February 2026 — Performance sprint shipped. Lighthouse 88 on
 
 ## Current Phase
 
-Performance sprint complete and confirmed on production. Returning to feature
-work — see backlog for priorities.
+Stabilisation. Google OAuth fixed and live. Returning to feature backlog — see priorities below.
 
 ---
 
@@ -54,22 +53,20 @@ work — see backlog for priorities.
 - Session report generator live — scripts/generate-report.cjs (docx package, data-driven)
 - docs/*.docx added to .gitignore — generated files excluded from git
 - GitHub CLI installed and authenticated — use gh for all PR workflows
+- Google OAuth app published (Production mode) — 7-day token expiry removed
+- Gmail and YouTube APIs working on live server
+- Reconnect Google Account button added to Gmail and YouTube error states
 
 ---
 
 ## What Was Just Worked On
 
-- Merged `feat/perf-lighthouse` to main via PR #34 (GitHub CLI)
-- Confirmed Lighthouse 88 on production in incognito with extensions disabled
-- `vite.config.js` — raised `chunkSizeWarningLimit` to 600 kB to silence
-  false-positive warning on the intentionally large Three.js chunk
-- Created `scripts/generate-report.cjs` — DOCX session report generator using
-  the `docx` npm package. Data-driven: REPORT CONFIG at top, generic renderer
-  below. Copy file, update config, run script for future reports.
-- Fixed table width bug in report generator: `WidthType.DXA` → `WidthType.PERCENTAGE`
-  so tables fill the page regardless of margin settings
-- `docs/*.docx` added to `.gitignore`
-- GitHub CLI (`gh`) installed and authenticated — use for all PR workflows
+- Fixed Google OAuth token expiry on live server — see ENTRY-040 in design log
+- Root cause: Google OAuth app was in Testing mode, which invalidates refresh tokens after 7 days
+- Added "Reconnect Google Account" button to Gmail and YouTube error states
+- Fixed google-oauth-callback to not overwrite refresh_token if Google doesn't return a new one
+- Published Google OAuth app to Production mode in Google Cloud Console
+- Tokens reconnected — Gmail and YouTube working on live server
 
 ---
 
@@ -83,6 +80,7 @@ work — see backlog for priorities.
 | Instagram integration            | Stub only. Requires Facebook Developer App + Meta App Review to build out             |
 | callWithTokenRefresh duplication | Duplicated in useGmail.js and useYoutube.js. Extract to shared utility                |
 | Back/forward cache (bfcache)     | bfcache restoration still blocked — not yet investigated                              |
+| Google OAuth app not fully verified | App published but not formally verified by Google. Fine for internal admin use     |
 
 ---
 
